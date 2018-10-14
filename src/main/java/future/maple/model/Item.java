@@ -1,13 +1,15 @@
 package future.maple.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
+@Document(collection = "items")
 public class Item {
 
     @Id
-    public String itemId;
+    public String itemSku;
 
     public String name;
     public int price;
@@ -15,30 +17,24 @@ public class Item {
     public String description;
     public Date createdDate;
     public Date updatedDate;
+    public String imagePath;
+    public String createdBy;
+    public String updatedBy;
 
-//    image nya gimana?
-
-    public Item(String id, String name, int price, int quantity, String desc){
-        itemId = id;
+    public Item(String name, int price, int quantity, String imagePath, String desc, String userName){
         this.name = name;
         this.price = price;
         this.quantity = quantity;
         description = desc;
         createdDate = new Date();
-    }
-
-    public Item(String id, String name, int price, int quantity){
-        itemId = id;
-        this.name = name;
-        this.price = price;
-        this.quantity = quantity;
-        createdDate = new Date();
+        this.imagePath = imagePath;
+        createdBy = userName;
     }
 
     @Override
     public String toString(){
         return String.format("Item id:'%s', name:'%s', quantity:'%d', price:'%d' "
-                ,itemId, name, quantity, price);
+                ,itemSku, name, quantity, price);
     }
 
 }
