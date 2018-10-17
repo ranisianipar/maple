@@ -7,7 +7,7 @@ public class BaseResponse<T> {
     int code;
     int errorCode; //more specific error code
     String errorMessage;
-    List<T> value;
+    List value = new ArrayList<T>();
     boolean success;
 
     public int getCode() {
@@ -42,6 +42,10 @@ public class BaseResponse<T> {
         this.value = value;
     }
 
+    public void setValue(T value) {
+        this.value.add(value);
+    }
+
     public boolean isSuccess() {
         return success;
     }
@@ -68,4 +72,6 @@ public class BaseResponse<T> {
         value = new ArrayList<>();
         value.add(message);
     }
+
+    public BaseResponse() {}
 }

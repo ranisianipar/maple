@@ -32,9 +32,11 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
-    public Employee get(String username) {
+    public Employee get(String username) throws Exception{
         Employee employee = employeeRepository.findByUsername(username);
-
+        if (employee == null) {
+            throw new SimpleException("employee not found", 404);
+        }
         return employee;
     }
 

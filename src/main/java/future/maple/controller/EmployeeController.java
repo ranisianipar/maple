@@ -2,6 +2,7 @@ package future.maple.controller;
 
 import future.maple.model.Employee;
 import future.maple.service.EmployeeService;
+import future.maple.service.SimpleException;
 import future.maple.web.model.BaseResponse;
 import future.maple.web.model.EmployeeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,19 @@ public class EmployeeController {
 
     @GetMapping("/employee/{username}")
     public BaseResponse<EmployeeResponse> getEmployee(@PathVariable String username) {
-        return new BaseResponse<>(new EmployeeResponse(employeeService.get(username)));
+        BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
+        try {
+            br.setValue(new EmployeeResponse(employeeService.get(username)));
+            br.setCode(200);
+            br.setSuccess(true);
+        } catch (SimpleException e) {
+            br.setCode(404);
+            br.setErrorMessage(e.getMessage());
+            br.setErrorCode(1);
+        } finally {
+            return br;
+        }
+
     }
 
     @PostMapping("/employee")
