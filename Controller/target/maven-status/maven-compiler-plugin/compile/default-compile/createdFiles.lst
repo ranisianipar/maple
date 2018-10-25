@@ -1,2 +1,2 @@
-MapleApplication.class
-EmployeeController.class
+maple\Controller\EmployeeController.class
+maple\Controller\MapleApplication.class

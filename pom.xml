@@ -27,7 +27,7 @@
 
 	<properties>
 		<!-- The main class to start by executing java -jar -->
-		<start-class>maple.controller.MapleApplication</start-class>
+		<start-class>maple.Controller.MapleApplication</start-class>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
