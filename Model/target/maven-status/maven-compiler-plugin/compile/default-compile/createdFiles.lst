@@ -1,0 +1,5 @@
+maple\Model\Admin.class
+maple\Model\Item.class
+maple\Model\Assignment.class
+maple\Model\IdCounter.class
+maple\Model\Employee.class
