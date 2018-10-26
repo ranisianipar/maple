@@ -1,5 +1,7 @@
 package com.maple;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -7,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 @Document(collection = "employees")
+@Getter @Setter
 public class Employee {
 
     @Id
@@ -37,49 +40,5 @@ public class Employee {
         this.phone = phone;
         createdDate = new Date();
         this.email = email;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getSuperiorId() {
-        return superiorId;
-    }
-
-    public void setSuperiorId(String superiorId) {
-        this.superiorId = superiorId;
-    }
-
-    public void setUpdatedDate() { this.updatedDate = new Date(); }
-
-    public void setEmployeeImage(String imagePath) {
-        this.imagePath = imagePath;
-    }
-
-    @Override
-    public String toString(){
-        return String.format("Employee id:'%s', username:'%s', password:'%s', sid:'%s' "
-                ,id, username, password, superiorId);
     }
 }

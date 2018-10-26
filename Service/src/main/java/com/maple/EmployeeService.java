@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -29,13 +30,13 @@ public class EmployeeService {
     public Employee get(String username) throws Exception{
         Employee employee = employeeRepository.findByUsername(username);
         if (employee == null) {
-            throw new SimpleException("employee not found", 404);
+            throw new NotFoundException('e', 404);
         }
         return employee;
     }
 
     public Employee create(Employee emp) {
-        List<String> errorMessage = dataValidation(emp, true);
+        List<String> errorMessage = validate(emp, true);
         if (errorMessage.isEmpty()) {
             return employeeRepository.save(emp);
         }
@@ -44,21 +45,20 @@ public class EmployeeService {
     }
 
     public Employee update(String username, Employee emp) throws Exception {
-        /* NOTE: Made null handler for not found condition */
         Employee employee = employeeRepository.findByUsername(username);
 
-        employee.setEmployeeImage(emp.imagePath);
+        if (employee == null) throw new NotFoundException('e',400);
+        employee.setImagePath(emp.imagePath);
         employee.setSuperiorId(emp.superiorId);
         employee.setUsername(emp.username);
         employee.setPassword(emp.password);
-        employee.setUpdatedDate();
+        employee.setUpdatedDate(new Date());
 
-        List<String> errorMessage = dataValidation(employee, false);
-        if (errorMessage.isEmpty()) {
-            return employeeRepository.save(employee);
-        }
+        validate(employee, false);
+
+        return employeeRepository.save(employee);
+
         // send errorMessage to the response
-        throw new Exception(errorMessage.toString());
     }
 
     public boolean delete(String username) {
@@ -76,7 +76,8 @@ public class EmployeeService {
 
     //helper methods
 
-    public List<String> dataValidation(Employee emp, boolean create) {
+    //NOTE: need improvement
+    public List<String> validate(Employee emp, boolean create) {
         List<String> errorMessage = new ArrayList<>();
 
         if (create && employeeRepository.findByUsername(emp.username) != null) {

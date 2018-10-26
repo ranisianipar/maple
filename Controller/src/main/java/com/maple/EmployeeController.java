@@ -1,5 +1,8 @@
 package com.maple;
 
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +14,8 @@ import java.util.List;
 @RestController
 public class EmployeeController {
 
+    final MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+
     public List<EmployeeResponse> employeeResponses;
     @Autowired
     private EmployeeService employeeService;
@@ -19,10 +24,13 @@ public class EmployeeController {
     public BaseResponse<EmployeeResponse> getAllEmployees(){
 
         employeeResponses = new ArrayList<>();
-        EmployeeResponse employeeResponse = new EmployeeResponse();
+        EmployeeResponse er;
+        mapperFactory.classMap(Employee.class, EmployeeResponse.class)
+                .byDefault().exclude("password").register();
+        MapperFacade mapper = mapperFactory.getMapperFacade();
         for (Employee e: employeeService.getAll()) {
-            //e
-            employeeResponses.add(employeeResponse);
+            er = mapper.map(e, EmployeeResponse.class);
+            employeeResponses.add(er);
         }
         return new BaseResponse<>(employeeResponses);
     }
@@ -30,16 +38,17 @@ public class EmployeeController {
     @GetMapping("/employee/{username}")
     public BaseResponse<EmployeeResponse> getEmployee(@PathVariable String username) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
-        //employeeService.get(username)
+        mapperFactory.classMap(Employee.class, EmployeeResponse.class)
+                .byDefault().exclude("password").register();
+        MapperFacade mapper = mapperFactory.getMapperFacade();
         try {
-            employeeService.get(username);
-            br.setValue(new EmployeeResponse());
+            br.setValue(mapper.map(employeeService.get(username), EmployeeResponse.class));
             br.setCode(200);
             br.setSuccess(true);
-        } catch (SimpleException e) {
+        } catch (NotFoundException e) {
             br.setCode(500);
             br.setErrorMessage(e.getMessage());
-            br.setErrorCode(404);
+            br.setErrorCode(e.getCode());
         } finally {
             return br;
         }
