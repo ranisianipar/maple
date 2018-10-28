@@ -55,15 +55,6 @@ public class BaseResponse<T> {
     }
 
 
-
-    public BaseResponse(int code, int errorCode, String errorMessage, List<T> value, boolean success) {
-        this.code = code;
-        this.errorCode = errorCode;
-        this.errorMessage = errorMessage;
-        this.value = value;
-        this.success = success;
-    }
-
     public BaseResponse( List<T> value) {
         this.value = value;
     }
@@ -74,4 +65,14 @@ public class BaseResponse<T> {
     }
 
     public BaseResponse() {}
+
+    public void errorResponse() {
+        this.code = 500;
+        this.success = false;
+    }
+
+    public void succeedResponse() {
+        this.code = 200;
+        this.success = true;
+    }
 }

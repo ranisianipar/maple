@@ -22,6 +22,9 @@ public class EmployeeController {
 
     @GetMapping("/employee")
     public BaseResponse<EmployeeResponse> getAllEmployees(){
+        //default value of get All Employees
+        BaseResponse br = new BaseResponse<>();
+        br.succeedResponse();
 
         employeeResponses = new ArrayList<>();
         EmployeeResponse er;
@@ -32,7 +35,9 @@ public class EmployeeController {
             er = mapper.map(e, EmployeeResponse.class);
             employeeResponses.add(er);
         }
-        return new BaseResponse<>(employeeResponses);
+
+        br.setValue(employeeResponses);
+        return br;
     }
 
     @GetMapping("/employee/{username}")
@@ -43,10 +48,9 @@ public class EmployeeController {
         MapperFacade mapper = mapperFactory.getMapperFacade();
         try {
             br.setValue(mapper.map(employeeService.get(username), EmployeeResponse.class));
-            br.setCode(200);
-            br.setSuccess(true);
+            br.succeedResponse();
         } catch (NotFoundException e) {
-            br.setCode(500);
+            br.errorResponse();
             br.setErrorMessage(e.getMessage());
             br.setErrorCode(e.getCode());
         } finally {
@@ -56,22 +60,61 @@ public class EmployeeController {
     }
 
     @PostMapping("/employee")
-    public BaseResponse<EmployeeResponse> createEmployee(@Valid @RequestBody Employee emp) {
-        // employeeService.create(emp)
-        return new BaseResponse<>(new EmployeeResponse());
+    public BaseResponse<EmployeeResponse> createEmployee(@RequestBody Employee emp) {
+        BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
+        mapperFactory.classMap(Employee.class, EmployeeResponse.class)
+                .byDefault().exclude("password").register();
+        MapperFacade mapper = mapperFactory.getMapperFacade();
+        try {
+            employeeService.create(emp);
+            br.setValue(mapper.map(employeeService.create(emp), EmployeeResponse.class));
+            br.succeedResponse();
+        } catch (DataConstraintException e) {
+            br.errorResponse();
+            br.setErrorCode(e.getCode());
+            br.setErrorMessage(e.getMessage());
+        } finally {
+            return br;
+        }
+
     }
 
     @PostMapping("/employee/{username}")
     public BaseResponse<EmployeeResponse> updateEmployee(@PathVariable String username,
                                                          @Valid @RequestBody Employee emp) throws Exception{
-        //employeeService.update(username, emp)
-        return new BaseResponse<>(new EmployeeResponse());
+        BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
+        mapperFactory.classMap(Employee.class, EmployeeResponse.class)
+                .byDefault().exclude("password").register();
+        MapperFacade mapper = mapperFactory.getMapperFacade();
+        try {
+            br.setValue(mapper.map(employeeService.update(username, emp), EmployeeResponse.class));
+            br.succeedResponse();
+        } catch (DataConstraintException e) {
+            br.errorResponse();
+            br.setErrorMessage(e.getMessage());
+            br.setErrorCode(e.code);
+        } catch (NotFoundException e) {
+            br.errorResponse();
+            br.setErrorMessage(e.getMessage());
+            br.setErrorCode(e.code);
+        } finally {
+            return br;
+        }
     }
 
     @DeleteMapping("/employee/{username}")
     public BaseResponse<String> removeEmployee(@PathVariable String username) {
-        employeeService.delete(username);
-        return new BaseResponse<>(username+" has been deleted");
+        BaseResponse br = new BaseResponse();
+        try {
+            employeeService.delete(username);
+            br.succeedResponse();
+        } catch (NotFoundException e) {
+            br.errorResponse();
+            br.setErrorCode(e.getCode());
+            br.setErrorMessage(e.getMessage());
+        } finally {
+            return br;
+        }
     }
 
     @DeleteMapping("/employees")

@@ -29,25 +29,19 @@ public class EmployeeService {
 
     public Employee get(String username) throws Exception{
         Employee employee = employeeRepository.findByUsername(username);
-        if (employee == null) {
-            throw new NotFoundException('e', 404);
-        }
+        if (employee == null) { throw new NotFoundException('e'); }
         return employee;
     }
 
-    public Employee create(Employee emp) {
-        List<String> errorMessage = validate(emp, true);
-        if (errorMessage.isEmpty()) {
-            return employeeRepository.save(emp);
-        }
-        //send the errorMessage to the response
-        return null;
+    public Employee create(Employee emp) throws DataConstraintException{
+        validate(emp, true);
+        return employeeRepository.save(emp);
     }
 
     public Employee update(String username, Employee emp) throws Exception {
         Employee employee = employeeRepository.findByUsername(username);
 
-        if (employee == null) throw new NotFoundException('e',400);
+        if (employee == null) throw new NotFoundException('e');
         employee.setImagePath(emp.imagePath);
         employee.setSuperiorId(emp.superiorId);
         employee.setUsername(emp.username);
@@ -57,17 +51,12 @@ public class EmployeeService {
         validate(employee, false);
 
         return employeeRepository.save(employee);
-
-        // send errorMessage to the response
     }
 
-    public boolean delete(String username) {
+    public void delete(String username) throws Exception{
         Employee employee = employeeRepository.findByUsername(username);
-        if (employee == null) {
-            return false;
-        }
+        if (employee == null) { throw new NotFoundException('e'); }
         employeeRepository.delete(employee);
-        return true;
     }
 
     public void deleteAll() {
@@ -77,7 +66,7 @@ public class EmployeeService {
     //helper methods
 
     //NOTE: need improvement
-    public List<String> validate(Employee emp, boolean create) {
+    public void validate(Employee emp, boolean create) throws DataConstraintException{
         List<String> errorMessage = new ArrayList<>();
 
         if (create && employeeRepository.findByUsername(emp.username) != null) {
@@ -86,7 +75,7 @@ public class EmployeeService {
         if (create && employeeRepository.findByEmail(emp.email) != null) {
             errorMessage.add("email has been used");
         }
-        return errorMessage;
+        if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }
 
 }

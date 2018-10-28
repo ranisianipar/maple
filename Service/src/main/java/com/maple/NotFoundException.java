@@ -8,9 +8,9 @@ public class NotFoundException extends Exception{
     String message;
     int code;
 
-    NotFoundException(char obj, int code) {
+    NotFoundException(char obj) {
         this.message = getObject(obj)+" NOT FOUND";
-        this.code = code;
+        this.code = 404;
     }
 
 //    to identify the object

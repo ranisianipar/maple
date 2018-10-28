@@ -21,15 +21,25 @@ public class Employee {
     public String password;
     public String superiorId;
 
-    @NotBlank(message = "Fullname can't be blank")
+    //@NotBlank(message = "Fullname can't be blank")
     public String name;
     public String phone;
     public Date createdDate;
     public Date updatedDate;
     public String imagePath;
 
-    @NotBlank(message = "Email can't be blank")
+    //@NotBlank(message = "Email can't be blank")
     public String email;
+
+    public Employee(String username, String password, String superiorId, String name, String phone, String email){
+        this.username = username;
+        this.password = password;
+        this.superiorId = superiorId;
+        this.name = name;
+        this.phone = phone;
+        createdDate = new Date();
+        this.email = email;
+    }
 
     public Employee(String id, String username, String password, String superiorId, String name, String phone, String email){
         this.id = id;
@@ -41,4 +51,6 @@ public class Employee {
         createdDate = new Date();
         this.email = email;
     }
+
+    public Employee(){}
 }
