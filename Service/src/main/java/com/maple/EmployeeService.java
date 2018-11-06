@@ -38,17 +38,20 @@ public class EmployeeService {
 //throws DataConstraintException
     public Employee create(Employee emp) throws DataConstraintException{
         emp.setId(counter.getNextEmployee());
+        validate(emp, true);
         return employeeRepository.save(emp);
     }
 
-    public Employee update(String id, Employee emp) throws Exception {
+    public Employee update(String id, Employee emp) throws NotFoundException, DataConstraintException {
         Employee employee = employeeRepository.findById(id).get();
 
         if (employee == null) throw new NotFoundException('e');
-        employee.setImagePath(emp.imagePath);
-        employee.setSuperiorId(emp.superiorId);
-        employee.setUsername(emp.username);
-        employee.setPassword(emp.password);
+        employee.setUsername(emp.getUsername());
+        employee.setPassword(emp.getPassword());
+        employee.setEmail(emp.getEmail());
+        employee.setName(emp.getName());
+        employee.setImagePath(emp.getImagePath());
+        employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
 
         validate(employee, false);
@@ -56,7 +59,7 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
-    public void delete(String id) throws Exception{
+    public void delete(String id) throws NotFoundException{
         Employee employee = employeeRepository.findById(id).get();
         if (!employee.id.equals(id)) { throw new NotFoundException('e'); }
         employeeRepository.delete(employee);
@@ -67,17 +70,22 @@ public class EmployeeService {
     }
 
     //helper methods
-
-    //NOTE: need improvement
     public void validate(Employee emp, boolean create) throws DataConstraintException{
         List<String> errorMessage = new ArrayList<>();
 
-//        if (create && (employeeRepository.findByUsername(emp.username).username != emp.username)) {
-//            errorMessage.add("username already exist => "+employeeRepository.findByUsername(emp.username).username);
-//        }
-//        if (create && (employeeRepository.findByEmail(emp.email).email != emp.email)) {
-//            errorMessage.add("email has been used "+employeeRepository.findByEmail(emp.email).email);
-//        }
+        String username_msg = "username already exist";
+        String email_msg = "email already exist";
+        if (create) {
+            if (employeeRepository.findByUsername(emp.getUsername()) != null) errorMessage.add(username_msg);
+            if (employeeRepository.findByEmail(emp.getEmail()) != null) errorMessage.add(email_msg);
+        }
+        // update
+        else {
+            if (employeeRepository.findByUsername(emp.getUsername())!= null && !employeeRepository.findByUsername(emp.getUsername()).getId().equals(emp.getId()))
+                errorMessage.add(username_msg);
+            if (employeeRepository.findByEmail(emp.getEmail())!= null && !employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
+                errorMessage.add(email_msg);
+        }
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }
 

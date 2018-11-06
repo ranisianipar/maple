@@ -66,29 +66,19 @@ public class EmployeeController {
         mapperFactory.classMap(Employee.class, EmployeeResponse.class)
                 .byDefault().exclude("password").register();
         MapperFacade mapper = mapperFactory.getMapperFacade();
-        EmployeeResponse er = new EmployeeResponse();
+
         try {
             br.setValue(mapper.map(employeeService.create(emp), EmployeeResponse.class));
             br.succeedResponse();
-        } catch (Exception e) {
-            br.setErrorMessage("ERROR DAH");
+        } catch (DataConstraintException e) {
+            br.setErrorMessage(e.getMessage());
         } finally {
             return br;
         }
-//        try {
-//            br.setValue(mapper.map(employeeService.create(emp), EmployeeResponse.class));
-//            br.succeedResponse();
-//        } catch (DataConstraintException e) {
-//            br.errorResponse();
-//            br.setErrorCode(e.getCode());
-//            br.setErrorMessage(e.getMessage());
-//        } finally {
-//            return br;
-//        }
 
     }
 
-    @PostMapping("/employee/{username}")
+    @PostMapping("/employee/{id}")
     public BaseResponse<EmployeeResponse> updateEmployee(@PathVariable String id,
                                                          @Valid @RequestBody Employee emp) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();

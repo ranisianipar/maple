@@ -67,12 +67,12 @@ public class BaseResponse<T> {
     public BaseResponse() {}
 
     public void errorResponse() {
-        setCode(500);
-        setSuccess(false);
+        this.setCode(500);
+        this.setSuccess(false);
     }
 
     public void succeedResponse() {
-        setCode(200);
-        setSuccess(true);
+        this.setCode(200);
+        this.setSuccess(true);
     }
 }
