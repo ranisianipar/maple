@@ -33,8 +33,7 @@ public class EmployeeService {
 
     public Employee get(String id) throws NotFoundException {
         Optional<Employee> employee = employeeRepository.findById(id);
-        //not working
-        if (employee == null) { throw new NotFoundException('e'); }
+        if (!employee.isPresent()) { throw new NotFoundException('e'); }
         return employee.get();
     }
 //kenapa counternya selalu mulai dari awal kalo yg id 0 dihapus?
@@ -47,7 +46,7 @@ public class EmployeeService {
     public Employee update(String id, Employee emp) throws NotFoundException, DataConstraintException {
         Optional<Employee> employeeObj = employeeRepository.findById(id);
 
-        if (employeeObj == null) throw new NotFoundException('e');
+        if (!employeeObj.isPresent()) throw new NotFoundException('e');
         Employee employee = employeeObj.get();
         employee.setUsername(emp.getUsername());
         employee.setPassword(emp.getPassword());
@@ -64,7 +63,7 @@ public class EmployeeService {
 
     public void delete(String id) throws NotFoundException{
         Optional<Employee> employee = employeeRepository.findById(id);
-        if (employee == null) { throw new NotFoundException('e'); }
+        if (!employee.isPresent()) { throw new NotFoundException('e'); }
         employeeRepository.delete(employee.get());
     }
 
