@@ -18,6 +18,9 @@ public class EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    @Autowired
+    private CounterService counter;
+
 
     // need pageNumber parameter
     public List<Employee> getAll() {
@@ -34,7 +37,7 @@ public class EmployeeService {
     }
 //throws DataConstraintException
     public Employee create(Employee emp) throws DataConstraintException{
-
+        emp.setId(counter.getNextEmployee());
         return employeeRepository.save(emp);
     }
 

@@ -20,6 +20,7 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
+    //need pagination
     @GetMapping("/employee")
     public BaseResponse<EmployeeResponse> getAllEmployees(){
         //default value of get All Employees
@@ -67,9 +68,7 @@ public class EmployeeController {
         MapperFacade mapper = mapperFactory.getMapperFacade();
         EmployeeResponse er = new EmployeeResponse();
         try {
-            Employee employee = employeeService.create(emp);
-
-            br.setValue(mapper.map(employee, EmployeeResponse.class));
+            br.setValue(mapper.map(employeeService.create(emp), EmployeeResponse.class));
             br.succeedResponse();
         } catch (Exception e) {
             br.setErrorMessage("ERROR DAH");
