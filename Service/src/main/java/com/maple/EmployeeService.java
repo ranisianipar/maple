@@ -30,8 +30,8 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
-    public Employee get(String username) throws Exception{
-        Employee employee = employeeRepository.findByUsername(username);
+    public Employee get(String id) throws Exception{
+        Employee employee = employeeRepository.findById(id).get();
         if (employee == null) { throw new NotFoundException('e'); }
         return employee;
     }
@@ -41,8 +41,8 @@ public class EmployeeService {
         return employeeRepository.save(emp);
     }
 
-    public Employee update(String username, Employee emp) throws Exception {
-        Employee employee = employeeRepository.findByUsername(username);
+    public Employee update(String id, Employee emp) throws Exception {
+        Employee employee = employeeRepository.findById(id).get();
 
         if (employee == null) throw new NotFoundException('e');
         employee.setImagePath(emp.imagePath);
@@ -56,9 +56,9 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
-    public void delete(String username) throws Exception{
-        Employee employee = employeeRepository.findByUsername(username);
-        if (!employee.username.equals(username)) { throw new NotFoundException('e'); }
+    public void delete(String id) throws Exception{
+        Employee employee = employeeRepository.findById(id).get();
+        if (!employee.id.equals(id)) { throw new NotFoundException('e'); }
         employeeRepository.delete(employee);
     }
 

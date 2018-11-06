@@ -41,14 +41,14 @@ public class EmployeeController {
         return br;
     }
 
-    @GetMapping("/employee/{username}")
-    public BaseResponse<EmployeeResponse> getEmployee(@PathVariable String username) {
+    @GetMapping("/employee/{id}")
+    public BaseResponse<EmployeeResponse> getEmployee(@PathVariable String id) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         mapperFactory.classMap(Employee.class, EmployeeResponse.class)
                 .byDefault().exclude("password").register();
         MapperFacade mapper = mapperFactory.getMapperFacade();
         try {
-            br.setValue(mapper.map(employeeService.get(username), EmployeeResponse.class));
+            br.setValue(mapper.map(employeeService.get(id), EmployeeResponse.class));
             br.succeedResponse();
         } catch (NotFoundException e) {
             br.errorResponse();
@@ -89,14 +89,14 @@ public class EmployeeController {
     }
 
     @PostMapping("/employee/{username}")
-    public BaseResponse<EmployeeResponse> updateEmployee(@PathVariable String username,
+    public BaseResponse<EmployeeResponse> updateEmployee(@PathVariable String id,
                                                          @Valid @RequestBody Employee emp) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         mapperFactory.classMap(Employee.class, EmployeeResponse.class)
                 .byDefault().exclude("password").register();
         MapperFacade mapper = mapperFactory.getMapperFacade();
         try {
-            br.setValue(mapper.map(employeeService.update(username, emp), EmployeeResponse.class));
+            br.setValue(mapper.map(employeeService.update(id, emp), EmployeeResponse.class));
             br.succeedResponse();
         } catch (DataConstraintException e) {
             br.errorResponse();
@@ -112,10 +112,10 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/employee/{username}")
-    public BaseResponse<String> removeEmployee(@PathVariable String username) {
+    public BaseResponse<String> removeEmployee(@PathVariable String id) {
         BaseResponse br = new BaseResponse();
         try {
-            employeeService.delete(username);
+            employeeService.delete(id);
             br.succeedResponse();
         } catch (NotFoundException e) {
             br.errorResponse();
