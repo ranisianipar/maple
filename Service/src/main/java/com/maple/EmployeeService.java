@@ -32,9 +32,9 @@ public class EmployeeService {
         if (employee == null) { throw new NotFoundException('e'); }
         return employee;
     }
-
+//throws DataConstraintException
     public Employee create(Employee emp) throws DataConstraintException{
-        validate(emp, true);
+
         return employeeRepository.save(emp);
     }
 
@@ -55,7 +55,7 @@ public class EmployeeService {
 
     public void delete(String username) throws Exception{
         Employee employee = employeeRepository.findByUsername(username);
-        if (employee == null) { throw new NotFoundException('e'); }
+        if (!employee.username.equals(username)) { throw new NotFoundException('e'); }
         employeeRepository.delete(employee);
     }
 
@@ -69,12 +69,12 @@ public class EmployeeService {
     public void validate(Employee emp, boolean create) throws DataConstraintException{
         List<String> errorMessage = new ArrayList<>();
 
-        if (create && employeeRepository.findByUsername(emp.username) != null) {
-            errorMessage.add("username already exist");
-        }
-        if (create && employeeRepository.findByEmail(emp.email) != null) {
-            errorMessage.add("email has been used");
-        }
+//        if (create && (employeeRepository.findByUsername(emp.username).username != emp.username)) {
+//            errorMessage.add("username already exist => "+employeeRepository.findByUsername(emp.username).username);
+//        }
+//        if (create && (employeeRepository.findByEmail(emp.email).email != emp.email)) {
+//            errorMessage.add("email has been used "+employeeRepository.findByEmail(emp.email).email);
+//        }
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }
 

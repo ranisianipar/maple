@@ -10,7 +10,7 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@CrossOrigin(origins = "http://localhost")
 @RestController
 public class EmployeeController {
 
@@ -60,28 +60,38 @@ public class EmployeeController {
     }
 
     @PostMapping("/employee")
-    public BaseResponse<EmployeeResponse> createEmployee(@RequestBody Employee emp) {
+    public BaseResponse<EmployeeResponse> createEmployee(@Valid @RequestBody Employee emp) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         mapperFactory.classMap(Employee.class, EmployeeResponse.class)
                 .byDefault().exclude("password").register();
         MapperFacade mapper = mapperFactory.getMapperFacade();
+        EmployeeResponse er = new EmployeeResponse();
         try {
-            employeeService.create(emp);
-            br.setValue(mapper.map(employeeService.create(emp), EmployeeResponse.class));
+            Employee employee = employeeService.create(emp);
+
+            br.setValue(mapper.map(employee, EmployeeResponse.class));
             br.succeedResponse();
-        } catch (DataConstraintException e) {
-            br.errorResponse();
-            br.setErrorCode(e.getCode());
-            br.setErrorMessage(e.getMessage());
+        } catch (Exception e) {
+            br.setErrorMessage("ERROR DAH");
         } finally {
             return br;
         }
+//        try {
+//            br.setValue(mapper.map(employeeService.create(emp), EmployeeResponse.class));
+//            br.succeedResponse();
+//        } catch (DataConstraintException e) {
+//            br.errorResponse();
+//            br.setErrorCode(e.getCode());
+//            br.setErrorMessage(e.getMessage());
+//        } finally {
+//            return br;
+//        }
 
     }
 
     @PostMapping("/employee/{username}")
     public BaseResponse<EmployeeResponse> updateEmployee(@PathVariable String username,
-                                                         @Valid @RequestBody Employee emp) throws Exception{
+                                                         @Valid @RequestBody Employee emp) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         mapperFactory.classMap(Employee.class, EmployeeResponse.class)
                 .byDefault().exclude("password").register();
@@ -119,6 +129,10 @@ public class EmployeeController {
 
     @DeleteMapping("/employees")
     public BaseResponse<String> removeEmployees() {
+        BaseResponse br = new BaseResponse();
+
+        br.succeedResponse();
+        employeeService.deleteAll();
         return new BaseResponse<>("All employees has been deleted");
     }
 }
