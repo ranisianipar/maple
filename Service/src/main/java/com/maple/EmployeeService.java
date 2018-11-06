@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -30,22 +31,24 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
-    public Employee get(String id) throws Exception{
-        Employee employee = employeeRepository.findById(id).get();
+    public Employee get(String id) throws NotFoundException {
+        Optional<Employee> employee = employeeRepository.findById(id);
+        //not working
         if (employee == null) { throw new NotFoundException('e'); }
-        return employee;
+        return employee.get();
     }
-//throws DataConstraintException
-    public Employee create(Employee emp) throws DataConstraintException{
+//kenapa counternya selalu mulai dari awal kalo yg id 0 dihapus?
+    public Employee create(Employee emp) throws DataConstraintException {
         emp.setId(counter.getNextEmployee());
         validate(emp, true);
         return employeeRepository.save(emp);
     }
 
     public Employee update(String id, Employee emp) throws NotFoundException, DataConstraintException {
-        Employee employee = employeeRepository.findById(id).get();
+        Optional<Employee> employeeObj = employeeRepository.findById(id);
 
-        if (employee == null) throw new NotFoundException('e');
+        if (employeeObj == null) throw new NotFoundException('e');
+        Employee employee = employeeObj.get();
         employee.setUsername(emp.getUsername());
         employee.setPassword(emp.getPassword());
         employee.setEmail(emp.getEmail());
@@ -60,9 +63,9 @@ public class EmployeeService {
     }
 
     public void delete(String id) throws NotFoundException{
-        Employee employee = employeeRepository.findById(id).get();
-        if (!employee.id.equals(id)) { throw new NotFoundException('e'); }
-        employeeRepository.delete(employee);
+        Optional<Employee> employee = employeeRepository.findById(id);
+        if (employee == null) { throw new NotFoundException('e'); }
+        employeeRepository.delete(employee.get());
     }
 
     public void deleteAll() {
