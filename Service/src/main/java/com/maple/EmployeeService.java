@@ -43,9 +43,14 @@ public class EmployeeService {
         return employeeRepository.save(emp);
     }
 
+    //WHY
     public Employee update(String id, Employee emp) throws NotFoundException, DataConstraintException {
         Optional<Employee> employeeObj = employeeRepository.findById(id);
-
+        try {
+            employeeObj = employeeRepository.findById(id);
+        } catch (Exception e) {
+            throw new NotFoundException('e');
+        }
         if (!employeeObj.isPresent()) throw new NotFoundException('e');
         Employee employee = employeeObj.get();
         employee.setUsername(emp.getUsername());
@@ -60,9 +65,15 @@ public class EmployeeService {
 
         return employeeRepository.save(employee);
     }
-
+    //WHY
     public void delete(String id) throws NotFoundException{
-        Optional<Employee> employee = employeeRepository.findById(id);
+        Optional<Employee> employee;
+        try {
+            employee = employeeRepository.findById(id);
+        } catch (Exception e) {
+            throw new NotFoundException('e');
+        }
+        // not working I DONT KNOW WHY
         if (!employee.isPresent()) { throw new NotFoundException('e'); }
         employeeRepository.delete(employee.get());
     }
@@ -83,9 +94,13 @@ public class EmployeeService {
         }
         // update
         else {
-            if (employeeRepository.findByUsername(emp.getUsername())!= null && !employeeRepository.findByUsername(emp.getUsername()).getId().equals(emp.getId()))
+            if (employeeRepository.findByUsername(emp.getUsername())!= null &&
+                    !employeeRepository.findByUsername(emp.getUsername()).getId().equals(emp.getId()))
                 errorMessage.add(username_msg);
-            if (employeeRepository.findByEmail(emp.getEmail())!= null && !employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
+
+            //error, ada exception kejadian
+            if (employeeRepository.findByEmail(emp.getEmail())!= null &&
+                    !employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
                 errorMessage.add(email_msg);
         }
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
