@@ -121,11 +121,9 @@ public class EmployeeController extends ExceptionResolver{
 
     @DeleteMapping("/employees")
     public BaseResponse<String> removeEmployees() {
-        BaseResponse br = new BaseResponse();
-
+        BaseResponse br = new BaseResponse("All employees has been deleted");
         br.succeedResponse();
         employeeService.deleteAll();
-        br.setErrorMessage("All employees has been deleted");
         return br;
     }
 }

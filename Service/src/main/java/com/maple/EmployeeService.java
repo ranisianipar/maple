@@ -59,7 +59,7 @@ public class EmployeeService {
         validate(employee, false);
         return employeeRepository.save(employee);
     }
-    
+
     public void delete(String id) throws NotFoundException{
         Optional<Employee> employee = employeeRepository.findById(id);
         if (!employee.isPresent()) { throw new NotFoundException(EMPLOYEE); }
