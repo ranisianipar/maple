@@ -7,14 +7,24 @@ import org.springframework.stereotype.Service;
 public class CounterService {
     @Autowired
     private IdCounterRepository counterRepository;
+    private final IdCounter counter = new IdCounter();
 
     public String getNextEmployee() {
-        IdCounter counter = IdCounter.getInstance();
+        if (counterRepository.count() == 0) counterRepository.save(counter);
 
-        long id = counter.getEmployeeId();
-        counter.setEmployeeId(id + 1);
+        long id = counterRepository.findFirst().getEmployeeId();
+        counter.setEmployeeId(id++);
         counterRepository.save(counter);
         return "EMP-"+id;
+    }
+
+    public String getNextItem() {
+        if (counterRepository.count() == 0) counterRepository.save(counter);
+
+        long id = counterRepository.findFirst().getItemId();
+        counter.setItemId(id++);
+        counterRepository.save(counter);
+        return "ITEM-"+id;
     }
 
 }

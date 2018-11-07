@@ -2,22 +2,15 @@ package com.maple;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 
 @Getter @Setter
 public class NotFoundException extends Exception{
     String message;
-    int code;
+    HttpStatus code;
 
-    NotFoundException(char obj) {
-        this.message = getObject(obj)+" NOT FOUND";
-        this.code = 404;
+    NotFoundException(String obj) {
+        this.message = obj+" NOT FOUND";
+        this.code = HttpStatus.NOT_FOUND;
     }
-
-//    to identify the object
-    private String getObject(char o) {
-        if (o == 'e') return "Employee";
-        else if (o == 'i') return "Item";
-        else return "Assignment";
-    }
-
 }

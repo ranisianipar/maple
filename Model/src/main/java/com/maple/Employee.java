@@ -3,6 +3,7 @@ package com.maple;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
@@ -16,12 +17,14 @@ public class Employee {
     public String id;
 
     @NotBlank(message = "Username can't be blank")
+    @Indexed(unique=true)
     public String username;
     @NotBlank(message = "Password can't be blank")
     public String password;
     public String superiorId;
 
     @NotBlank(message = "Fullname can't be blank")
+    @Indexed(unique=true)
     public String name;
     public String phone;
     public Date createdDate;

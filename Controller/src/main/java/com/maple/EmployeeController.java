@@ -7,12 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost")
 @RestController
-public class EmployeeController {
+public class EmployeeController extends ExceptionResolver{
 
     final MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
 
@@ -71,6 +72,8 @@ public class EmployeeController {
             br.setValue(mapper.map(employeeService.create(emp), EmployeeResponse.class));
             br.succeedResponse();
         } catch (DataConstraintException e) {
+            br.errorResponse();
+            br.setErrorCode(e.getCode());
             br.setErrorMessage(e.getMessage());
         } finally {
             return br;

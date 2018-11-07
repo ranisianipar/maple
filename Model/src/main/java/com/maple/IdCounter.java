@@ -13,15 +13,8 @@ public class IdCounter {
     public long employeeId;
     public long itemId;
 
-    // Using Singleton Design Pattern --> Eager
-    private static final IdCounter instance = new IdCounter();
-
-    private IdCounter() {
+    public IdCounter() {
         this._id = 1;
-    }
-
-    public static IdCounter getInstance() {
-        return instance;
     }
 
 

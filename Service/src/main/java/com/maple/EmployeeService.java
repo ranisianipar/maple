@@ -12,6 +12,8 @@ import java.util.Optional;
 @Service
 public class EmployeeService {
 
+    final String EMPLOYEE = "Employee";
+    final String SUPERIOR = "Superior";
     //    paging? better with class or just attributes?
     // errorMessage better using Exception? How to transfer the error message to the response?
 
@@ -27,17 +29,15 @@ public class EmployeeService {
     public List<Employee> getAll() {
 
         // set paging information
-
         return employeeRepository.findAll();
     }
 
     public Employee get(String id) throws NotFoundException {
         Optional<Employee> employee = employeeRepository.findById(id);
-        if (!employee.isPresent()) { throw new NotFoundException('e'); }
+        if (!employee.isPresent()) { throw new NotFoundException(EMPLOYEE); }
         return employee.get();
     }
-//kenapa counternya selalu mulai dari awal kalo yg id 0 dihapus?
-    public Employee create(Employee emp) throws DataConstraintException {
+    public Employee create(Employee emp) throws DataConstraintException, NotFoundException {
         emp.setId(counter.getNextEmployee());
         validate(emp, true);
         return employeeRepository.save(emp);
@@ -45,13 +45,14 @@ public class EmployeeService {
 
     //WHY
     public Employee update(String id, Employee emp) throws NotFoundException, DataConstraintException {
-        Optional<Employee> employeeObj = employeeRepository.findById(id);
+        Optional<Employee> employeeObj;
         try {
             employeeObj = employeeRepository.findById(id);
         } catch (Exception e) {
-            throw new NotFoundException('e');
+            throw new NotFoundException(EMPLOYEE);
         }
-        if (!employeeObj.isPresent()) throw new NotFoundException('e');
+        //WHY
+        if (!employeeObj.isPresent()) throw new NotFoundException(EMPLOYEE);
         Employee employee = employeeObj.get();
         employee.setUsername(emp.getUsername());
         employee.setPassword(emp.getPassword());
@@ -68,13 +69,13 @@ public class EmployeeService {
     //WHY
     public void delete(String id) throws NotFoundException{
         Optional<Employee> employee;
+        //redundant?
         try {
             employee = employeeRepository.findById(id);
         } catch (Exception e) {
-            throw new NotFoundException('e');
+            throw new NotFoundException(EMPLOYEE);
         }
-        // not working I DONT KNOW WHY
-        if (!employee.isPresent()) { throw new NotFoundException('e'); }
+        if (!employee.isPresent()) { throw new NotFoundException(EMPLOYEE); }
         employeeRepository.delete(employee.get());
     }
 
@@ -94,14 +95,11 @@ public class EmployeeService {
         }
         // update
         else {
-            if (employeeRepository.findByUsername(emp.getUsername())!= null &&
-                    !employeeRepository.findByUsername(emp.getUsername()).getId().equals(emp.getId()))
+            if (!employeeRepository.findByUsername(emp.getUsername()).getId().equals(emp.getId()))
                 errorMessage.add(username_msg);
-
-            //error, ada exception kejadian
-            if (employeeRepository.findByEmail(emp.getEmail())!= null &&
-                    !employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
+            if (!employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
                 errorMessage.add(email_msg);
+
         }
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }
