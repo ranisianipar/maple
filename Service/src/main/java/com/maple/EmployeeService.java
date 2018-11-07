@@ -37,21 +37,16 @@ public class EmployeeService {
         if (!employee.isPresent()) { throw new NotFoundException(EMPLOYEE); }
         return employee.get();
     }
-    public Employee create(Employee emp) throws DataConstraintException, NotFoundException {
-        emp.setId(counter.getNextEmployee());
+    public Employee create(Employee emp) throws DataConstraintException {
         validate(emp, true);
+        emp.setId(counter.getNextEmployee());
         return employeeRepository.save(emp);
     }
 
     //WHY
     public Employee update(String id, Employee emp) throws NotFoundException, DataConstraintException {
-        Optional<Employee> employeeObj;
-        try {
-            employeeObj = employeeRepository.findById(id);
-        } catch (Exception e) {
-            throw new NotFoundException(EMPLOYEE);
-        }
-        //WHY
+        Optional<Employee> employeeObj = employeeRepository.findById(id);
+
         if (!employeeObj.isPresent()) throw new NotFoundException(EMPLOYEE);
         Employee employee = employeeObj.get();
         employee.setUsername(emp.getUsername());
@@ -61,20 +56,12 @@ public class EmployeeService {
         employee.setImagePath(emp.getImagePath());
         employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
-
         validate(employee, false);
-
         return employeeRepository.save(employee);
     }
-    //WHY
+    
     public void delete(String id) throws NotFoundException{
-        Optional<Employee> employee;
-        //redundant?
-        try {
-            employee = employeeRepository.findById(id);
-        } catch (Exception e) {
-            throw new NotFoundException(EMPLOYEE);
-        }
+        Optional<Employee> employee = employeeRepository.findById(id);
         if (!employee.isPresent()) { throw new NotFoundException(EMPLOYEE); }
         employeeRepository.delete(employee.get());
     }
@@ -95,7 +82,7 @@ public class EmployeeService {
         }
         // update
         else {
-            if (!employeeRepository.findByUsername(emp.getUsername()).getId().equals(emp.getId()))
+            if (employeeRepository.findByUsername(emp.getUsername()) != null && !employeeRepository.findByUsername(emp.getUsername()).getId().equals(emp.getId()))
                 errorMessage.add(username_msg);
             if (!employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
                 errorMessage.add(email_msg);

@@ -125,6 +125,7 @@ public class EmployeeController extends ExceptionResolver{
 
         br.succeedResponse();
         employeeService.deleteAll();
-        return new BaseResponse<>("All employees has been deleted");
+        br.setErrorMessage("All employees has been deleted");
+        return br;
     }
 }

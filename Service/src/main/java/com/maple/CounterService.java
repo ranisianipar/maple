@@ -13,18 +13,16 @@ public class CounterService {
         if (counterRepository.count() == 0) counterRepository.save(counter);
 
         long id = counterRepository.findFirst().getEmployeeId();
-        counter.setEmployeeId(id++);
+        counter.setEmployeeId(id+1);
         counterRepository.save(counter);
         return "EMP-"+id;
     }
-
     public String getNextItem() {
         if (counterRepository.count() == 0) counterRepository.save(counter);
 
         long id = counterRepository.findFirst().getItemId();
-        counter.setItemId(id++);
+        counter.setItemId(id+1);
         counterRepository.save(counter);
         return "ITEM-"+id;
     }
-
 }
