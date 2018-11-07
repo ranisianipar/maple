@@ -23,6 +23,6 @@ public class CounterService {
         long id = counterRepository.findFirst().getItemId();
         counter.setItemId(id+1);
         counterRepository.save(counter);
-        return "ITEM-"+id;
+        return "ITM-"+id;
     }
 }

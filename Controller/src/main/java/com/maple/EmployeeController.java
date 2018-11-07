@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,7 +104,7 @@ public class EmployeeController extends ExceptionResolver{
     }
 
     @DeleteMapping("/employee/{id}")
-    public BaseResponse<String> removeEmployee(@PathVariable String id) {
+    public BaseResponse<String> deleteEmployee(@PathVariable String id) {
         BaseResponse br = new BaseResponse();
         try {
             employeeService.delete(id);
@@ -120,8 +119,8 @@ public class EmployeeController extends ExceptionResolver{
     }
 
     @DeleteMapping("/employees")
-    public BaseResponse<String> removeEmployees() {
-        BaseResponse br = new BaseResponse("All employees has been deleted");
+    public BaseResponse<String> deleteEmployees() {
+        BaseResponse br = new BaseResponse("All employees have been deleted");
         br.succeedResponse();
         employeeService.deleteAll();
         return br;
