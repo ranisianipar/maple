@@ -9,7 +9,7 @@ public class ExceptionResolver {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     public DataConstraintException validationError(MethodArgumentNotValidException ex) {
-        return new DataConstraintException("Username, Email, Password, and Fullname can't be null");
+        return new DataConstraintException("Username, Email, Password, and Name can't be null");
     }
 
 

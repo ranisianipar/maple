@@ -16,7 +16,10 @@ public class ItemController {
 
     @GetMapping("/item")
     public BaseResponse<List<Item>> getAllItems() {
-        return new BaseResponse<List<Item>>(itemService.getAll());
+        BaseResponse br = new BaseResponse();
+        br.succeedResponse();
+        br.setValue(itemService.getAll());
+        return br;
     }
 
     @GetMapping("/item/{id}")
@@ -39,6 +42,7 @@ public class ItemController {
     @PostMapping("/item")
     public BaseResponse createItem(@Valid @RequestBody Item item) {
         BaseResponse<Item> br = new BaseResponse<>();
+        br.succeedResponse();
         br.setValue(itemService.create(item));
         return br;
     }

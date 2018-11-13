@@ -23,7 +23,7 @@ public class Employee {
     public String password;
     public String superiorId;
 
-    @NotBlank(message = "Fullname can't be blank")
+    @NotBlank(message = "Name can't be blank")
     @Indexed(unique=true)
     public String name;
     public String phone;
