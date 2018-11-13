@@ -12,7 +12,7 @@ import java.util.List;
 public class ItemController {
 
     @Autowired
-    ItemService itemService;
+    private ItemService itemService;
 
     @GetMapping("/item")
     public BaseResponse<List<Item>> getAllItems() {

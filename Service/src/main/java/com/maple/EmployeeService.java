@@ -76,6 +76,13 @@ public class EmployeeService {
 
         String username_msg = "username already exist";
         String email_msg = "email already exist";
+        String superior_msg = "superior doesn't exist";
+
+        if (emp.getSuperiorId() != null) {
+            Optional<Employee> superior = employeeRepository.findById(emp.getSuperiorId());
+            if (!superior.isPresent()) errorMessage.add(superior_msg);
+        }
+
         if (create) {
             if (employeeRepository.findByUsername(emp.getUsername()) != null) errorMessage.add(username_msg);
             if (employeeRepository.findByEmail(emp.getEmail()) != null) errorMessage.add(email_msg);
