@@ -28,9 +28,11 @@ public class ItemService {
         return item.get();
     }
 
+    //created By belom -> harus nunggu login
     public Item create(Item item) {
         //validate(item, true)
         item.setItemSku(counterService.getNextItem());
+        item.setCreatedDate(new Date());
         return itemRepository.save(item);
     }
 
@@ -41,8 +43,7 @@ public class ItemService {
         Item item = itemObj.get();
         item.setImagePath(i.getImagePath());
         item.setName(i.getName());
-        item.setUpdatedDate(new Date());
-        item.setUpdatedBy(i.getUpdatedBy());
+        item.update(i.getUpdatedBy());
         item.setDescription(i.getDescription());
         item.setPrice(i.getPrice());
         item.setQuantity(i.getQuantity());

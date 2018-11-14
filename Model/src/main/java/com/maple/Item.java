@@ -19,7 +19,7 @@ public class Item {
     public String name;
 
     @NotBlank(message = "Price can't be blank")
-    public int price;
+    public String price;
 
     @NotBlank(message = "Quantity can't be blank")
     public String quantity;
@@ -30,5 +30,10 @@ public class Item {
     public String createdBy;
     public String updatedBy;
 
-    public Item(){}
+    public Item (){ createdDate = new Date(); }
+
+    public void update (String id) {
+        updatedBy = id;
+        updatedDate = new Date();
+    }
 }

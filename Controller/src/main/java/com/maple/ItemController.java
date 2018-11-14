@@ -23,7 +23,7 @@ public class ItemController {
     }
 
     @GetMapping("/item/{id}")
-    public BaseResponse getItem( @PathVariable String id) {
+    public BaseResponse getItem (@PathVariable String id) {
         BaseResponse br = new BaseResponse();
         Item item;
         try {
@@ -48,14 +48,32 @@ public class ItemController {
     }
 
     @PostMapping("/item/{id}")
-    public BaseResponse updateItem( @PathVariable String id) {
+    public BaseResponse updateItem(@PathVariable String id, @Valid @RequestBody Item i) {
+        BaseResponse<Item> br = new BaseResponse<>();
+        Item item;
+        try {
+            item = itemService.get(id);
+            //validate
 
-        return null;
+            item.setName(i.getName());
+            item.setDescription(i.getDescription());
+            item.setImagePath(i.getImagePath());
+            item.setPrice(i.getPrice());
+            item.setQuantity(i.getQuantity());
+            item.update(i.getUpdatedBy());
+            br.succeedResponse();
+        } catch (NotFoundException e) {
+            br.errorResponse();
+            br.setErrorMessage(e.getMessage());
+            br.setErrorCode(e.getCode());
+        } finally {
+            return br;
+        }
     }
 
     @DeleteMapping("/item/{id}")
-    public BaseResponse deleteItem (@PathVariable String id) {
-        BaseResponse br = new BaseResponse("All items have been removed");
+    public BaseResponse deleteItem(@PathVariable String id) {
+        BaseResponse br = new BaseResponse();
         try {
             itemService.delete(id);
             br.succeedResponse();
@@ -69,9 +87,10 @@ public class ItemController {
     }
 
     @DeleteMapping("/items")
-    public BaseResponse deleteItems () {
+    public BaseResponse deleteItems() {
         BaseResponse br = new BaseResponse("All items have been removed");
         itemService.deleteAll();
+        br.succeedResponse();
         return br;
     }
 }
