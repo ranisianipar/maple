@@ -22,7 +22,7 @@ public class Item {
     public int price;
 
     @NotBlank(message = "Quantity can't be blank")
-    public int quantity;
+    public String quantity;
     public String description;
     public Date createdDate;
     public Date updatedDate;

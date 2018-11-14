@@ -12,22 +12,18 @@ public class BaseResponse<T> {
     HttpStatus code;
     HttpStatus errorCode; //more specific error repo
     String errorMessage;
-    List value = new ArrayList<T>();
+    T value;
     boolean success;
 
 
     public void setValue(T value) {
-        this.value.add(value);
-    }
-
-    public BaseResponse( List<T> value) {
         this.value = value;
     }
 
-    public BaseResponse(T message) {
-        value = new ArrayList<>();
-        value.add(message);
+    public BaseResponse( T value) {
+        this.value = value;
     }
+
 
     public BaseResponse() {}
 
