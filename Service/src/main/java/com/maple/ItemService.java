@@ -16,7 +16,7 @@ public class ItemService {
     @Autowired
     CounterService counterService;
 
-    final String ITEM = "Item";
+    final private String ITEM = "Item";
 
     public List<Item> getAll() {
         return itemRepository.findAll();
@@ -28,7 +28,7 @@ public class ItemService {
         return item.get();
     }
 
-    //created By belom -> harus nunggu login
+    //createdBy belom -> harus nunggu login
     public Item create(Item item) {
         //validate(item, true)
         item.setItemSku(counterService.getNextItem());

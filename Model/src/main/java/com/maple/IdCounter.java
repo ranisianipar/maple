@@ -1,17 +1,16 @@
 package com.maple;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "IdCounter")
-@Getter @Setter
+@Data
 public class IdCounter {
     @Id
     int _id;
-    public long employeeId;
-    public long itemId;
+    private long employeeId;
+    private long itemId;
 
     public IdCounter() {
         this._id = 1;

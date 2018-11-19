@@ -48,19 +48,19 @@ public class ItemController {
     }
 
     @PostMapping("/item/{id}")
-    public BaseResponse updateItem(@PathVariable String id, @Valid @RequestBody Item i) {
+    public BaseResponse updateItem(@PathVariable String id, @Valid @RequestBody Item item) {
         BaseResponse<Item> br = new BaseResponse<>();
-        Item item;
+        Item newItem;
         try {
-            item = itemService.get(id);
+            newItem = itemService.get(id);
             //validate
 
-            item.setName(i.getName());
-            item.setDescription(i.getDescription());
-            item.setImagePath(i.getImagePath());
-            item.setPrice(i.getPrice());
-            item.setQuantity(i.getQuantity());
-            item.update(i.getUpdatedBy());
+            newItem.setName(item.getName());
+            newItem.setDescription(item.getDescription());
+            newItem.setImagePath(item.getImagePath());
+            newItem.setPrice(item.getPrice());
+            newItem.setQuantity(item.getQuantity());
+            newItem.update(item.getUpdatedBy());
             br.succeedResponse();
         } catch (NotFoundException e) {
             br.errorResponse();

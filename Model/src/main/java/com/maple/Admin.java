@@ -1,17 +1,16 @@
 package com.maple;
 
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection="admins")
+@Data
 public class Admin {
     @Id
-    String username;
+    private String username;
 
-    String password;
+    private String password;
 
-    public Admin(String usern, String pass){
-        username = usern;
-        password = pass;
-    }
+    public Admin(){}
 }

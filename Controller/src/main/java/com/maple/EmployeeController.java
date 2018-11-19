@@ -14,8 +14,6 @@ import java.util.List;
 @RestController
 public class EmployeeController extends ExceptionResolver{
 
-    final MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
-
     public List<EmployeeResponse> employeeResponses;
     @Autowired
     private EmployeeService employeeService;
@@ -29,11 +27,8 @@ public class EmployeeController extends ExceptionResolver{
 
         employeeResponses = new ArrayList<>();
         EmployeeResponse er;
-        mapperFactory.classMap(Employee.class, EmployeeResponse.class)
-                .byDefault().exclude("password").register();
-        MapperFacade mapper = mapperFactory.getMapperFacade();
         for (Employee e: employeeService.getAll()) {
-            er = mapper.map(e, EmployeeResponse.class);
+            er = getMap().map(e, EmployeeResponse.class);
             employeeResponses.add(er);
         }
 
@@ -44,11 +39,8 @@ public class EmployeeController extends ExceptionResolver{
     @GetMapping("/employee/{id}")
     public BaseResponse<EmployeeResponse> getEmployee(@PathVariable String id) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
-        mapperFactory.classMap(Employee.class, EmployeeResponse.class)
-                .byDefault().exclude("password").register();
-        MapperFacade mapper = mapperFactory.getMapperFacade();
         try {
-            br.setValue(mapper.map(employeeService.get(id), EmployeeResponse.class));
+            br.setValue(getMap().map(employeeService.get(id), EmployeeResponse.class));
             br.succeedResponse();
         } catch (NotFoundException e) {
             br.errorResponse();
@@ -63,12 +55,9 @@ public class EmployeeController extends ExceptionResolver{
     @PostMapping("/employee")
     public BaseResponse<EmployeeResponse> createEmployee(@Valid @RequestBody Employee emp) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
-        mapperFactory.classMap(Employee.class, EmployeeResponse.class)
-                .byDefault().exclude("password").register();
-        MapperFacade mapper = mapperFactory.getMapperFacade();
 
         try {
-            br.setValue(mapper.map(employeeService.create(emp), EmployeeResponse.class));
+            br.setValue(getMap().map(employeeService.create(emp), EmployeeResponse.class));
             br.succeedResponse();
         } catch (DataConstraintException e) {
             br.errorResponse();
@@ -84,11 +73,8 @@ public class EmployeeController extends ExceptionResolver{
     public BaseResponse<EmployeeResponse> updateEmployee(@PathVariable String id,
                                                          @Valid @RequestBody Employee emp) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
-        mapperFactory.classMap(Employee.class, EmployeeResponse.class)
-                .byDefault().exclude("password").register();
-        MapperFacade mapper = mapperFactory.getMapperFacade();
         try {
-            br.setValue(mapper.map(employeeService.update(id, emp), EmployeeResponse.class));
+            br.setValue(getMap().map(employeeService.update(id, emp), EmployeeResponse.class));
             br.succeedResponse();
         } catch (DataConstraintException e) {
             br.errorResponse();
@@ -124,5 +110,13 @@ public class EmployeeController extends ExceptionResolver{
         br.succeedResponse();
         employeeService.deleteAll();
         return br;
+    }
+
+    //helper method
+    public MapperFacade getMap() {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+        mapperFactory.classMap(Employee.class, EmployeeResponse.class)
+                .byDefault().exclude("password").register();
+        return mapperFactory.getMapperFacade();
     }
 }
