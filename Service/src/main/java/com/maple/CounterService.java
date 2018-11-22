@@ -9,8 +9,12 @@ public class CounterService {
     private IdCounterRepository counterRepository;
     private final IdCounter counter = new IdCounter();
 
-    public String getNextEmployee() {
+    private void init() {
         if (counterRepository.count() == 0) counterRepository.save(counter);
+    }
+
+    public String getNextEmployee() {
+        init();
 
         long id = counterRepository.findFirst().getEmployeeId();
         counter.setEmployeeId(id+1);
@@ -18,11 +22,20 @@ public class CounterService {
         return "EMP-"+id;
     }
     public String getNextItem() {
-        if (counterRepository.count() == 0) counterRepository.save(counter);
+        init();
 
         long id = counterRepository.findFirst().getItemId();
         counter.setItemId(id+1);
         counterRepository.save(counter);
         return "ITM-"+id;
+    }
+
+    public String getNextAssignment() {
+        init();
+
+        long id = counterRepository.findFirst().getAssignmentId();
+        counter.setAssignmentId(id+1);
+        counterRepository.save(counter);
+        return "ASG-"+id;
     }
 }

@@ -14,7 +14,6 @@ import java.util.List;
 @RestController
 public class EmployeeController extends InvalidEmployeeAttributeValue {
 
-    public List<EmployeeResponse> employeeResponses;
     @Autowired
     private EmployeeService employeeService;
 
@@ -24,6 +23,8 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         //default value of get All Employees
         BaseResponse br = new BaseResponse<>();
         br.succeedResponse();
+
+        List<EmployeeResponse> employeeResponses;
 
         employeeResponses = new ArrayList<>();
         EmployeeResponse er;

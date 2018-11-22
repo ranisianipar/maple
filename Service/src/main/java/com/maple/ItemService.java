@@ -64,7 +64,7 @@ public class ItemService {
     public void validate(Item item, boolean create) throws DataConstraintException{
         ArrayList errorMessage = new ArrayList();
         String name_msg = "Name have already exist";
-        String priceQuantity_msg = "Price and Quantity should consist of integer";
+        String priceQuantity_msg = "Price and Quantity should consist of numbers";
         //name uniqueness
         //kalo namanya udah ada
         if (itemRepository.findByName(item.getName()) != null) {
@@ -73,17 +73,15 @@ public class ItemService {
                 errorMessage.add(name_msg);
             }
         }
-        if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
-
-        //quantity and price should consist of integer
-//        try {
-//            Integer.parseInt(item.getQuantity());
-//            Integer.parseInt(item.getPrice());
-//        } catch (Exception e) {
-//            errorMessage.add(priceQuantity_msg);
-//        } finally {
-//            if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
-//        }
+        //quantity and price should consist of number
+        try {
+            Integer.parseInt(item.getQuantity());
+            Integer.parseInt(item.getPrice());
+        } catch (Exception e) {
+            errorMessage.add(priceQuantity_msg);
+        } finally {
+            if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
+        }
 
     }
 }

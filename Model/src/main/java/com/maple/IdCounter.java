@@ -11,6 +11,7 @@ public class IdCounter {
     int _id;
     private long employeeId;
     private long itemId;
+    private long assignmentId;
 
     public IdCounter() {
         this._id = 1;

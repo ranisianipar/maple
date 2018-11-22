@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 @Document(collection = "assignments")
@@ -12,7 +13,9 @@ import java.util.Date;
 public class Assignment {
     @Id
     private String assignmentId;
+    @NotBlank
     private String employeeId;
+    @NotBlank
     private String itemSku;
 
     private String status;
