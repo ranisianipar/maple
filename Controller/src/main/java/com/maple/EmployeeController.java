@@ -12,7 +12,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost")
 @RestController
-public class EmployeeController extends ExceptionResolver{
+public class EmployeeController extends InvalidEmployeeAttributeValue {
 
     public List<EmployeeResponse> employeeResponses;
     @Autowired

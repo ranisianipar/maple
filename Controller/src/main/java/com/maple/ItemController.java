@@ -1,6 +1,7 @@
 package com.maple;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost")
 @RestController
-public class ItemController {
+public class ItemController extends InvalidItemAttributeValue{
 
     @Autowired
     private ItemService itemService;
@@ -42,32 +43,34 @@ public class ItemController {
     @PostMapping("/item")
     public BaseResponse createItem(@Valid @RequestBody Item item) {
         BaseResponse<Item> br = new BaseResponse<>();
-        br.succeedResponse();
-        br.setValue(itemService.create(item));
-        return br;
+        try {
+            br.setValue(itemService.create(item));
+            br.succeedResponse();
+        } catch (DataConstraintException e) {
+            br.setErrorCode(HttpStatus.BAD_REQUEST);
+            br.setCode(HttpStatus.BAD_REQUEST);
+            br.setErrorMessage(e.getMessage());
+        } finally {
+            return br;
+        }
     }
 
     @PostMapping("/item/{id}")
     public BaseResponse updateItem(@PathVariable String id, @Valid @RequestBody Item item) {
-        BaseResponse<Item> br = new BaseResponse<>();
-        Item newItem;
+        BaseResponse<Item> baseResponse = new BaseResponse<>();
         try {
-            newItem = itemService.get(id);
-            //validate
-
-            newItem.setName(item.getName());
-            newItem.setDescription(item.getDescription());
-            newItem.setImagePath(item.getImagePath());
-            newItem.setPrice(item.getPrice());
-            newItem.setQuantity(item.getQuantity());
-            newItem.update(item.getUpdatedBy());
-            br.succeedResponse();
+            baseResponse.setValue(itemService.update(id, item));
+            baseResponse.succeedResponse();
         } catch (NotFoundException e) {
-            br.errorResponse();
-            br.setErrorMessage(e.getMessage());
-            br.setErrorCode(e.getCode());
+            baseResponse.errorResponse();
+            baseResponse.setErrorMessage(e.getMessage());
+            baseResponse.setErrorCode(e.getCode());
+        } catch (DataConstraintException e) {
+            baseResponse.errorResponse();
+            baseResponse.setErrorMessage(e.getMessage());
+            baseResponse.setErrorCode(e.getCode());
         } finally {
-            return br;
+            return baseResponse;
         }
     }
 

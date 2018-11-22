@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 
 @Service
@@ -24,6 +25,8 @@ public class EmployeeService {
     @Autowired
     private CounterService counter;
 
+    private List errorMessage = new ArrayList();
+
 
     // need pageNumber parameter
     public List<Employee> getAll() {
@@ -38,7 +41,7 @@ public class EmployeeService {
         return employee.get();
     }
     public Employee create(Employee emp) throws DataConstraintException {
-        validate(emp, true);
+        checkDataValue(emp, true);
         emp.setId(counter.getNextEmployee());
         return employeeRepository.save(emp);
     }
@@ -56,7 +59,7 @@ public class EmployeeService {
         employee.setImagePath(emp.getImagePath());
         employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
-        validate(employee, false);
+        checkDataValue(employee, false);
         return employeeRepository.save(employee);
     }
 
@@ -70,8 +73,15 @@ public class EmployeeService {
         employeeRepository.deleteAll();
     }
 
-    //helper methods
-    public void validate(Employee emp, boolean create) throws DataConstraintException{
+
+    private void checkDataValue(Employee emp, boolean create) throws DataConstraintException{
+        uniquenessChecker(emp, create);
+        //regexChecker(emp);
+        if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
+    }
+
+    //helper methods to check uniqueness data attribute
+    private void uniquenessChecker(Employee emp, boolean create){
         List<String> errorMessage = new ArrayList<>();
 
         String username_msg = "username already exist";
@@ -95,7 +105,20 @@ public class EmployeeService {
                 errorMessage.add(email_msg);
 
         }
-        if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
+    }
+
+    //to make sure the data attribute value is appropriate
+    private void regexChecker (Employee emp){
+        String phone_msg = "Phone number invalid";
+        String email_msg = "Email is unvalid, should contain '@'";
+
+        //regex for phone number consist of number;
+        Pattern phoneNumberPattern = Pattern.compile(".*[^0-9].*");
+        Pattern emailPattern = Pattern.compile(".*@.*");
+
+        // phone number checker
+        if (!phoneNumberPattern.matcher(emp.getPhone()).matches()) errorMessage.add(phone_msg);
+        if (!emailPattern.matcher(emp.getEmail()).matches()) errorMessage.add(email_msg);
     }
 
 }
