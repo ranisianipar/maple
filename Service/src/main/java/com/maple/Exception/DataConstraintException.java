@@ -1,4 +1,4 @@
-package com.maple;
+package com.maple.Exception;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ public class DataConstraintException extends Exception{
     String message;
     HttpStatus code;
 
-    DataConstraintException(String error) {
+    public DataConstraintException(String error) {
         this.message = "Data Constraint => "+error;
         this.code = HttpStatus.BAD_REQUEST;
     }

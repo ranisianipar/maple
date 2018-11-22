@@ -1,4 +1,4 @@
-package com.maple;
+package com.maple.Exception;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ public class NotFoundException extends Exception{
     String message;
     HttpStatus code;
 
-    NotFoundException(String obj) {
+    public NotFoundException(String obj) {
         this.message = obj+" NOT FOUND";
         this.code = HttpStatus.NOT_FOUND;
     }
