@@ -1,9 +1,11 @@
 package com.maple;
 
+import com.maple.Exception.DataConstraintException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AssignmentService {
@@ -14,17 +16,22 @@ public class AssignmentService {
     private CounterService counter;
 
     public List<Assignment> getAllAssignments() {
-
+        // need paging
         return assignmentRepository.findAll();
     }
 
-    public Assignment getAssignment (String id) {
+    public Assignment getAssignment (String id) throws DataConstraintException{
         //check id exist or nah
-        return null;
+        Optional<Assignment> assignment = assignmentRepository.findById(id);
+        if (!assignment.isPresent()) throw new DataConstraintException("Assignment doesn't exist");
+
+        return assignment.get();
     }
 
-    public Assignment createAssignment() {
-        //check EmployeeId and ItemSku Not null
+    public Assignment createAssignment(Assignment assignment) {
+        //check EmployeeId and ItemSku are valid
+
+
         //check the item has enough quantity
         //return the new assignment
         return null;

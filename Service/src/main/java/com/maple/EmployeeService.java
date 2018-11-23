@@ -101,9 +101,11 @@ public class EmployeeService {
         }
         // update
         else {
-            if (employeeRepository.findByUsername(emp.getUsername()) != null && !employeeRepository.findByUsername(emp.getUsername()).getId().equals(emp.getId()))
+            if (employeeRepository.findByUsername(emp.getUsername()) != null &&
+                    !employeeRepository.findByUsername(emp.getUsername()).getId().equals(emp.getId()))
                 errorMessage.add(username_msg);
-            if (!employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
+            if (employeeRepository.findByEmail(emp.getEmail()) != null &&
+                    !employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
                 errorMessage.add(email_msg);
 
         }

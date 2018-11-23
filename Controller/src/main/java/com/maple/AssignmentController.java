@@ -1,5 +1,6 @@
 package com.maple;
 
+import com.maple.validation.InvalidAssignmentAttributeValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -8,7 +9,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost")
 @RestController
-public class AssignmentController {
+public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     public List<EmployeeResponse> employeeResponses;
     @Autowired

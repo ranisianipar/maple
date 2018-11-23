@@ -83,11 +83,11 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         } catch (DataConstraintException e) {
             br.errorResponse();
             br.setErrorMessage(e.getMessage());
-            br.setErrorCode(e.code);
+            br.setErrorCode(e.getCode());
         } catch (NotFoundException e) {
             br.errorResponse();
             br.setErrorMessage(e.getMessage());
-            br.setErrorCode(e.code);
+            br.setErrorCode(e.getCode());
         } finally {
             return br;
         }

@@ -18,6 +18,7 @@ public class Assignment {
     @NotBlank
     private String itemSku;
 
+    @NotBlank
     private String status;
     private int quantity;
     private Date createdDate;
