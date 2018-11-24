@@ -18,8 +18,6 @@ public class EmployeeService {
     final String EMPLOYEE = "Employee";
     final String SUPERIOR = "Superior";
     //    paging? better with class or just attributes?
-    // errorMessage better using Exception? How to transfer the error message to the response?
-
 
     @Autowired
     private EmployeeRepository employeeRepository;
@@ -86,6 +84,7 @@ public class EmployeeService {
     private void uniquenessChecker(Employee emp, boolean create){
         List<String> errorMessage = new ArrayList<>();
 
+        // jadiin konstan
         String username_msg = "username already exist";
         String email_msg = "email already exist";
         String superior_msg = "superior doesn't exist";

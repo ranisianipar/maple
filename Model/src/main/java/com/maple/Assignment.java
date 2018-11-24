@@ -20,7 +20,7 @@ public class Assignment {
 
     @NotBlank
     private String status;
-    private int quantity;
+    private Integer quantity;
     private Date createdDate;
     private Date updatedDate;
     private String createdBy;

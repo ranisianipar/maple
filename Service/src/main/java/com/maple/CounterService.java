@@ -9,9 +9,8 @@ public class CounterService {
     private IdCounterRepository counterRepository;
     private final IdCounter counter = new IdCounter();
 
-    private void init() {
-        if (counterRepository.count() == 0) counterRepository.save(counter);
-    }
+    //mongob initiate data
+    private void init() { if (counterRepository.count() == 0) counterRepository.save(counter); }
 
     public String getNextEmployee() {
         init();

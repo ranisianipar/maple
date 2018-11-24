@@ -7,12 +7,16 @@ import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
+//bikin konstan
 @CrossOrigin(origins = "http://localhost")
 @RestController
 public class EmployeeController extends InvalidEmployeeAttributeValue {
@@ -22,15 +26,26 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
 
     //need pagination
     @GetMapping("/employee")
-    public BaseResponse<EmployeeResponse> getAllEmployees(){
+    public BaseResponse<EmployeeResponse> getAllEmployees(
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam String sortBy
+    ){
         //default value of get All Employees
         BaseResponse br = new BaseResponse<>();
         br.succeedResponse();
+
+        // Pagination
+        if (sortBy == null) sortBy = "employeeId";
+        Pageable pageRequest = PageRequest.of(page, size,
+                Sort.by(Sort.Direction.ASC, sortBy));
+
 
         List<EmployeeResponse> employeeResponses;
 
         employeeResponses = new ArrayList<>();
         EmployeeResponse er;
+        // jangan diiterate di controller
         for (Employee e: employeeService.getAll()) {
             er = getMap().map(e, EmployeeResponse.class);
             employeeResponses.add(er);
@@ -40,6 +55,8 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         return br;
     }
 
+    // jangan di hard-code, jadiin konstan, taro di web model (static variable)
+    // bikin semacam response mapper --> helper method
     @GetMapping("/employee/{id}")
     public BaseResponse<EmployeeResponse> getEmployee(@PathVariable String id) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();

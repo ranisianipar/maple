@@ -18,10 +18,10 @@ public class Item {
     private String name;
 
     @NotBlank(message = "Price can't be blank")
-    private String price;
+    private Integer price;
 
     @NotBlank(message = "Quantity can't be blank")
-    private String quantity;
+    private Integer quantity;
     private String description;
     private Date createdDate;
     private Date updatedDate;
