@@ -75,15 +75,6 @@ public class ItemService {
                 errorMessage.add(name_msg);
             }
         }
-        //quantity and price should consist of number
-        try {
-            Integer.parseInt(item.getQuantity());
-            Integer.parseInt(item.getPrice());
-        } catch (Exception e) {
-            errorMessage.add(priceQuantity_msg);
-        } finally {
-            if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
-        }
-
+        if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }
 }

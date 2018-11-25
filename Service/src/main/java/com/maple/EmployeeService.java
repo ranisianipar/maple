@@ -4,7 +4,8 @@ import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,12 +28,8 @@ public class EmployeeService {
 
     private List errorMessage = new ArrayList();
 
-
-    // need pageNumber parameter
-    public List<Employee> getAll() {
-
-        // set paging information
-        return employeeRepository.findAll();
+    public Page<Employee> getAll(Pageable pageable) {
+        return employeeRepository.findAll(pageable);
     }
 
     public Employee get(String id) throws NotFoundException {

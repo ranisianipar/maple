@@ -7,13 +7,12 @@ import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //bikin konstan
@@ -24,35 +23,13 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     @Autowired
     private EmployeeService employeeService;
 
-    //need pagination
     @GetMapping("/employee")
     public BaseResponse<EmployeeResponse> getAllEmployees(
-            @RequestParam int page,
-            @RequestParam int size,
-            @RequestParam String sortBy
+            @RequestParam (value = "page", required = false) Integer page,
+            @RequestParam (value = "size", required = false) Integer size,
+            @RequestParam (value = "sortBy", defaultValue = "employeeId") String sortBy
     ){
-        //default value of get All Employees
-        BaseResponse br = new BaseResponse<>();
-        br.succeedResponse();
-
-        // Pagination
-        if (sortBy == null) sortBy = "employeeId";
-        Pageable pageRequest = PageRequest.of(page, size,
-                Sort.by(Sort.Direction.ASC, sortBy));
-
-
-        List<EmployeeResponse> employeeResponses;
-
-        employeeResponses = new ArrayList<>();
-        EmployeeResponse er;
-        // jangan diiterate di controller
-        for (Employee e: employeeService.getAll()) {
-            er = getMap().map(e, EmployeeResponse.class);
-            employeeResponses.add(er);
-        }
-
-        br.setValue(employeeResponses);
-        return br;
+        return responseMapping(PageService.getPage(page, size, sortBy), new BaseResponse<>());
     }
 
     // jangan di hard-code, jadiin konstan, taro di web model (static variable)
@@ -133,11 +110,32 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         return br;
     }
 
-    //helper method
-    public MapperFacade getMap() {
+    //HELPER METHOD
+
+    private MapperFacade getMap() {
         MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
         mapperFactory.classMap(Employee.class, EmployeeResponse.class)
                 .byDefault().exclude("password").register();
         return mapperFactory.getMapperFacade();
+    }
+
+    private BaseResponse responseMapping (Pageable pageRequest, BaseResponse br) {
+        List<EmployeeResponse> employeeResponses;
+
+        employeeResponses = new ArrayList<>();
+        EmployeeResponse er;
+
+        Iterator<Employee> employeePage = employeeService.getAll(pageRequest).iterator();
+        while (employeePage.hasNext()) {
+            er = getMap().map(employeePage.next(), EmployeeResponse.class);
+            employeeResponses.add(er);
+        }
+        br.setValue(employeeResponses);
+        br.succeedResponse();
+        return br;
+    }
+
+    private BaseResponse responseMapping (BaseResponse br) {
+        return null;
     }
 }
