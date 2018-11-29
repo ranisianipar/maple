@@ -1,17 +1,13 @@
 package com.maple.Exception;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
-@Getter @Setter
-public class DataConstraintException extends Exception{
-    String message;
-    HttpStatus code;
+public class DataConstraintException extends MapleException{
+    private String message;
+    private HttpStatus code;
 
     public DataConstraintException(String error) {
-        this.message = "Data Constraint => "+error;
-        this.code = HttpStatus.BAD_REQUEST;
+        super("Data constraint => "+error, HttpStatus.BAD_REQUEST);
     }
 
 }

@@ -1,16 +1,12 @@
 package com.maple.Exception;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
-@Getter @Setter
-public class NotFoundException extends Exception{
-    String message;
-    HttpStatus code;
+public class NotFoundException extends MapleException{
+    private String message;
+    private HttpStatus code;
 
     public NotFoundException(String obj) {
-        this.message = obj+" NOT FOUND";
-        this.code = HttpStatus.NOT_FOUND;
+        super("Not Found => "+obj, HttpStatus.NOT_FOUND);
     }
 }

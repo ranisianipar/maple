@@ -18,7 +18,6 @@ public class EmployeeService {
 
     final String EMPLOYEE = "Employee";
     final String SUPERIOR = "Superior";
-    //    paging? better with class or just attributes?
 
     @Autowired
     private EmployeeRepository employeeRepository;
@@ -103,7 +102,6 @@ public class EmployeeService {
             if (employeeRepository.findByEmail(emp.getEmail()) != null &&
                     !employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
                 errorMessage.add(email_msg);
-
         }
     }
 
