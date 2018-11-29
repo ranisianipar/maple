@@ -1,7 +1,9 @@
 package com.maple;
 
+import com.maple.Exception.MapleException;
 import com.maple.validation.InvalidAssignmentAttributeValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -50,8 +52,19 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     @DeleteMapping("/assignments")
     public BaseResponse<String> deleteAssignments() {
-        BaseResponse br = new BaseResponse("All assignments have been deleted");
-        br.succeedResponse();
+        return responseMapping(new BaseResponse("All assignments have been deleted"), null);
+    }
+
+    //HELPER METHOD
+
+    private BaseResponse responseMapping(BaseResponse br, MapleException e) {
+        if (e == null) {
+            br.setCode(HttpStatus.OK);
+            br.setSuccess(true);
+        }
+        br.setCode(HttpStatus.BAD_REQUEST);
+        br.setErrorMessage(e.getMessage());
+        br.setErrorCode(e.getCode());
         return br;
     }
 }

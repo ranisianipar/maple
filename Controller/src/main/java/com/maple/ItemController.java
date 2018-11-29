@@ -1,9 +1,13 @@
 package com.maple;
 
 import com.maple.Exception.DataConstraintException;
+import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
 import com.maple.validation.InvalidItemAttributeValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +23,17 @@ public class ItemController extends InvalidItemAttributeValue {
     private ItemService itemService;
 
     @GetMapping("/item")
-    public BaseResponse<List<Item>> getAllItems() {
+    public BaseResponse<List<Item>> getAllItems(
+            @RequestParam (value = "page", defaultValue = "0") int page,
+            @RequestParam (value = "size", defaultValue = "10") int size,
+            @RequestParam (value = "sortBy", defaultValue = "itemSku") String sortBy,
+            @RequestParam (value = "search", required = false) String search
+    ) {
         BaseResponse br = new BaseResponse();
-        br.succeedResponse();
-        br.setValue(itemService.getAll());
-        return br;
+        Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
+        br.setValue(itemService.getAll(pageRequest, search));
+        br.setPage(pageRequest);
+        return responseMapping(br, null);
     }
 
     @GetMapping("/item/{id}")
@@ -33,13 +43,9 @@ public class ItemController extends InvalidItemAttributeValue {
         try {
             item = itemService.get(id);
             br.setValue(item);
-            br.succeedResponse();
-        } catch (NotFoundException e) {
-            br.errorResponse();
-            br.setErrorMessage(e.getMessage());
-            br.setErrorCode(e.getCode());
-        } finally {
-            return br;
+            return responseMapping(br, null);
+        } catch (MapleException e) {
+            return responseMapping(br, e);
         }
     }
 
@@ -48,32 +54,20 @@ public class ItemController extends InvalidItemAttributeValue {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
             br.setValue(itemService.create(item));
-            br.succeedResponse();
-        } catch (DataConstraintException e) {
-            br.setErrorCode(HttpStatus.BAD_REQUEST);
-            br.setCode(HttpStatus.BAD_REQUEST);
-            br.setErrorMessage(e.getMessage());
-        } finally {
-            return br;
+            return responseMapping(br, null);
+        } catch (MapleException e) {
+            return responseMapping(br, e);
         }
     }
 
     @PostMapping("/item/{id}")
     public BaseResponse updateItem(@PathVariable String id, @Valid @RequestBody Item item) {
-        BaseResponse<Item> baseResponse = new BaseResponse<>();
+        BaseResponse<Item> br = new BaseResponse<>();
         try {
-            baseResponse.setValue(itemService.update(id, item));
-            baseResponse.succeedResponse();
-        } catch (NotFoundException e) {
-            baseResponse.errorResponse();
-            baseResponse.setErrorMessage(e.getMessage());
-            baseResponse.setErrorCode(e.getCode());
-        } catch (DataConstraintException e) {
-            baseResponse.errorResponse();
-            baseResponse.setErrorMessage(e.getMessage());
-            baseResponse.setErrorCode(e.getCode());
-        } finally {
-            return baseResponse;
+            br.setValue(itemService.update(id, item));
+            return responseMapping(br, null);
+        } catch (MapleException e) {
+            return responseMapping(br,e);
         }
     }
 
@@ -82,21 +76,27 @@ public class ItemController extends InvalidItemAttributeValue {
         BaseResponse br = new BaseResponse();
         try {
             itemService.delete(id);
-            br.succeedResponse();
-        } catch (NotFoundException e) {
-            br.errorResponse();
-            br.setErrorCode(e.getCode());
-            br.setErrorMessage(e.getMessage());
-        } finally {
-            return br;
+            return responseMapping(br, null);
+        } catch (MapleException e) {
+            return responseMapping(br, e);
         }
     }
 
     @DeleteMapping("/items")
     public BaseResponse deleteItems() {
-        BaseResponse br = new BaseResponse("All items have been removed");
         itemService.deleteAll();
-        br.succeedResponse();
+        return responseMapping(new BaseResponse("All items have been removed"), null);
+    }
+
+    //HELPER METHOD
+    private BaseResponse responseMapping(BaseResponse br, MapleException e){
+        if (e == null) {
+            br.setSuccess(true);
+            br.setCode(HttpStatus.OK);
+        }
+        br.setCode(HttpStatus.BAD_REQUEST);
+        br.setErrorCode(e.getCode());
+        br.setErrorMessage(e.getMessage());
         return br;
     }
 }

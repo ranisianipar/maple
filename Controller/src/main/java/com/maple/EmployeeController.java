@@ -26,7 +26,6 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     @Autowired
     private EmployeeService employeeService;
 
-    //katanya bisa default value page pake defaultValue='0' pake type int, ntar auto convert
     @GetMapping("/employee")
     public BaseResponse<EmployeeResponse> getAllEmployees(
             @RequestParam (value = "page", defaultValue = "0") int page,

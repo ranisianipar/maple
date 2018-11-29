@@ -15,24 +15,9 @@ public class BaseResponse<T> {
     boolean success;
 
 
-    public void setValue(T value) {
+    public BaseResponse(T value) {
         this.value = value;
     }
-
-    public BaseResponse( T value) {
-        this.value = value;
-    }
-
 
     public BaseResponse() {}
-
-    public void errorResponse() {
-        this.setCode(HttpStatus.BAD_REQUEST);
-        this.setSuccess(false);
-    }
-
-    public void succeedResponse() {
-        this.setCode(HttpStatus.OK);
-        this.setSuccess(true);
-    }
 }
