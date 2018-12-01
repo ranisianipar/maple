@@ -5,6 +5,7 @@ import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
 import com.maple.validation.InvalidItemAttributeValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,8 +32,10 @@ public class ItemController extends InvalidItemAttributeValue {
     ) {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
-        br.setValue(itemService.getAll(pageRequest, search));
-        br.setPage(pageRequest);
+        Page<Item> value = itemService.getAll(pageRequest, search);
+        br.setTotalRecords(value.getTotalElements());
+        br.setValue(value);
+        br.setPaging(pageRequest);
         return responseMapping(br, null);
     }
 

@@ -109,8 +109,9 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
             er = getMap().map(employeePage.next(), EmployeeResponse.class);
             employeeResponses.add(er);
         }
+        br.setTotalRecords(employeeResponses.size());
         br.setValue(employeeResponses);
-        br.setPage(pageRequest);
+        br.setPaging(pageRequest);
         return responseMapping(br, e);
     }
 
