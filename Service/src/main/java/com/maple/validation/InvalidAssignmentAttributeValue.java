@@ -10,7 +10,7 @@ public class InvalidAssignmentAttributeValue {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     public DataConstraintException validationError(MethodArgumentNotValidException ex) {
-        return new DataConstraintException("Employee ID, Item SKU, status can't be null");
+        return new DataConstraintException("Employee ID, Item SKU, status, and quantity can't be null");
     }
 
 

@@ -1,8 +1,6 @@
 package com.maple;
 
-import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
-import com.maple.Exception.NotFoundException;
 import com.maple.validation.InvalidItemAttributeValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost")
@@ -79,6 +78,17 @@ public class ItemController extends InvalidItemAttributeValue {
         BaseResponse br = new BaseResponse();
         try {
             itemService.delete(id);
+            return responseMapping(br, null);
+        } catch (MapleException e) {
+            return responseMapping(br, e);
+        }
+    }
+
+    @DeleteMapping(path="/item/many", consumes="application/json", produces = "application/json")
+    public BaseResponse deleteItems(@Valid @RequestBody String[] ids) {
+        BaseResponse br = new BaseResponse();
+        try {
+            itemService.deleteMany(ids);
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);

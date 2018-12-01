@@ -11,7 +11,7 @@ public class BaseResponse<T> {
     HttpStatus errorCode; //more specific error repo
     String errorMessage;
     Pageable paging;
-    long totalRecords = 1;
+    long totalRecords;
     T value;
     boolean success;
 

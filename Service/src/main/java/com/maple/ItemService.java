@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -65,12 +66,21 @@ public class ItemService {
         itemRepository.delete(item.get());
     }
 
+    public void deleteMany(String[] ids) throws NotFoundException {
+        Optional<Item> item;
+        for (String id : ids) {
+            item = itemRepository.findById(id);
+            if (!item.isPresent()) throw new NotFoundException(ITEM);
+
+            itemRepository.delete(item.get());
+        }
+    }
+
     public void deleteAll() { itemRepository.deleteAll(); }
 
     public void validate(Item item, boolean create) throws DataConstraintException{
         ArrayList errorMessage = new ArrayList();
         String name_msg = "Name have already exist";
-        String priceQuantity_msg = "Price and Quantity should consist of numbers";
         //name uniqueness
         //kalo namanya udah ada
         if (itemRepository.findByName(item.getName()) != null) {

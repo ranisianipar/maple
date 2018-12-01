@@ -12,6 +12,6 @@ import java.util.List;
 public interface ItemRepository extends MongoRepository<Item, String>{
 
     public Item findByName(String name);
-    public Item findByPrice(int price);
     public Page<Item> findAll(Pageable page);
+
 }
