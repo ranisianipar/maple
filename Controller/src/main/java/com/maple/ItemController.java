@@ -93,6 +93,7 @@ public class ItemController extends InvalidItemAttributeValue {
         if (e == null) {
             br.setSuccess(true);
             br.setCode(HttpStatus.OK);
+            return br;
         }
         br.setCode(HttpStatus.BAD_REQUEST);
         br.setErrorCode(e.getCode());

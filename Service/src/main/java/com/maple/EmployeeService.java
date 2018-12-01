@@ -80,14 +80,13 @@ public class EmployeeService {
     private void uniquenessChecker(Employee emp, boolean create){
         List<String> errorMessage = new ArrayList<>();
 
-        // jadiin konstan
         String username_msg = "username already exist";
         String email_msg = "email already exist";
         String superior_msg = "superior doesn't exist";
 
         if (emp.getSuperiorId() != null) {
             Optional<Employee> superior = employeeRepository.findById(emp.getSuperiorId());
-            if (!superior.isPresent()) errorMessage.add(superior_msg);
+            if (!superior.isPresent() && !emp.equals(superior)) errorMessage.add(superior_msg);
         }
 
         if (create) {
