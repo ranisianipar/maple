@@ -13,5 +13,5 @@ public interface ItemRepository extends MongoRepository<Item, String>{
 
     public Item findByName(String name);
     public Page<Item> findAll(Pageable page);
-
+    public void deleteByIdIn(List<String> ids);
 }

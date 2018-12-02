@@ -11,4 +11,5 @@ public interface AssignmentRepository extends MongoRepository<Assignment,String>
 
     public List<Assignment> findByEmployeeId(String employeeId);
     public List<Assignment> findByItemSku(String itemSku);
+    public void deleteByIdIn(List<String> ids);
 }
