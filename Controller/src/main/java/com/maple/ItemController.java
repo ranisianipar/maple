@@ -83,7 +83,7 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @DeleteMapping(path="/item/many", consumes="application/json", produces = "application/json")
-    public BaseResponse deleteItems(@Valid @RequestBody String[] ids) {
+    public BaseResponse deleteItems(@Valid @RequestBody List<String> ids) {
         BaseResponse br = new BaseResponse();
         try {
             itemService.deleteMany(ids);
