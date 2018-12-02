@@ -4,13 +4,14 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 @Document(collection = "employees")
 @Data
-public class Employee {
+public class Employee{
 
     @Id
     private String id;
@@ -29,6 +30,8 @@ public class Employee {
     private Date createdDate;
     private Date updatedDate;
     private String imagePath;
+
+    private MultipartFile file;
 
     @NotBlank(message = "Email can't be blank")
     private String email;

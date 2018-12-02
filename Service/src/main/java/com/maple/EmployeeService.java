@@ -3,9 +3,16 @@ package com.maple;
 import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,6 +32,9 @@ public class EmployeeService {
     @Autowired
     private CounterService counter;
 
+    @Value("${upload.path}")
+    private String path;
+
     private List errorMessage = new ArrayList();
 
     public Page<Employee> getAll(Pageable pageable) {
@@ -36,13 +46,22 @@ public class EmployeeService {
         if (!employee.isPresent()) { throw new NotFoundException(EMPLOYEE); }
         return employee.get();
     }
-    public Employee create(Employee emp) throws DataConstraintException {
+
+    public long getTotalEmployee() {return SimpleUtils.getTotalObject(employeeRepository);}
+
+    public long getTotalPage(long size) {
+        return SimpleUtils.getTotalPages(size, getTotalEmployee());
+    }
+
+    public Employee create(Employee emp, MultipartFile file) throws DataConstraintException {
         checkDataValue(emp, true);
+        if (file != null) emp.setImagePath(file.getContentType());
+
         emp.setId(counter.getNextEmployee());
         return employeeRepository.save(emp);
     }
 
-    //WHY
+
     public Employee update(String id, Employee emp) throws NotFoundException, DataConstraintException {
         Optional<Employee> employeeObj = employeeRepository.findById(id);
 
@@ -57,6 +76,12 @@ public class EmployeeService {
         employee.setUpdatedDate(new Date());
         checkDataValue(employee, false);
         return employeeRepository.save(employee);
+    }
+
+    public void upload(MultipartFile file) throws IOException {
+        String fileName = file.getOriginalFilename();
+        InputStream is = file.getInputStream();
+        Files.copy(is, Paths.get(path+fileName));
     }
 
     public void delete(String id) throws NotFoundException{

@@ -3,7 +3,6 @@ package com.maple;
 import com.maple.Exception.MapleException;
 import com.maple.validation.InvalidItemAttributeValue;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost")
@@ -31,9 +29,9 @@ public class ItemController extends InvalidItemAttributeValue {
     ) {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
-        Page<Item> value = itemService.getAll(pageRequest, search);
-        br.setTotalRecords(value.getTotalElements());
-        br.setValue(value);
+        br.setTotalRecords(itemService.getTotalItem());
+        br.setTotalPages(itemService.getTotalPage(pageRequest.getPageSize()));
+        br.setValue(itemService.getAll(pageRequest, search));
         br.setPaging(pageRequest);
         return responseMapping(br, null);
     }

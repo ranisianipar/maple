@@ -38,6 +38,9 @@ public class AssignmentService {
         return assignment.get();
     }
 
+    public long getTotalAssignment() {return SimpleUtils.getTotalObject(assignmentRepository);}
+    public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalAssignment());}
+
     public Assignment createAssignment(Assignment assignment) throws DataConstraintException{
         //check EmployeeId and ItemSku are valid
         validate(assignment);

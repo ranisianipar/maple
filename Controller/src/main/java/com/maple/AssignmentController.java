@@ -30,9 +30,9 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     ){
         BaseResponse br = new BaseResponse<>();
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
-        Page<Assignment> value = assignmentService.getAllAssignments(pageRequest);
-        br.setTotalRecords(value.getTotalElements());
-        br.setValue(value);
+        br.setTotalRecords(assignmentService.getTotalAssignment());
+        br.setTotalPages(assignmentService.getTotalPage(pageRequest.getPageSize()));
+        br.setValue(assignmentService.getAllAssignments(pageRequest));
         return responseMapping(br,null);
     }
 

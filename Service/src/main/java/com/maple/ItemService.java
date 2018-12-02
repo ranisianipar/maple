@@ -36,6 +36,9 @@ public class ItemService {
         return item.get();
     }
 
+    public long getTotalItem() {return SimpleUtils.getTotalObject(itemRepository);}
+    public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalItem());}
+
     //createdBy belom -> nunggu login
     public Item create(Item item) throws DataConstraintException {
         validate(item, true);

@@ -12,6 +12,7 @@ public class BaseResponse<T> {
     String errorMessage;
     Pageable paging;
     long totalRecords;
+    long totalPages;
     T value;
     boolean success;
 

@@ -11,7 +11,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -48,11 +50,17 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         }
     }
 
-    @PostMapping("/employee")
-    public BaseResponse<EmployeeResponse> createEmployee(@Valid @RequestBody Employee emp) {
+    @PostMapping(value ="/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse upload(@RequestParam(value = "file", required = false) MultipartFile file) {
+        return new BaseResponse(file.getOriginalFilename());
+    }
+    @PostMapping(value = "/employee")
+    public BaseResponse<EmployeeResponse> createEmployee(
+            @Valid Employee emp
+    ) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
-            br.setValue(getMap().map(employeeService.create(emp), EmployeeResponse.class));
+            br.setValue(getMap().map(employeeService.create(emp, null), EmployeeResponse.class));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br,e);
@@ -109,9 +117,10 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
             er = getMap().map(employeePage.next(), EmployeeResponse.class);
             employeeResponses.add(er);
         }
-        br.setTotalRecords(employeeResponses.size());
+        br.setTotalRecords(employeeService.getTotalEmployee());
         br.setValue(employeeResponses);
         br.setPaging(pageRequest);
+        br.setTotalPages(employeeService.getTotalPage(pageRequest.getPageSize()));
         return responseMapping(br, e);
     }
 
