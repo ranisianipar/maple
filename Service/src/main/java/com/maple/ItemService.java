@@ -1,10 +1,12 @@
 package com.maple;
 
 import com.maple.Exception.DataConstraintException;
+import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -62,15 +64,13 @@ public class ItemService {
         return itemRepository.save(updatedItem);
     }
 
-    public void delete(String id) throws NotFoundException {
-        Optional<Item> item = itemRepository.findById(id);
-        if (!item.isPresent()) throw new NotFoundException(ITEM);
+    public void deleteMany(List<String> listOfId) throws MapleException {
+        try {
+            itemRepository.deleteByItemSkuIn(listOfId);
+        } catch (Exception e) {
+            throw new MapleException(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
 
-        itemRepository.delete(item.get());
-    }
-
-    public void deleteMany(List<String> ids) throws NotFoundException {
-        itemRepository.deleteByIdIn(ids);
     }
 
     public void deleteAll() { itemRepository.deleteAll(); }

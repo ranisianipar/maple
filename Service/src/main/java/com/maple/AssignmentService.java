@@ -9,19 +9,19 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AssignmentService {
-    @Autowired
-    AssignmentRepository assignmentRepository;
 
     @Autowired
     EmployeeRepository employeeRepository;
 
     @Autowired
     ItemRepository itemRepository;
+
+    @Autowired
+    AssignmentRepository assignmentRepository;
 
     @Autowired
     private CounterService counter;
@@ -112,7 +112,6 @@ public class AssignmentService {
 
         //remove
         assignmentRepository.delete(assignment);
-
     }
 
     public void deleteAllAssignment() {

@@ -1,9 +1,11 @@
 package com.maple;
 
 import com.maple.Exception.DataConstraintException;
+import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -84,10 +86,12 @@ public class EmployeeService {
         Files.copy(is, Paths.get(path+fileName));
     }
 
-    public void delete(String id) throws NotFoundException{
-        Optional<Employee> employee = employeeRepository.findById(id);
-        if (!employee.isPresent()) { throw new NotFoundException(EMPLOYEE); }
-        employeeRepository.delete(employee.get());
+    public void deleteMany(List<String> ids) throws MapleException {
+        try {
+            employeeRepository.deleteByIdIn(ids);
+        } catch (Exception e) {
+            throw new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     public void deleteAll() {

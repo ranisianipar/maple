@@ -71,22 +71,11 @@ public class ItemController extends InvalidItemAttributeValue {
         }
     }
 
-    @DeleteMapping("/item/{id}")
-    public BaseResponse deleteItem(@PathVariable String id) {
+    @DeleteMapping("/item")
+    public BaseResponse deleteItem(@RequestBody DeleteRequest deleteRequest) {
         BaseResponse br = new BaseResponse();
         try {
-            itemService.delete(id);
-            return responseMapping(br, null);
-        } catch (MapleException e) {
-            return responseMapping(br, e);
-        }
-    }
-
-    @DeleteMapping(path="/item/many", consumes="application/json", produces = "application/json")
-    public BaseResponse deleteItems(@Valid @RequestBody List<String> ids) {
-        BaseResponse br = new BaseResponse();
-        try {
-            itemService.deleteMany(ids);
+            itemService.deleteMany(deleteRequest.getIds());
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);
