@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class DeleteRequest {
-    String username;
-    List<String > ids;
+    private String username;
+    private List<String > ids;
 }

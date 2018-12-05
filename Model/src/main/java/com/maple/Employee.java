@@ -17,14 +17,13 @@ public class Employee{
     private String id;
 
     @NotBlank(message = "Username can't be blank")
-    @Indexed(unique=true)
     private String username;
+
     @NotBlank(message = "Password can't be blank")
     private String password;
     public String superiorId;
 
     @NotBlank(message = "Name can't be blank")
-    @Indexed(unique=true)
     private String name;
     private String phone;
     private Date createdDate;

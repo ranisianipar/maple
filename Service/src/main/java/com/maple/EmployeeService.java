@@ -4,7 +4,6 @@ import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
@@ -12,9 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,15 +23,13 @@ public class EmployeeService {
 
     final String EMPLOYEE = "Employee";
     final String SUPERIOR = "Superior";
+    final String UPLOADED_FOLDER = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Employee";
 
     @Autowired
     private EmployeeRepository employeeRepository;
 
     @Autowired
     private CounterService counter;
-
-    @Value("${upload.path}")
-    private String path;
 
     private List errorMessage = new ArrayList();
 
@@ -55,16 +49,20 @@ public class EmployeeService {
         return SimpleUtils.getTotalPages(size, getTotalEmployee());
     }
 
-    public Employee create(Employee emp, MultipartFile file) throws DataConstraintException {
+    public Employee create(Employee emp, MultipartFile file) throws DataConstraintException, IOException {
         checkDataValue(emp, true);
         if (file != null) emp.setImagePath(file.getContentType());
 
         emp.setId(counter.getNextEmployee());
+        emp.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, emp.getId()));
         return employeeRepository.save(emp);
     }
 
+    public String upload(MultipartFile file) throws IOException{
+        return SimpleUtils.storeFile(UPLOADED_FOLDER,file,"EMP-0");
+    }
 
-    public Employee update(String id, Employee emp) throws NotFoundException, DataConstraintException {
+    public Employee update(String id, Employee emp, MultipartFile file) throws NotFoundException, DataConstraintException, IOException {
         Optional<Employee> employeeObj = employeeRepository.findById(id);
 
         if (!employeeObj.isPresent()) throw new NotFoundException(EMPLOYEE);
@@ -73,6 +71,12 @@ public class EmployeeService {
         employee.setPassword(emp.getPassword());
         employee.setEmail(emp.getEmail());
         employee.setName(emp.getName());
+
+        // employee yg baru ga punya imagePath, jadi ngeceknya ga langsung ke path nya
+        if (!employee.getImagePath().equals(emp.getImagePath())) {
+            SimpleUtils.deleteFile(employee.getImagePath());
+            //SimpleUtils.storeFile(emp.)
+        }
         employee.setImagePath(emp.getImagePath());
         employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
@@ -80,15 +84,9 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
-    public void upload(MultipartFile file) throws IOException {
-        String fileName = file.getOriginalFilename();
-        InputStream is = file.getInputStream();
-        Files.copy(is, Paths.get(path+fileName));
-    }
-
-    public void deleteMany(List<String> ids) throws MapleException {
+    public void deleteMany(DeleteRequest deleteRequest) throws MapleException {
         try {
-            employeeRepository.deleteByIdIn(ids);
+            employeeRepository.deleteByIdIn(deleteRequest.getIds());
         } catch (Exception e) {
             throw new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

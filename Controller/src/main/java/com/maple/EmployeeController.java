@@ -1,5 +1,6 @@
 package com.maple;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maple.Exception.MapleException;
 import com.maple.validation.InvalidEmployeeAttributeValue;
 import ma.glasnost.orika.MapperFacade;
@@ -11,11 +12,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,11 +29,11 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     @Autowired
     private EmployeeService employeeService;
 
-    @GetMapping("/employee")
+    @GetMapping(value = "/employee")
     public BaseResponse<EmployeeResponse> getAllEmployees(
             @RequestParam (value = "page", defaultValue = "0") int page,
             @RequestParam (value = "size", defaultValue = "10") int size,
-            @RequestParam (value = "sortBy", defaultValue = "employeeId") String sortBy
+            @RequestParam (value = "sortBy", defaultValue = "id") String sortBy
     ){
         return responseMapping(new BaseResponse(),
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),null);
@@ -50,21 +51,20 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         }
     }
 
-    @PostMapping(value ="/upload")
-    public BaseResponse upload(@RequestParam(value = "file", required = false) MultipartFile file,
-                               @RequestPart(value ="employee") @Valid Employee data) {
-        return new BaseResponse(file.getOriginalFilename());
-    }
-    @PostMapping(value = "/employee")
+    @PostMapping("/employee")
     public BaseResponse<EmployeeResponse> createEmployee(
-            @Valid Employee emp
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @Valid @RequestParam(value = "data") String employee
     ) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
-            br.setValue(getMap().map(employeeService.create(emp, null), EmployeeResponse.class));
+            Employee emp = new ObjectMapper().readValue(employee, Employee.class);
+            br.setValue(getMap().map(employeeService.create(emp, file), EmployeeResponse.class));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br,e);
+        } catch (IOException e) {
+            return responseMapping(br, new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST));
         }
     }
 
@@ -81,10 +81,10 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     }
 
     @DeleteMapping("/employee")
-    public BaseResponse<String> deleteEmployee(@RequestBody List<String> ids) {
+    public BaseResponse<String> deleteEmployee(@RequestBody DeleteRequest deleteRequest) {
         BaseResponse br = new BaseResponse();
         try {
-            employeeService.deleteMany(ids);
+            employeeService.deleteMany(deleteRequest);
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);
