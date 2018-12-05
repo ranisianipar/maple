@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,8 +27,8 @@ public class AssignmentService {
     @Autowired
     private CounterService counter;
 
-    public Page<Assignment> getAllAssignments(Pageable pageable) {
-        return assignmentRepository.findAll(pageable);
+    public List<Assignment> getAllAssignments(Pageable pageable) {
+        return assignmentRepository.findAll(pageable).getContent();
     }
 
     public Assignment getAssignment (String id) throws DataConstraintException{
