@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Document(collection = "items")
@@ -17,10 +18,10 @@ public class Item {
     @NotBlank(message = "Name can't be blank")
     private String name;
 
-    @NotBlank(message = "Price can't be blank")
+    @NotNull(message = "Price can't be blank")
     private Integer price;
 
-    @NotBlank(message = "Quantity can't be blank")
+    @NotNull(message = "Quantity can't be blank")
     private Integer quantity;
     private String description;
     private Date createdDate;

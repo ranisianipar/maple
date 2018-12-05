@@ -25,11 +25,11 @@ public class ItemService {
 
     final private String ITEM = "Item";
 
-    public Page<Item> getAll(Pageable pageRequest, String search) {
+    public List<Item> getAll(Pageable pageRequest, String search) {
         if (search == null)
-            return itemRepository.findAll(pageRequest);
+            return itemRepository.findAll(pageRequest).getContent();
         //kalo dia ngesearch: pake prefix nya
-        return itemRepository.findAll(pageRequest);
+        return itemRepository.findAll(pageRequest).getContent();
     }
 
     public Item get(String id) throws NotFoundException {

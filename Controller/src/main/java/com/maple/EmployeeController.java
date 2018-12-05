@@ -50,8 +50,9 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         }
     }
 
-    @PostMapping(value ="/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public BaseResponse upload(@RequestParam(value = "file", required = false) MultipartFile file) {
+    @PostMapping(value ="/upload")
+    public BaseResponse upload(@RequestParam(value = "file", required = false) MultipartFile file,
+                               @RequestPart(value ="employee") @Valid Employee data) {
         return new BaseResponse(file.getOriginalFilename());
     }
     @PostMapping(value = "/employee")
