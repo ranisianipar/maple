@@ -27,6 +27,7 @@ public class AssignmentService {
     @Autowired
     private CounterService counter;
 
+
     public List<Assignment> getAllAssignments(Pageable pageable) {
         return assignmentRepository.findAll(pageable).getContent();
     }
@@ -148,10 +149,20 @@ public class AssignmentService {
         }
     }
 
-
-
-    private String status() {
-        return null;
+    public String getButtonByStatus(String status) {
+        if (status.equals("PENDING")) {
+            List<String> button = new ArrayList<>();
+            button.add("bthApprove");
+            button.add("btnReject");
+            return button.toString();
+        }
+        else if (status.equals("APPROVED")) {
+            return "btnHandover";
+        }
+        else if (status.equals("RECEIVED")) {
+            return "btnReturn";
+        }
+        else return null;
     }
 
     private void validate(Assignment assignment) throws DataConstraintException{
