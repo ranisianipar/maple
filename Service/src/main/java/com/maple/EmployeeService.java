@@ -85,6 +85,7 @@ public class EmployeeService {
     public void deleteMany(DeleteRequest deleteRequest) throws MapleException {
         try {
             employeeRepository.deleteByIdIn(deleteRequest.getIds());
+            // delete photo --> delete photo by name contain id
             assignmentService.deleteByEmployee(deleteRequest.getIds());
         } catch (Exception e) {
             throw new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST);

@@ -69,14 +69,19 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     }
 
     @PostMapping("/employee/{id}")
-    public BaseResponse<EmployeeResponse> updateEmployee(@PathVariable String id,
-                                                         @Valid @RequestBody Employee emp) {
+    public BaseResponse<EmployeeResponse> updateEmployee(
+            @PathVariable String id,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @Valid @RequestParam(value = "data") String employee) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
-            br.setValue(getMap().map(employeeService.update(id, emp), EmployeeResponse.class));
+            Employee emp = new ObjectMapper().readValue(employee, Employee.class);
+            br.setValue(getMap().map(employeeService.update(id, emp, file), EmployeeResponse.class));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);
+        }catch (IOException e) {
+            return responseMapping(br, new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST));
         }
     }
 
