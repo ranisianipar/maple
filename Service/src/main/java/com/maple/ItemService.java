@@ -21,6 +21,9 @@ public class ItemService {
     ItemRepository itemRepository;
 
     @Autowired
+    AssignmentService assignmentService;
+
+    @Autowired
     CounterService counterService;
 
     final private String ITEM = "Item";
@@ -67,6 +70,7 @@ public class ItemService {
     public void deleteMany(List<String> listOfId) throws MapleException {
         try {
             itemRepository.deleteByItemSkuIn(listOfId);
+            assignmentService.deleteByItem(listOfId);
         } catch (Exception e) {
             throw new MapleException(e.getMessage(),HttpStatus.BAD_REQUEST);
         }

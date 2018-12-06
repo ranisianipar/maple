@@ -122,13 +122,33 @@ public class AssignmentService {
         assignmentRepository.deleteAll();
     }
 
-    public void deleteByEmployee(String id) {
-        List<Assignment> assignments = assignmentRepository.findByEmployeeId(id);
-        //return the item
-        for (Assignment assignment : assignments) {
-            itemService.returnItem(assignment.getItemSku(), assignment.getQuantity());
+    public void deleteByEmployee(List<String> ids) {
+        List<Assignment> assignments;
+        for (String id : ids ) {
+            assignments = assignmentRepository.findByEmployeeId(id);
+            //return the item and delete assignment
+            if (!assignments.isEmpty()) {
+                for (Assignment assignment : assignments) {
+                    itemService.returnItem(assignment.getItemSku(), assignment.getQuantity());
+                    assignmentRepository.delete(assignment);
+                }
+            }
         }
     }
+
+    public void deleteByItem(List<String> ids) {
+        List<Assignment> assignments;
+        for (String id: ids) {
+            assignments = assignmentRepository.findByItemSku(id);
+            if (!assignments.isEmpty()) {
+                for (Assignment assignment : assignments) {
+                    assignmentRepository.delete(assignment);
+                }
+            }
+        }
+    }
+
+
 
     private String status() {
         return null;

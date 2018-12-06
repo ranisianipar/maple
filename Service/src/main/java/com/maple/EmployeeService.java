@@ -29,6 +29,9 @@ public class EmployeeService {
     private EmployeeRepository employeeRepository;
 
     @Autowired
+    private AssignmentService assignmentService;
+
+    @Autowired
     private CounterService counter;
 
     private List errorMessage = new ArrayList();
@@ -58,10 +61,6 @@ public class EmployeeService {
         return employeeRepository.save(emp);
     }
 
-    public String upload(MultipartFile file) throws IOException{
-        return SimpleUtils.storeFile(UPLOADED_FOLDER,file,"EMP-0");
-    }
-
     public Employee update(String id, Employee emp, MultipartFile file) throws NotFoundException, DataConstraintException, IOException {
         Optional<Employee> employeeObj = employeeRepository.findById(id);
 
@@ -86,6 +85,7 @@ public class EmployeeService {
     public void deleteMany(DeleteRequest deleteRequest) throws MapleException {
         try {
             employeeRepository.deleteByIdIn(deleteRequest.getIds());
+            assignmentService.deleteByEmployee(deleteRequest.getIds());
         } catch (Exception e) {
             throw new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
