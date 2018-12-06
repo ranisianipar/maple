@@ -54,10 +54,10 @@ public class EmployeeService {
 
     public Employee create(Employee emp, MultipartFile file) throws DataConstraintException, IOException {
         checkDataValue(emp, true);
-        if (file != null) emp.setImagePath(file.getContentType());
-
         emp.setId(counter.getNextEmployee());
-        emp.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, emp.getId()));
+        if (file != null)
+            emp.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, emp.getId()));;
+
         return employeeRepository.save(emp);
     }
 

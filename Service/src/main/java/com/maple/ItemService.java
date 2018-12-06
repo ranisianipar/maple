@@ -4,11 +4,12 @@ import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,6 +28,7 @@ public class ItemService {
     CounterService counterService;
 
     final private String ITEM = "Item";
+    final String UPLOADED_FOLDER = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Item";
 
     public List<Item> getAll(Pageable pageRequest, String search) {
         if (search == null)
@@ -45,10 +47,12 @@ public class ItemService {
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalItem());}
 
     //createdBy belom -> nunggu login
-    public Item create(Item item) throws DataConstraintException {
+    public Item create(Item item, MultipartFile file) throws IOException,DataConstraintException {
         validate(item, true);
         item.setItemSku(counterService.getNextItem());
         item.setCreatedDate(new Date());
+        if (file != null)
+            item.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, item.getItemSku()));
         return itemRepository.save(item);
     }
 
