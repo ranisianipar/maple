@@ -72,11 +72,10 @@ public class EmployeeService {
         employee.setEmail(emp.getEmail());
         employee.setName(emp.getName());
 
-        // employee yg baru ga punya imagePath, jadi ngeceknya ga langsung ke path nya
-        if (!employee.getImagePath().equals(emp.getImagePath())) {
-            SimpleUtils.deleteFile(employee.getImagePath());
-            //SimpleUtils.storeFile(emp.)
-        }
+        //delete the old photo, replace the new one
+        SimpleUtils.deleteFile(employee.getImagePath());
+        SimpleUtils.storeFile(UPLOADED_FOLDER, file, employee.getId());
+
         employee.setImagePath(emp.getImagePath());
         employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
@@ -129,6 +128,11 @@ public class EmployeeService {
                     !employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
                 errorMessage.add(email_msg);
         }
+    }
+
+    // non functional
+    public boolean isExist(String id) {
+        return employeeRepository.findById(id).isPresent();
     }
 
     //to make sure the data attribute value is appropriate

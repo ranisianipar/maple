@@ -16,13 +16,13 @@ import java.util.Optional;
 public class AssignmentService {
 
     @Autowired
-    EmployeeRepository employeeRepository;
+    private EmployeeService employeeService;
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemService itemService;
 
     @Autowired
-    AssignmentRepository assignmentRepository;
+    private AssignmentRepository assignmentRepository;
 
     @Autowired
     private CounterService counter;
@@ -42,19 +42,20 @@ public class AssignmentService {
     public long getTotalAssignment() {return SimpleUtils.getTotalObject(assignmentRepository);}
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalAssignment());}
 
-    public Assignment createAssignment(Assignment assignment) throws DataConstraintException{
+    public Assignment createAssignment(Assignment assignment) throws NotFoundException, DataConstraintException{
         //check EmployeeId and ItemSku are valid
         validate(assignment);
 
         //check the item has enough quantity
-        Item item = itemRepository.findById(assignment.getItemSku()).get();
+        Item item = itemService.get(assignment.getItemSku());
         if (item.getQuantity()-assignment.getQuantity() < 0)
             throw new DataConstraintException ("Item doesn't have enough quantity");
 
         assignment.setAssignmentId(counter.getNextAssignment());
+
         //update item's quantity
         item.setQuantity(item.getQuantity()-assignment.getQuantity());
-        itemRepository.save(item);
+        itemService.update(item.getItemSku(), item);
 
         //return the new assignment
         return assignmentRepository.save(assignment);
@@ -69,33 +70,37 @@ public class AssignmentService {
         Optional<Assignment> assignmentObj = assignmentRepository.findById(id);
         if(!assignmentObj.isPresent()) throw new NotFoundException("Assignment");
 
-        /*add or substract item's quantity on its domain
+        /*
+        * add or substract item's quantity on its domain
         * Item quantity should be (+)
         */
-        Assignment assignment = assignmentObj.get();
-        Item newItem = itemRepository.findById(newAssignment.getItemSku()).get();
+        Assignment oldAssignment = assignmentObj.get();
+        Item newItem = itemService.get(newAssignment.getItemSku());
         if (newItem.getQuantity()-newAssignment.getQuantity() < 0) {
             throw new DataConstraintException("Item doesn't have enough quantity");
         }
-        Item oldItem = itemRepository.findById(assignment.getItemSku()).get();
-        oldItem.setQuantity(oldItem.getQuantity()+assignment.getQuantity());
-        assignment.setQuantity(newAssignment.getQuantity());
+        // return the old item
+        itemService.returnItem(oldAssignment.getItemSku(), oldAssignment.getQuantity());
+
+        // update the quantity
+        oldAssignment.setQuantity(newAssignment.getQuantity());
+
+        // substract new item quantity
         newItem.setQuantity(newItem.getQuantity()-newAssignment.getQuantity());
 
         //update the assignment value
-        assignment.setEmployeeId(newAssignment.getEmployeeId());
-        assignment.setItemSku(newAssignment.getItemSku());
-        assignment.setStatus(newAssignment.getStatus());
-        assignment.setNote(newAssignment.getNote());
-        assignment.setUpdatedBy(newAssignment.getUpdatedBy());
-        assignment.setUpdatedDate(new Date());
+        oldAssignment.setEmployeeId(newAssignment.getEmployeeId());
+        oldAssignment.setItemSku(newAssignment.getItemSku());
+        oldAssignment.setStatus(newAssignment.getStatus());
+        oldAssignment.setNote(newAssignment.getNote());
+        oldAssignment.setUpdatedBy(newAssignment.getUpdatedBy());
+        oldAssignment.setUpdatedDate(new Date());
 
         //update item's quantity
-        itemRepository.save(oldItem);
-        itemRepository.save(newItem);
+        itemService.update(newItem.getItemSku(), newItem);
 
         //return the latest assignment
-        return assignmentRepository.save(assignment);
+        return assignmentRepository.save(oldAssignment);
     }
 
     public void deleteAssignment(String id) throws NotFoundException{
@@ -107,9 +112,7 @@ public class AssignmentService {
         Assignment assignment = assignmentObj.get();
 
         //put the quantity back to the item
-        Item item = itemRepository.findById(assignment.getItemSku()).get();
-        item.setQuantity(item.getQuantity()+assignment.getQuantity());
-        itemRepository.save(item);
+        itemService.returnItem(assignment.getItemSku(), assignment.getQuantity());
 
         //remove
         assignmentRepository.delete(assignment);
@@ -119,12 +122,24 @@ public class AssignmentService {
         assignmentRepository.deleteAll();
     }
 
+    public void deleteByEmployee(String id) {
+        List<Assignment> assignments = assignmentRepository.findByEmployeeId(id);
+        //return the item
+        for (Assignment assignment : assignments) {
+            itemService.returnItem(assignment.getItemSku(), assignment.getQuantity());
+        }
+    }
+
+    private String status() {
+        return null;
+    }
+
     private void validate(Assignment assignment) throws DataConstraintException{
         ArrayList errorMessage = new ArrayList();
 
-        if (!employeeRepository.findById(assignment.getEmployeeId()).isPresent())
+        if (!employeeService.isExist(assignment.getEmployeeId()))
             errorMessage.add("Employee doesn't exist");
-        if (!itemRepository.findById(assignment.getItemSku()).isPresent())
+        if (!itemService.isExist(assignment.getItemSku()))
             errorMessage.add("Item doesn't exist");
 
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());

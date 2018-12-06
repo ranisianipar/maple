@@ -75,6 +75,18 @@ public class ItemService {
 
     public void deleteAll() { itemRepository.deleteAll(); }
 
+    // non functional
+
+    public boolean isExist(String itemSku) {
+        return itemRepository.findById(itemSku).isPresent();
+    }
+
+    public void returnItem(String itemSku, int quantity) {
+        Item item = itemRepository.findById(itemSku).get();
+        item.setQuantity(item.getQuantity()+quantity);
+        itemRepository.save(item);
+    }
+
     public void validate(Item item, boolean create) throws DataConstraintException{
         ArrayList errorMessage = new ArrayList();
         String name_msg = "Name have already exist";
