@@ -76,8 +76,7 @@ public class ItemController extends InvalidItemAttributeValue {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
             Item itemMapped = new ObjectMapper().readValue(item, Item.class);
-            // upload gambar
-            br.setValue(itemService.update(id, itemMapped));
+            br.setValue(itemService.update(id, itemMapped, file));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br,e);
@@ -101,6 +100,17 @@ public class ItemController extends InvalidItemAttributeValue {
     public BaseResponse deleteItems() {
         itemService.deleteAll();
         return responseMapping(new BaseResponse("All items have been removed"), null);
+    }
+
+    @GetMapping("/item/{id}/generatePdf")
+    public BaseResponse generate(@PathVariable String id) {
+        try {
+            itemService.generatePdf(id);
+            return responseMapping(new BaseResponse(), null);
+        } catch (Exception e) {
+            return responseMapping(new BaseResponse(), new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST));
+        }
+
     }
 
     //HELPER METHOD

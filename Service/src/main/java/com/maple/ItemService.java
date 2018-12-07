@@ -1,5 +1,9 @@
 package com.maple;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
@@ -9,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,10 +62,13 @@ public class ItemService {
     }
 
     //updatedBy belom -> nunggu login
-    public Item update(String id, Item item) throws NotFoundException, DataConstraintException{
+    public Item update(String id, Item item, MultipartFile file) throws NotFoundException, DataConstraintException, IOException{
         Optional<Item> itemObject = itemRepository.findById(id);
         if (!itemObject.isPresent()) throw new NotFoundException(ITEM);
         Item updatedItem = itemObject.get();
+        SimpleUtils.deleteFile(item.getImagePath());
+
+        updatedItem.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER,file, item.getItemSku()));
         updatedItem.setImagePath(item.getImagePath());
         updatedItem.setName(item.getName());
         updatedItem.update(item.getUpdatedBy());
@@ -82,6 +90,21 @@ public class ItemService {
     }
 
     public void deleteAll() { itemRepository.deleteAll(); }
+
+    public void generatePdf(String id) throws Exception{
+        // pake table aja biar bagus, pake image
+        Item item = itemRepository.findById(id).get();
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, new FileOutputStream(item.getItemSku()+".pdf"));
+        document.addTitle(item.getName());
+
+        //input item value
+        document.open();
+        // image path jangan di-include
+        Paragraph para = new Paragraph(item.toString());
+        document.add(para);
+        document.close();
+    }
 
     // non functional
 

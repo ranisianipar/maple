@@ -39,4 +39,5 @@ public class SimpleUtils {
     public static void deleteFile(String path) throws IOException{
         Files.deleteIfExists(Paths.get(path));
     }
+
 }

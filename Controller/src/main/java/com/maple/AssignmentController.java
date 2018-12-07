@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost")
@@ -57,18 +58,23 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             return responseMapping(br, null);
         } catch (MapleException m) {
             return responseMapping(br, m);
+        } catch (IOException i) {
+            return responseMapping(br, new MapleException(i.getMessage(), HttpStatus.BAD_REQUEST));
         }
     }
 
     @PostMapping("/assignment/{id}")
-    public BaseResponse updateAssignment(@PathVariable String id,
-                                                         @Valid @RequestBody Assignment assignment) {
+    public BaseResponse updateAssignment(
+            @PathVariable String id,
+            @Valid @RequestBody Assignment assignment) {
         BaseResponse br = new BaseResponse<>();
         try {
             br.setValue(assignmentService.updateAssignment(id, assignment));
             return responseMapping(br, null);
         } catch (MapleException m) {
             return responseMapping(br, m);
+        } catch (IOException i) {
+            return responseMapping(br, new MapleException(i.getMessage(), HttpStatus.BAD_REQUEST));
         }
     }
 

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,7 +44,7 @@ public class AssignmentService {
     public long getTotalAssignment() {return SimpleUtils.getTotalObject(assignmentRepository);}
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalAssignment());}
 
-    public Assignment createAssignment(Assignment assignment) throws NotFoundException, DataConstraintException{
+    public Assignment createAssignment(Assignment assignment) throws NotFoundException, DataConstraintException, IOException {
         //check EmployeeId and ItemSku are valid
         validate(assignment);
 
@@ -56,14 +57,14 @@ public class AssignmentService {
 
         //update item's quantity
         item.setQuantity(item.getQuantity()-assignment.getQuantity());
-        itemService.update(item.getItemSku(), item);
+        itemService.update(item.getItemSku(), item, null);
 
         //return the new assignment
         return assignmentRepository.save(assignment);
     }
 
     public Assignment updateAssignment(String id, Assignment newAssignment)
-            throws DataConstraintException, NotFoundException{
+            throws DataConstraintException, NotFoundException, IOException{
 
         validate(newAssignment);
         //get assignment
@@ -98,7 +99,7 @@ public class AssignmentService {
         oldAssignment.setUpdatedDate(new Date());
 
         //update item's quantity
-        itemService.update(newItem.getItemSku(), newItem);
+        itemService.update(newItem.getItemSku(), newItem, null);
 
         //return the latest assignment
         return assignmentRepository.save(oldAssignment);
