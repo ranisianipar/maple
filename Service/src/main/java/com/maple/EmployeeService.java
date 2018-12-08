@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 public class EmployeeService {
 
     final String EMPLOYEE = "Employee";
-    final String SUPERIOR = "Superior";
     final String UPLOADED_FOLDER = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Employee";
 
     @Autowired
@@ -84,8 +83,14 @@ public class EmployeeService {
 
     public void deleteMany(DeleteRequest deleteRequest) throws MapleException {
         try {
+            // delete image
+            Optional<Employee> employeeOptional;
+            for (String id : deleteRequest.getIds()) {
+                employeeOptional = employeeRepository.findById(id);
+                if (employeeOptional.isPresent())
+                    SimpleUtils.deleteFile(employeeOptional.get().getImagePath());
+            }
             employeeRepository.deleteByIdIn(deleteRequest.getIds());
-            // delete photo --> delete photo by name contain id
             assignmentService.deleteByEmployee(deleteRequest.getIds());
         } catch (Exception e) {
             throw new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -134,6 +139,12 @@ public class EmployeeService {
     // non functional
     public boolean isExist(String id) {
         return employeeRepository.findById(id).isPresent();
+    }
+    public Employee authenticate(String username, String password) {
+        Employee employee = employeeRepository.findByUsername(username);
+        if (employee == null) return null;
+        if (!employee.getPassword().equals(password)) return null;
+        return employee;
     }
 
     //to make sure the data attribute value is appropriate

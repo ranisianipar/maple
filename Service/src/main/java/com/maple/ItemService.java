@@ -83,6 +83,14 @@ public class ItemService {
 
     public void deleteMany(List<String> listOfId) throws MapleException {
         try {
+            // delete image
+            Optional<Item> itemObject;
+            for (String id : listOfId) {
+                itemObject = itemRepository.findById(id);
+                if (itemObject.isPresent())
+                SimpleUtils.deleteFile(itemObject.get().getImagePath());
+            }
+
             itemRepository.deleteByItemSkuIn(listOfId);
             assignmentService.deleteByItem(listOfId);
         } catch (Exception e) {
