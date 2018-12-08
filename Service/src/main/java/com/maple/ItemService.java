@@ -1,8 +1,9 @@
 package com.maple;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.ColumnText;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 public class ItemService {
@@ -92,7 +94,6 @@ public class ItemService {
     public void deleteAll() { itemRepository.deleteAll(); }
 
     public void generatePdf(String id) throws Exception{
-        // pake table aja biar bagus, pake image
         Item item = itemRepository.findById(id).get();
         Document document = new Document(PageSize.A4);
         PdfWriter.getInstance(document, new FileOutputStream(item.getItemSku()+".pdf"));
@@ -100,9 +101,32 @@ public class ItemService {
 
         //input item value
         document.open();
-        // image path jangan di-include
-        Paragraph para = new Paragraph(item.toString());
-        document.add(para);
+        if (item.getImagePath() != null) {
+            Image img = Image.getInstance(item.getImagePath());
+            img.scaleAbsolute(200,200);
+            document.add(img);
+        }
+
+        document.add(new Paragraph("\n\n"));
+        PdfPTable table = new PdfPTable(2);
+
+        //header
+        PdfPCell header = new PdfPCell();
+        header.setBackgroundColor(BaseColor.LIGHT_GRAY);
+        header.setPhrase(new Phrase("Attribute"));
+        table.addCell(header);
+        header.setPhrase(new Phrase("Value"));
+        table.addCell(header);
+
+        // attribute; value
+        table.addCell("Item SKU"); table.addCell(item.getItemSku());
+        table.addCell("Description"); table.addCell(item.getDescription());
+        table.addCell("Price"); table.addCell(item.getPrice().toString());
+        table.addCell("Quantity"); table.addCell(item.getQuantity().toString());
+        table.addCell("Created by"); table.addCell(item.getCreatedBy());
+        table.addCell("Created at"); table.addCell(item.getCreatedDate().toString());
+
+        document.add(table);
         document.close();
     }
 

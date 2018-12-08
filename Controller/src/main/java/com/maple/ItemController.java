@@ -102,7 +102,7 @@ public class ItemController extends InvalidItemAttributeValue {
         return responseMapping(new BaseResponse("All items have been removed"), null);
     }
 
-    @GetMapping("/item/{id}/generatePdf")
+    @GetMapping("/item/{id}/download")
     public BaseResponse generate(@PathVariable String id) {
         try {
             itemService.generatePdf(id);
