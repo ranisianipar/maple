@@ -3,7 +3,6 @@ package com.maple;
 import com.maple.Exception.MapleException;
 import com.maple.validation.InvalidAssignmentAttributeValue;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,11 +17,11 @@ import java.util.List;
 @RestController
 public class AssignmentController extends InvalidAssignmentAttributeValue {
 
-    public List<EmployeeResponse> employeeResponses;
     @Autowired
     private AssignmentService assignmentService;
 
-    //need pagination
+    public List<EmployeeResponse> employeeResponses;
+
     @GetMapping("/assignment")
     public BaseResponse<EmployeeResponse> getAllAssignments(
             @RequestParam (value = "page", defaultValue = "0") int page,

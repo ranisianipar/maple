@@ -19,6 +19,12 @@
         </dependency>
         <dependency>
             <groupId>future</groupId>
+            <artifactId>model</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>future</groupId>
             <artifactId>service</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
