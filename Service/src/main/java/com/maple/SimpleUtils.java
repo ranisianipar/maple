@@ -27,9 +27,9 @@ public class SimpleUtils {
     }
 
     public static String storeFile(String folderPath, MultipartFile file, String id) throws IOException {
+        if (file == null) return null;
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
         String path = folderPath+"/"+id+"_"+filename;
-        if (file == null) return null;
         if (!Files.exists(Paths.get(folderPath))) Files.createDirectory(Paths.get(folderPath));
         InputStream inputStream = file.getInputStream();
         Files.copy(inputStream, Paths.get(path), StandardCopyOption.REPLACE_EXISTING);
