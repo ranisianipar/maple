@@ -61,7 +61,7 @@ public class AssignmentService {
         //return the new assignment
         return assignmentRepository.save(assignment);
     }
-
+// ulang aja
     public Assignment updateAssignment(String id, Assignment newAssignment)
             throws DataConstraintException, NotFoundException, IOException{
 
@@ -76,18 +76,19 @@ public class AssignmentService {
         * Item quantity should be (+)
         */
         Assignment oldAssignment = assignmentObj.get();
-        Item newItem = itemService.get(newAssignment.getItemSku());
-        if (newItem.getQuantity()-newAssignment.getQuantity() < 0) {
+
+        if (itemService.get(newAssignment.getItemSku()).getQuantity()-newAssignment.getQuantity() < 0) { //newItem q
             throw new DataConstraintException("Item doesn't have enough quantity");
         }
-        // return the old item
+
         itemService.returnItem(oldAssignment.getItemSku(), oldAssignment.getQuantity());
 
+        // refresh item yg udah dikembaliin (karna bisa jadi item yg diupdate sama)
+        Item newItem = itemService.get(newAssignment.getItemSku());
         // update the quantity
         oldAssignment.setQuantity(newAssignment.getQuantity());
-
         // substract new item quantity
-        newItem.setQuantity(newItem.getQuantity()-newAssignment.getQuantity());
+        newItem.setQuantity(newItem.getQuantity()-oldAssignment.getQuantity());
 
         //update the assignment value
         oldAssignment.setEmployeeId(newAssignment.getEmployeeId());
