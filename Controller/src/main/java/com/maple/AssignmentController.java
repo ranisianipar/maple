@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost")
@@ -20,30 +22,21 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     @Autowired
     private AssignmentService assignmentService;
 
-    public List<EmployeeResponse> employeeResponses;
 
     @GetMapping("/assignment")
-    public BaseResponse<EmployeeResponse> getAllAssignments(
+    public BaseResponse getAllAssignments(
             @RequestParam (value = "page", defaultValue = "0") int page,
             @RequestParam (value = "size", defaultValue = "10") int size,
             @RequestParam (value = "sortBy", defaultValue = "assignmentId") String sortBy
     ){
-        BaseResponse br = new BaseResponse<>();
-        Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
-        br.setTotalRecords(assignmentService.getTotalAssignment());
-        br.setTotalPages(assignmentService.getTotalPage(pageRequest.getPageSize()));
-        br.setValue(assignmentService.getAllAssignments(pageRequest));
-        return responseMapping(br,null);
+        return responseMapping(new BaseResponse(),PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),null);
     }
 
     @GetMapping("/assignment/{id}")
     public BaseResponse getAssignment(@PathVariable String id) {
         BaseResponse br = new BaseResponse<>();
-        Assignment assignment;
         try {
-            assignment = assignmentService.getAssignment(id);
-            br.setValue(assignment);
-            return responseMapping(br, null);
+            return responseMapping(br, assignmentService.getAssignment(id), null);
         } catch (MapleException e) {
             return responseMapping(br, e);
         }
@@ -53,8 +46,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     public BaseResponse createAssignment(@Valid @RequestBody Assignment assignment) {
         BaseResponse br = new BaseResponse<>();
         try {
-            br.setValue(assignmentService.createAssignment(assignment));
-            return responseMapping(br, null);
+            return responseMapping(br, assignmentService.createAssignment(assignment),null);
         } catch (MapleException m) {
             return responseMapping(br, m);
         } catch (IOException i) {
@@ -68,13 +60,25 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             @Valid @RequestBody Assignment assignment) {
         BaseResponse br = new BaseResponse<>();
         try {
-            br.setValue(assignmentService.updateAssignment(id, assignment));
-            return responseMapping(br, null);
+            return responseMapping(br, assignmentService.updateAssignment(id, assignment),null);
         } catch (MapleException m) {
             return responseMapping(br, m);
         } catch (IOException i) {
             return responseMapping(br, new MapleException(i.getMessage(), HttpStatus.BAD_REQUEST));
         }
+    }
+
+    @PostMapping("/assignment/{id}/status")
+    public BaseResponse updateStatusAssignment (
+            @PathVariable String id,
+            @RequestParam(value = "action") String action){
+        try {
+            // value nya button2
+            return responseMapping(new BaseResponse(), assignmentService.updateStatus(id, action), null);
+        }   catch (MapleException e) {
+            return responseMapping(new BaseResponse(), e);
+        }
+
     }
 
     @DeleteMapping("/assignment/{id}")
@@ -95,6 +99,34 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     }
 
     //HELPER METHOD
+
+    private BaseResponse responseMapping (BaseResponse br, Pageable pageRequest, MapleException e) {
+        List<AssignmentResponse> assignmentResponses = new ArrayList<>();
+
+        AssignmentResponse ar = new AssignmentResponse();
+        Assignment assignment;
+
+        Iterator<Assignment> assignmentPage = assignmentService.getAllAssignments(pageRequest).iterator();
+        while (assignmentPage.hasNext()) {
+            assignment = assignmentPage.next();
+            ar.setAssignment(assignment);
+            ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
+            assignmentResponses.add(ar);
+        }
+        br.setTotalRecords(assignmentService.getTotalAssignment());
+        br.setValue(assignmentResponses);
+        br.setPaging(pageRequest);
+        br.setTotalPages(assignmentService.getTotalPage(pageRequest.getPageSize()));
+        return responseMapping(br, e);
+    }
+    private BaseResponse responseMapping(BaseResponse br, Assignment assignment, MapleException e) {
+        AssignmentResponse ar = new AssignmentResponse();
+        ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
+        ar.setAssignment(assignment);
+        br.setValue(ar);
+        return responseMapping(br, e);
+    }
+
     private BaseResponse responseMapping(BaseResponse br, MapleException e) {
         if (e == null) {
             br.setCode(HttpStatus.OK);

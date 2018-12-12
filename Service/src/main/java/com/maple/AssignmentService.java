@@ -1,16 +1,15 @@
 package com.maple;
 
 import com.maple.Exception.DataConstraintException;
+import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class AssignmentService {
@@ -54,6 +53,9 @@ public class AssignmentService {
 
         assignment.setAssignmentId(counter.getNextAssignment());
 
+        //default value
+        assignment.setStatus("PENDING");
+
         //update item's quantity
         item.setQuantity(item.getQuantity()-assignment.getQuantity());
         itemService.update(item.getItemSku(), item, null);
@@ -61,7 +63,7 @@ public class AssignmentService {
         //return the new assignment
         return assignmentRepository.save(assignment);
     }
-// ulang aja
+
     public Assignment updateAssignment(String id, Assignment newAssignment)
             throws DataConstraintException, NotFoundException, IOException{
 
@@ -93,7 +95,6 @@ public class AssignmentService {
         //update the assignment value
         oldAssignment.setEmployeeId(newAssignment.getEmployeeId());
         oldAssignment.setItemSku(newAssignment.getItemSku());
-        oldAssignment.setStatus(newAssignment.getStatus());
         oldAssignment.setNote(newAssignment.getNote());
         oldAssignment.setUpdatedBy(newAssignment.getUpdatedBy());
         oldAssignment.setUpdatedDate(new Date());
@@ -103,6 +104,29 @@ public class AssignmentService {
 
         //return the latest assignment
         return assignmentRepository.save(oldAssignment);
+    }
+    // action = nama buttonnya
+    public Assignment updateStatus(String id, String action) throws MapleException{
+        Optional<Assignment> assignmentObj = assignmentRepository.findById(id);
+        if (!assignmentObj.isPresent()) throw new NotFoundException(id);
+
+        Assignment assignment = assignmentObj.get();
+
+        //check aksinya sesuai sama statusnya ga
+        if (!getButtonByStatus(assignment.getStatus()).contains(action))
+            throw new MapleException("Method not allowed", HttpStatus.METHOD_NOT_ALLOWED);
+        assignment.setStatus(increaseStatus(assignment.getStatus()));
+
+        return assignmentRepository.save(assignment);
+    }
+    //implement state design pattern
+    private String increaseStatus(String status) throws NotFoundException{
+        if (status.equals("PENDING"))
+            return "APPROVED";
+        else if (status.equals("APPROVED"))
+            return "RECEIVED";
+        if (!status.equals("RECEIVED")) throw new NotFoundException("Assignment status: "+status);
+        return status;
     }
 
     public void deleteAssignment(String id) throws NotFoundException{
@@ -150,20 +174,20 @@ public class AssignmentService {
         }
     }
 
-    public String getButtonByStatus(String status) {
+    public List<String> getButtonByStatus(String status) {
+        List<String>button = new ArrayList<>();
         if (status.equals("PENDING")) {
-            List<String> button = new ArrayList<>();
-            button.add("bthApprove");
+            button.add("btnApprove");
             button.add("btnReject");
-            return button.toString();
         }
         else if (status.equals("APPROVED")) {
-            return "btnHandover";
+            button.add("btnHandover");
         }
         else if (status.equals("RECEIVED")) {
-            return "btnReturn";
+            button.add("btnReturn");
         }
         else return null;
+        return button;
     }
 
     private void validate(Assignment assignment) throws DataConstraintException{
