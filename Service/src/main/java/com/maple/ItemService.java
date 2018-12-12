@@ -69,10 +69,18 @@ public class ItemService {
         Optional<Item> itemObject = itemRepository.findById(id);
         if (!itemObject.isPresent()) throw new NotFoundException(ITEM);
         Item updatedItem = itemObject.get();
-        SimpleUtils.deleteFile(item.getImagePath());
 
-        updatedItem.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER,file, item.getItemSku()));
-        updatedItem.setImagePath(item.getImagePath());
+
+        //kalo dia berniat ngapus gambar, brarti dia harus imagePathnya di null in dari request
+        if (item.getImagePath() == null) {
+            SimpleUtils.deleteFile(item.getImagePath());
+            updatedItem.setImagePath(null);
+        }
+        // user replace/add picture
+        if (file != null) {
+            updatedItem.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, item.getItemSku()));
+        }
+
         updatedItem.setName(item.getName());
         updatedItem.update(item.getUpdatedBy());
         updatedItem.setDescription(item.getDescription());

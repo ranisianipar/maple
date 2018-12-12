@@ -70,11 +70,15 @@ public class EmployeeService {
         employee.setEmail(emp.getEmail());
         employee.setName(emp.getName());
 
-        //delete the old photo, replace the new one
-        SimpleUtils.deleteFile(employee.getImagePath());
-        SimpleUtils.storeFile(UPLOADED_FOLDER, file, employee.getId());
-
-        employee.setImagePath(emp.getImagePath());
+        //kalo dia berniat ngapus gambar, brarti dia harus imagePathnya di null in dari request
+        if (employee.getImagePath() == null) {
+            SimpleUtils.deleteFile(employee.getImagePath());
+            employee.setImagePath(null);
+        }
+        // user replace/add picture
+        if (file != null) {
+            employee.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, employee.getId()));
+        }
         employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
         checkDataValue(employee, false);
