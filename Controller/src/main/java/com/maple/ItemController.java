@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -102,13 +103,12 @@ public class ItemController extends InvalidItemAttributeValue {
         return responseMapping(new BaseResponse("All items have been removed"), null);
     }
 
-    @GetMapping("/item/{id}/download")
-    public BaseResponse generate(@PathVariable String id) {
+    @GetMapping(value="/item/{id}/download", produces = MediaType.APPLICATION_PDF_VALUE)
+    public byte[] generate(@PathVariable String id) {
         try {
-            itemService.generatePdf(id);
-            return responseMapping(new BaseResponse(), null);
+            return itemService.generatePdf(id);
         } catch (Exception e) {
-            return responseMapping(new BaseResponse(), new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST));
+            return new byte[0];
         }
 
     }

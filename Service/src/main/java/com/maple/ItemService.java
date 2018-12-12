@@ -1,7 +1,6 @@
 package com.maple;
 
 import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -16,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -101,7 +102,7 @@ public class ItemService {
 
     public void deleteAll() { itemRepository.deleteAll(); }
 
-    public void generatePdf(String id) throws Exception{
+    public byte[] generatePdf(String id) throws Exception{
         Item item = itemRepository.findById(id).get();
         Document document = new Document(PageSize.A4);
         PdfWriter.getInstance(document, new FileOutputStream(item.getItemSku()+".pdf"));
@@ -136,6 +137,9 @@ public class ItemService {
 
         document.add(table);
         document.close();
+
+        return Files.readAllBytes(Paths.get(item.getItemSku()+".pdf"));
+
     }
 
     // non functional
