@@ -120,7 +120,7 @@ public class EmployeeService {
     private void checkDataValue(Employee emp, boolean create) throws DataConstraintException{
         validateAttributeValue(emp);
         uniquenessChecker(emp, create);
-        //regexChecker(emp);
+        regexChecker(emp);
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }
 
@@ -163,15 +163,15 @@ public class EmployeeService {
 
     //to make sure the data attribute value is appropriate
     private void regexChecker (Employee emp){
-        String phone_msg = "Phone number invalid";
+        String phone_msg = "Phone number invalid, should only contain numbers";
         String email_msg = "Email is unvalid, should contain '@'";
 
         //regex for phone number consist of number;
-        Pattern phoneNumberPattern = Pattern.compile(".*[^0-9].*");
+        Pattern phoneNumberPattern = Pattern.compile("\\d*");
         Pattern emailPattern = Pattern.compile(".*@.*");
 
         // phone number checker
-        if (!phoneNumberPattern.matcher(emp.getPhone()).matches()) errorMessage.add(phone_msg);
+        if (emp.getPhone() !=null &&!phoneNumberPattern.matcher(emp.getPhone()).matches()) errorMessage.add(phone_msg);
         if (!emailPattern.matcher(emp.getEmail()).matches()) errorMessage.add(email_msg);
     }
 

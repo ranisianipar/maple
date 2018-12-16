@@ -58,6 +58,7 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
             Employee emp = new ObjectMapper().readValue(employee, Employee.class);
+            System.out.println(emp.toString());
             br.setValue(getMap().map(employeeService.create(emp, file), EmployeeResponse.class));
             return responseMapping(br, null);
         } catch (MapleException e) {
