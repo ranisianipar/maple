@@ -165,6 +165,13 @@ public class ItemService {
     public void validate(Item item, boolean create) throws DataConstraintException{
         ArrayList errorMessage = new ArrayList();
         String name_msg = "Name have already exist";
+        String null_warning = "can't be null";
+
+        // check important attributes not null
+        if (item.getName() == null) errorMessage.add("name "+null_warning);
+        if (item.getQuantity() == null) errorMessage.add("quantity "+null_warning);
+        if (item.getPrice() == null) errorMessage.add("price "+null_warning);
+
         //name uniqueness
         //kalo namanya udah ada
         if (itemRepository.findByName(item.getName()) != null) {

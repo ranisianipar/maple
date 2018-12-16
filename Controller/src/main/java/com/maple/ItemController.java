@@ -56,7 +56,7 @@ public class ItemController extends InvalidItemAttributeValue {
     @PostMapping("/item")
     public BaseResponse createItem(
             @RequestParam(value = "file",required = false) MultipartFile file,
-            @Valid @RequestParam(value = "data") String item) {
+            @RequestParam(value = "data") String item) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
             Item itemMapped = new ObjectMapper().readValue(item, Item.class);

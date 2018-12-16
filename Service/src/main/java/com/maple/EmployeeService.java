@@ -105,8 +105,20 @@ public class EmployeeService {
         employeeRepository.deleteAll();
     }
 
+    // non functional
+    public boolean isExist(String id) {
+        return employeeRepository.findById(id).isPresent();
+    }
+    public Employee authenticate(String username, String password) {
+        Employee employee = employeeRepository.findByUsername(username);
+        if (employee == null) return null;
+        if (!employee.getPassword().equals(password)) return null;
+        return employee;
+    }
 
+    // Attribute value validation
     private void checkDataValue(Employee emp, boolean create) throws DataConstraintException{
+        validateAttributeValue(emp);
         uniquenessChecker(emp, create);
         //regexChecker(emp);
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
@@ -140,15 +152,12 @@ public class EmployeeService {
         }
     }
 
-    // non functional
-    public boolean isExist(String id) {
-        return employeeRepository.findById(id).isPresent();
-    }
-    public Employee authenticate(String username, String password) {
-        Employee employee = employeeRepository.findByUsername(username);
-        if (employee == null) return null;
-        if (!employee.getPassword().equals(password)) return null;
-        return employee;
+    private void validateAttributeValue(Employee employee) {
+        String null_warning = "cant be null";
+
+        if (employee.getPassword() == null) errorMessage.add("Password "+null_warning);
+        if (employee.getUsername() ==  null) errorMessage.add("Username "+null_warning);
+        if (employee.getName() == null) errorMessage.add("Name "+null_warning);
     }
 
     //to make sure the data attribute value is appropriate

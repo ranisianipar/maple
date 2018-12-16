@@ -53,7 +53,7 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     @PostMapping("/employee")
     public BaseResponse<EmployeeResponse> createEmployee(
             @RequestParam(value = "file", required = false) MultipartFile file,
-            @Valid @RequestParam(value = "data") String employee
+            @RequestParam(value = "data") String employee
     ) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
