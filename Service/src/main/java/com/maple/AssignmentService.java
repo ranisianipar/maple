@@ -88,10 +88,13 @@ public class AssignmentService {
         * Item quantity should be (+)
         */
         Assignment oldAssignment = assignmentObj.get();
-
-        // bisa aja udah mentok 0 sisanya, trus quantitynya mau dikurangin yg di assign
+        
         if (itemService.get(newAssignment.getItemSku()).getQuantity()-newAssignment.getQuantity() < 0) {
-            throw new DataConstraintException("Item doesn't have enough quantity");
+            if (oldAssignment.getItemSku().equals(newAssignment.getItemSku())
+                    && newAssignment.getQuantity() > oldAssignment.getQuantity()
+            ) throw new DataConstraintException("Item doesn't have enough quantity");
+            else if (!oldAssignment.getItemSku().equals(newAssignment.getItemSku()))
+                throw new DataConstraintException("Item doesn't have enough quantity");
         }
 
         itemService.returnItem(oldAssignment.getItemSku(), oldAssignment.getQuantity());

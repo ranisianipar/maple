@@ -113,7 +113,6 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             ar.setAssignment(assignment);
             ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
             assignmentResponses.add(ar);
-            System.out.println("ASSIGNMENT\n"+assignmentResponses);
         }
         br.setTotalRecords(assignmentService.getTotalAssignment());
         br.setValue(assignmentResponses);
