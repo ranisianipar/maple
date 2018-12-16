@@ -103,15 +103,17 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     private BaseResponse responseMapping (BaseResponse br, Pageable pageRequest, MapleException e) {
         List<AssignmentResponse> assignmentResponses = new ArrayList<>();
 
-        AssignmentResponse ar = new AssignmentResponse();
+        AssignmentResponse ar;
         Assignment assignment;
-
         Iterator<Assignment> assignmentPage = assignmentService.getAllAssignments(pageRequest).iterator();
+
         while (assignmentPage.hasNext()) {
             assignment = assignmentPage.next();
+            ar = new AssignmentResponse();
             ar.setAssignment(assignment);
             ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
             assignmentResponses.add(ar);
+            System.out.println("ASSIGNMENT\n"+assignmentResponses);
         }
         br.setTotalRecords(assignmentService.getTotalAssignment());
         br.setValue(assignmentResponses);

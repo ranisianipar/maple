@@ -20,7 +20,6 @@ public class Assignment {
     @NotBlank(message = "itemSku can't be blank")
     private String itemSku;
 
-    @NotBlank(message = "status can't be blank")
     private String status;
 
     @NotNull(message = "quantity can't be blank")

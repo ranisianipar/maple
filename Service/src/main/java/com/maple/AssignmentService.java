@@ -4,7 +4,9 @@ import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +48,7 @@ public class AssignmentService {
     public long getTotalAssignment() {return SimpleUtils.getTotalObject(assignmentRepository);}
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalAssignment());}
 
-    public Assignment createAssignment(Assignment assignment) throws NotFoundException, DataConstraintException, IOException {
+    public Assignment createAssignment(Assignment assignment) throws MapleException, IOException {
         //check EmployeeId and ItemSku are valid
         validate(assignment);
 
@@ -63,6 +65,10 @@ public class AssignmentService {
         //update item's quantity
         item.setQuantity(item.getQuantity()-assignment.getQuantity());
         itemService.update(item.getItemSku(), item, null);
+
+        System.out.println(getAllAssignments(
+                PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "createdDate"))
+        ));
 
         //return the new assignment
         return assignmentRepository.save(assignment);

@@ -113,9 +113,7 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
 
     // helper method for getAllEmployees
     private BaseResponse responseMapping (BaseResponse br, Pageable pageRequest, MapleException e) {
-        List<EmployeeResponse> employeeResponses;
-
-        employeeResponses = new ArrayList<>();
+        List<EmployeeResponse> employeeResponses = new ArrayList<>();
         EmployeeResponse er;
 
         Iterator<Employee> employeePage = employeeService.getAll(pageRequest).iterator();
