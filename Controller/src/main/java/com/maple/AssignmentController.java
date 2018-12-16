@@ -68,12 +68,12 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         }
     }
 
+    // url: /assignment/{id}/status?action=[up/down]
     @PostMapping("/assignment/{id}/status")
     public BaseResponse updateStatusAssignment (
             @PathVariable String id,
             @RequestParam(value = "action") String action){
         try {
-            // value nya button2
             return responseMapping(new BaseResponse(), assignmentService.updateStatus(id, action), null);
         }   catch (MapleException e) {
             return responseMapping(new BaseResponse(), e);
@@ -120,10 +120,10 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         return responseMapping(br, e);
     }
     private BaseResponse responseMapping(BaseResponse br, Assignment assignment, MapleException e) {
-        AssignmentResponse ar = new AssignmentResponse();
-        ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
-        ar.setAssignment(assignment);
-        br.setValue(ar);
+        AssignmentResponse assignmentResponse = new AssignmentResponse();
+        assignmentResponse.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
+        assignmentResponse.setAssignment(assignment);
+        br.setValue(assignmentResponse);
         return responseMapping(br, e);
     }
 

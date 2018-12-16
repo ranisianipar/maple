@@ -6,7 +6,6 @@ import com.maple.validation.InvalidEmployeeAttributeValue;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -129,8 +128,6 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         br.setTotalPages(employeeService.getTotalPage(pageRequest.getPageSize()));
         return responseMapping(br, e);
     }
-
-    @Nullable
     private BaseResponse responseMapping (BaseResponse br, MapleException e) {
         if (e == null) {
             br.setCode(HttpStatus.OK);

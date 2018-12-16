@@ -3,7 +3,6 @@ package com.maple;
 import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
-import com.sun.deploy.net.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -118,18 +117,17 @@ public class AssignmentService {
 
         Assignment assignment = assignmentObj.get();
 
-        //To check the action compatible for the status or not
-        if (!getButtonByStatus(assignment.getStatus()).contains(action))
-            throw new MapleException("Method not allowed", HttpStatus.METHOD_NOT_ALLOWED);
-
-        //decide to increase or decrease state
+        //to decide whether increase or decrease state
         if (action.equalsIgnoreCase("UP"))
             assignment.setStatus(increaseStatus(assignment.getStatus(), assignment));
-        else assignment.setStatus(decreaseStatus(assignment.getStatus()));
+        else if(action.equalsIgnoreCase("DOWN"))
+            assignment.setStatus(decreaseStatus(assignment.getStatus()));
+        else throw new MapleException("Method isn't recognized", HttpStatus.METHOD_NOT_ALLOWED);
 
         return assignmentRepository.save(assignment);
     }
-    //implement state design pattern
+    // implement state design pattern
+    // status won't change if its state is 'complete'
     private String increaseStatus(String status, Assignment assignment) {
         if (status.equals("PENDING"))
             return "APPROVED";
@@ -139,7 +137,8 @@ public class AssignmentService {
     }
     private String decreaseStatus(String status) {
         if (status.equals("PENDING")) return "REJECTED";
-        return "RETURNED";
+        else if (status.equals("RECEIVED")) return "RETURNED";
+        return status;
     }
 
     public void deleteMany(DeleteRequest deleteRequest) throws MapleException {
@@ -151,7 +150,7 @@ public class AssignmentService {
                 if (assignmentOptional.isPresent())
                     itemService.returnItem(assignmentOptional.get().getItemSku(), assignmentOptional.get().getQuantity());
             }
-            assignmentRepository.deleteByIdIn(deleteRequest.getIds());
+            assignmentRepository.deleteByAssignmentIdIn(deleteRequest.getIds());
         } catch (Exception e) {
             throw new MapleException(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
