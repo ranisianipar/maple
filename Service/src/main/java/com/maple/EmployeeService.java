@@ -69,6 +69,7 @@ public class EmployeeService {
         employee.setPassword(emp.getPassword());
         employee.setEmail(emp.getEmail());
         employee.setName(emp.getName());
+        employee.setPhone(emp.getPhone());
 
         //kalo dia berniat ngapus gambar, brarti dia harus imagePathnya di null in dari request
         if (employee.getImagePath() == null) {
