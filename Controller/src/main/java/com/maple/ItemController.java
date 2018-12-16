@@ -28,7 +28,7 @@ public class ItemController extends InvalidItemAttributeValue {
     public BaseResponse<List<Item>> getAllItems(
             @RequestParam (value = "page", defaultValue = "0") int page,
             @RequestParam (value = "size", defaultValue = "10") int size,
-            @RequestParam (value = "sortBy", defaultValue = "itemSku") String sortBy,
+            @RequestParam (value = "sortBy", defaultValue = "createdDate") String sortBy,
             @RequestParam (value = "search", required = false) String search
     ) {
         BaseResponse br = new BaseResponse();

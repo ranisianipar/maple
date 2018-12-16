@@ -27,7 +27,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     public BaseResponse getAllAssignments(
             @RequestParam (value = "page", defaultValue = "0") int page,
             @RequestParam (value = "size", defaultValue = "10") int size,
-            @RequestParam (value = "sortBy", defaultValue = "assignmentId") String sortBy
+            @RequestParam (value = "sortBy", defaultValue = "createdDate") String sortBy
     ){
         return responseMapping(new BaseResponse(),PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),null);
     }
@@ -81,11 +81,11 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     }
 
-    @DeleteMapping("/assignment/{id}")
-    public BaseResponse<String> deleteAssignment(@PathVariable String id) {
+    @DeleteMapping("/assignment")
+    public BaseResponse<String> deleteAssignment(@RequestBody DeleteRequest deleteRequest) {
         BaseResponse br = new BaseResponse();
         try {
-            assignmentService.deleteAssignment(id);
+            assignmentService.deleteMany(deleteRequest);
             return responseMapping(br, null);
         } catch (MapleException m) {
             return responseMapping(br, m);

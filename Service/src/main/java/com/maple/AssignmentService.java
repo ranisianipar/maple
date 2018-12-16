@@ -3,6 +3,7 @@ package com.maple;
 import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
+import com.sun.deploy.net.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,10 @@ public class AssignmentService {
         if (!assignment.isPresent()) throw new DataConstraintException("Assignment doesn't exist");
 
         return assignment.get();
+    }
+    public List<Assignment> getByEmployee(String employeeId) throws NotFoundException{
+        if (!employeeService.isExist(employeeId)) throw new NotFoundException("Employee ID");
+        return assignmentRepository.findByEmployeeId(employeeId);
     }
 
     public long getTotalAssignment() {return SimpleUtils.getTotalObject(assignmentRepository);}
@@ -79,7 +84,8 @@ public class AssignmentService {
         */
         Assignment oldAssignment = assignmentObj.get();
 
-        if (itemService.get(newAssignment.getItemSku()).getQuantity()-newAssignment.getQuantity() < 0) { //newItem q
+        // bisa aja udah mentok 0 sisanya, trus quantitynya mau dikurangin yg di assign
+        if (itemService.get(newAssignment.getItemSku()).getQuantity()-newAssignment.getQuantity() < 0) {
             throw new DataConstraintException("Item doesn't have enough quantity");
         }
 
@@ -105,43 +111,52 @@ public class AssignmentService {
         //return the latest assignment
         return assignmentRepository.save(oldAssignment);
     }
-    // action = nama buttonnya
+    // action = up/down (for state action)
     public Assignment updateStatus(String id, String action) throws MapleException{
         Optional<Assignment> assignmentObj = assignmentRepository.findById(id);
         if (!assignmentObj.isPresent()) throw new NotFoundException(id);
 
         Assignment assignment = assignmentObj.get();
 
-        //check aksinya sesuai sama statusnya ga
+        //To check the action compatible for the status or not
         if (!getButtonByStatus(assignment.getStatus()).contains(action))
             throw new MapleException("Method not allowed", HttpStatus.METHOD_NOT_ALLOWED);
-        assignment.setStatus(increaseStatus(assignment.getStatus()));
+
+        //decide to increase or decrease state
+        if (action.equalsIgnoreCase("UP"))
+            assignment.setStatus(increaseStatus(assignment.getStatus(), assignment));
+        else assignment.setStatus(decreaseStatus(assignment.getStatus()));
 
         return assignmentRepository.save(assignment);
     }
     //implement state design pattern
-    private String increaseStatus(String status) throws NotFoundException{
+    private String increaseStatus(String status, Assignment assignment) {
         if (status.equals("PENDING"))
             return "APPROVED";
         else if (status.equals("APPROVED"))
             return "RECEIVED";
-        if (!status.equals("RECEIVED")) throw new NotFoundException("Assignment status: "+status);
         return status;
     }
+    private String decreaseStatus(String status) {
+        if (status.equals("PENDING")) return "REJECTED";
+        return "RETURNED";
+    }
 
-    public void deleteAssignment(String id) throws NotFoundException{
-        //get assignment
-        //check id exist or nah
-        Optional<Assignment> assignmentObj = assignmentRepository.findById(id);
-        if (!assignmentObj.isPresent())
-            throw new NotFoundException("Assignment");
-        Assignment assignment = assignmentObj.get();
+    public void deleteMany(DeleteRequest deleteRequest) throws MapleException {
+        //return item
+        Optional<Assignment> assignmentOptional;
+        try {
+            for (String id : deleteRequest.getIds()) {
+                assignmentOptional = assignmentRepository.findById(id);
+                if (assignmentOptional.isPresent())
+                    itemService.returnItem(assignmentOptional.get().getItemSku(), assignmentOptional.get().getQuantity());
+            }
+            assignmentRepository.deleteByIdIn(deleteRequest.getIds());
+        } catch (Exception e) {
+            throw new MapleException(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
 
-        //put the quantity back to the item
-        itemService.returnItem(assignment.getItemSku(), assignment.getQuantity());
 
-        //remove
-        assignmentRepository.delete(assignment);
     }
 
     public void deleteAllAssignment() {
