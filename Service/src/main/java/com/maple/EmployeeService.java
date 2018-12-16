@@ -155,9 +155,10 @@ public class EmployeeService {
     private void validateAttributeValue(Employee employee) {
         String null_warning = "cant be null";
 
-        if (employee.getPassword() == null) errorMessage.add("Password "+null_warning);
         if (employee.getUsername() ==  null) errorMessage.add("Username "+null_warning);
+        if (employee.getPassword() == null) errorMessage.add("Password "+null_warning);
         if (employee.getName() == null) errorMessage.add("Name "+null_warning);
+        if (employee.getEmail() ==  null) errorMessage.add("Email "+null_warning);
     }
 
     //to make sure the data attribute value is appropriate
