@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 public class ItemService {
@@ -89,6 +88,9 @@ public class ItemService {
         validate(updatedItem, false);
         return itemRepository.save(updatedItem);
     }
+    public void updateManyItemQuantity(List<Item> items) {
+        itemRepository.saveAll(items);
+    }
 
     public void deleteMany(List<String> listOfId) throws MapleException {
         try {
@@ -101,7 +103,7 @@ public class ItemService {
             }
 
             itemRepository.deleteByItemSkuIn(listOfId);
-            assignmentService.deleteByItem(listOfId);
+            assignmentService.updateByItem(listOfId);
         } catch (Exception e) {
             throw new MapleException(e.getMessage(),HttpStatus.BAD_REQUEST);
         }

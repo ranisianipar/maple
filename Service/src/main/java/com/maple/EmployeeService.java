@@ -86,12 +86,12 @@ public class EmployeeService {
         return employeeRepository.save(employee);
     }
 
-    public void deleteMany(DeleteRequest deleteRequest) throws MapleException {
+    public void deleteMany(RequestMany requestMany) throws MapleException {
         try {
             // delete image
             Optional<Employee> employeeOptional;
             List<Employee> employeeAsSuperior;
-            for (String id : deleteRequest.getIds()) {
+            for (String id : requestMany.getIds()) {
                 employeeOptional = employeeRepository.findById(id);
                 if (employeeOptional.isPresent())
                     SimpleUtils.deleteFile(employeeOptional.get().getImagePath());
@@ -104,8 +104,8 @@ public class EmployeeService {
                         }
                     }
             }
-            employeeRepository.deleteByIdIn(deleteRequest.getIds());
-            assignmentService.deleteByEmployee(deleteRequest.getIds());
+            employeeRepository.deleteByIdIn(requestMany.getIds());
+            assignmentService.updateByEmployee(requestMany.getIds());
         } catch (Exception e) {
             throw new MapleException(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

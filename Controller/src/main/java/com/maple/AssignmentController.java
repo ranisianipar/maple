@@ -80,23 +80,6 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     }
 
-    @DeleteMapping("/assignment")
-    public BaseResponse<String> deleteAssignment(@RequestBody DeleteRequest deleteRequest) {
-        BaseResponse br = new BaseResponse();
-        try {
-            assignmentService.deleteMany(deleteRequest);
-            return responseMapping(br, null);
-        } catch (MapleException m) {
-            return responseMapping(br, m);
-        }
-    }
-
-    @DeleteMapping("/assignments")
-    public BaseResponse<String> deleteAssignments() {
-        assignmentService.deleteAllAssignment();
-        return responseMapping(new BaseResponse("All assignments have been deleted"), null);
-    }
-
     //HELPER METHOD
 
     private BaseResponse responseMapping(BaseResponse br, Pageable pageRequest, MapleException e) {

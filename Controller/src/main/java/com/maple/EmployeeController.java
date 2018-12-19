@@ -86,10 +86,10 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     }
 
     @DeleteMapping("/employee")
-    public BaseResponse<String> deleteEmployee(@RequestBody DeleteRequest deleteRequest) {
+    public BaseResponse<String> deleteEmployee(@RequestBody RequestMany requestMany) {
         BaseResponse br = new BaseResponse();
         try {
-            employeeService.deleteMany(deleteRequest);
+            employeeService.deleteMany(requestMany);
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);

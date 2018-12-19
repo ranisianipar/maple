@@ -43,6 +43,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>future</groupId>
+            <artifactId>webmodel</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
         <dependency>
             <groupId>com.itextpdf</groupId>

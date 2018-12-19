@@ -2,10 +2,11 @@ package com.maple;
 
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Data
-public class DeleteRequest {
+public class RequestMany {
     private String username;
-    private List<String> ids;
+    private HashMap<String, Integer> value;
 }

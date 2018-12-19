@@ -150,28 +150,22 @@ public class AssignmentService {
         return status;
     }
 
-    public void deleteMany(DeleteRequest deleteRequest) throws MapleException {
-        //return item
-        Optional<Assignment> assignmentOptional;
-        try {
-            for (String id : deleteRequest.getIds()) {
-                assignmentOptional = assignmentRepository.findById(id);
-                if (assignmentOptional.isPresent())
-                    itemService.returnItem(assignmentOptional.get().getItemSku(), assignmentOptional.get().getQuantity());
-            }
-            assignmentRepository.deleteByAssignmentIdIn(deleteRequest.getIds());
-        } catch (Exception e) {
-            throw new MapleException(e.getMessage(),HttpStatus.BAD_REQUEST);
+    public void assignMany(RequestMany requestMany) throws MapleException {
+        List<Item> items = new ArrayList<>();
+        for (String id : requestMany.getValue().keySet()) {
+            Item item = itemService.get(id);
+            int quantity = requestMany.getValue().get(id);
+            if (item.getQuantity() < quantity)
+                throw new MapleException("Item quantity not enough", HttpStatus.BAD_REQUEST);
+            item.setQuantity(item.getQuantity()-quantity);
+            items.add(item);
         }
-
+        itemService.updateManyItemQuantity(items);
 
     }
 
-    public void deleteAllAssignment() {
-        assignmentRepository.deleteAll();
-    }
 
-    public void deleteByEmployee(List<String> ids) {
+    public void updateByEmployee(List<String> ids) {
         List<Assignment> assignments;
         for (String id : ids ) {
             assignments = assignmentRepository.findByEmployeeId(id);
@@ -179,19 +173,19 @@ public class AssignmentService {
             if (!assignments.isEmpty()) {
                 for (Assignment assignment : assignments) {
                     itemService.returnItem(assignment.getItemSku(), assignment.getQuantity());
-                    assignmentRepository.delete(assignment);
+                    assignment.setStatus("Employee has been removed");
                 }
             }
         }
     }
 
-    public void deleteByItem(List<String> ids) {
+    public void updateByItem(List<String> ids) {
         List<Assignment> assignments;
         for (String id: ids) {
             assignments = assignmentRepository.findByItemSku(id);
             if (!assignments.isEmpty()) {
                 for (Assignment assignment : assignments) {
-                    assignmentRepository.delete(assignment);
+                    assignment.setStatus("Item has been removed");
                 }
             }
         }
