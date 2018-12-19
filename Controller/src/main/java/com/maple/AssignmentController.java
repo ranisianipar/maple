@@ -25,11 +25,10 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     @GetMapping("/assignment")
     public BaseResponse getAllAssignments(
-            @RequestParam (value = "page", defaultValue = "0") int page,
-            @RequestParam (value = "size", defaultValue = "10") int size,
-            @RequestParam (value = "sortBy", defaultValue = "createdDate") String sortBy
-    ){
-        return responseMapping(new BaseResponse(),PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),null);
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "createdDate") String sortBy) {
+        return responseMapping(new BaseResponse(), PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)), null);
     }
 
     @GetMapping("/assignment/{id}")
@@ -46,7 +45,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     public BaseResponse createAssignment(@Valid @RequestBody Assignment assignment) {
         BaseResponse br = new BaseResponse<>();
         try {
-            return responseMapping(br, assignmentService.createAssignment(assignment),null);
+            return responseMapping(br, assignmentService.createAssignment(assignment), null);
         } catch (MapleException m) {
             return responseMapping(br, m);
         } catch (IOException i) {
@@ -60,7 +59,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             @Valid @RequestBody Assignment assignment) {
         BaseResponse br = new BaseResponse<>();
         try {
-            return responseMapping(br, assignmentService.updateAssignment(id, assignment),null);
+            return responseMapping(br, assignmentService.updateAssignment(id, assignment), null);
         } catch (MapleException m) {
             return responseMapping(br, m);
         } catch (IOException i) {
@@ -70,12 +69,12 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     // url: /assignment/{id}/status?action=[up/down]
     @PostMapping("/assignment/{id}/status")
-    public BaseResponse updateStatusAssignment (
+    public BaseResponse updateStatusAssignment(
             @PathVariable String id,
-            @RequestParam(value = "action") String action){
+            @RequestParam(value = "action") String action) {
         try {
             return responseMapping(new BaseResponse(), assignmentService.updateStatus(id, action), null);
-        }   catch (MapleException e) {
+        } catch (MapleException e) {
             return responseMapping(new BaseResponse(), e);
         }
 
@@ -100,7 +99,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     //HELPER METHOD
 
-    private BaseResponse responseMapping (BaseResponse br, Pageable pageRequest, MapleException e) {
+    private BaseResponse responseMapping(BaseResponse br, Pageable pageRequest, MapleException e) {
         List<AssignmentResponse> assignmentResponses = new ArrayList<>();
 
         AssignmentResponse ar;
@@ -120,6 +119,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         br.setTotalPages(assignmentService.getTotalPage(pageRequest.getPageSize()));
         return responseMapping(br, e);
     }
+
     private BaseResponse responseMapping(BaseResponse br, Assignment assignment, MapleException e) {
         AssignmentResponse assignmentResponse = new AssignmentResponse();
         assignmentResponse.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));

@@ -30,7 +30,7 @@ public class Employee{
     private Date updatedDate;
     private String imagePath;
 
-    private MultipartFile file;
+    //private MultipartFile file;
 
     @NotBlank(message = "Email can't be blank")
     private String email;

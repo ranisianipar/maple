@@ -7,5 +7,5 @@ import java.util.List;
 @Data
 public class DeleteRequest {
     private String username;
-    private List<String > ids;
+    private List<String> ids;
 }

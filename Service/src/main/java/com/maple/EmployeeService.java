@@ -90,10 +90,19 @@ public class EmployeeService {
         try {
             // delete image
             Optional<Employee> employeeOptional;
+            List<Employee> employeeAsSuperior;
             for (String id : deleteRequest.getIds()) {
                 employeeOptional = employeeRepository.findById(id);
                 if (employeeOptional.isPresent())
                     SimpleUtils.deleteFile(employeeOptional.get().getImagePath());
+                    //update others superiorId if their superior is deleted
+                    employeeAsSuperior = employeeRepository.findBySuperiorId(employeeOptional.get().getId());
+                    if (!employeeAsSuperior.isEmpty()) {
+                        for (Employee employee: employeeAsSuperior) {
+                            employee.setSuperiorId(null);
+                            employeeRepository.save(employee);
+                        }
+                    }
             }
             employeeRepository.deleteByIdIn(deleteRequest.getIds());
             assignmentService.deleteByEmployee(deleteRequest.getIds());
@@ -127,15 +136,13 @@ public class EmployeeService {
 
     //helper methods to check uniqueness data attribute
     private void uniquenessChecker(Employee emp, boolean create){
-        List<String> errorMessage = new ArrayList<>();
-
         String username_msg = "username already exist";
         String email_msg = "email already exist";
         String superior_msg = "superior doesn't exist";
 
         if (emp.getSuperiorId() != null) {
             Optional<Employee> superior = employeeRepository.findById(emp.getSuperiorId());
-            if (!superior.isPresent() && !emp.equals(superior)) errorMessage.add(superior_msg);
+            if (!superior.isPresent() || emp.equals(superior)) errorMessage.add(superior_msg);
         }
 
         if (create) {

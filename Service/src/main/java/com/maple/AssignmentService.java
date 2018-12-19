@@ -88,7 +88,7 @@ public class AssignmentService {
         * Item quantity should be (+)
         */
         Assignment oldAssignment = assignmentObj.get();
-        
+
         if (itemService.get(newAssignment.getItemSku()).getQuantity()-newAssignment.getQuantity() < 0) {
             if (oldAssignment.getItemSku().equals(newAssignment.getItemSku())
                     && newAssignment.getQuantity() > oldAssignment.getQuantity()
