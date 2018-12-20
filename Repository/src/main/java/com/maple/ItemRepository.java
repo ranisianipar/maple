@@ -11,7 +11,8 @@ import java.util.List;
 @Repository
 public interface ItemRepository extends MongoRepository<Item, String>{
 
+    public Page<Item> findByNameLike(String name, Pageable page);
     public Item findByName(String name);
-    public Page<Item> findAll(Pageable page);
+    public Page<Item> findAll(String name, Pageable page);
     public void deleteByItemSkuIn(List<String> ids);
 }

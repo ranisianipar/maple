@@ -36,10 +36,10 @@ public class ItemService {
 
     final private String ITEM = "Item";
 
-    public List<Item> getAll(Pageable pageRequest, String search) {
-        if (search == null)
-            return itemRepository.findAll(pageRequest).getContent();
-        //kalo dia ngesearch: pake prefix nya
+    public List<Item> getAll(String search, Pageable pageRequest) {
+        if (search != null)
+            return itemRepository.findByNameLike(search, pageRequest).getContent();
+
         return itemRepository.findAll(pageRequest).getContent();
     }
 

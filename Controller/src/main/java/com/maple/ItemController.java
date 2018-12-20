@@ -35,7 +35,7 @@ public class ItemController extends InvalidItemAttributeValue {
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
         br.setTotalRecords(itemService.getTotalItem());
         br.setTotalPages(itemService.getTotalPage(pageRequest.getPageSize()));
-        br.setValue(itemService.getAll(pageRequest, search));
+        br.setValue(itemService.getAll(search, pageRequest));
         br.setPaging(pageRequest);
         return responseMapping(br, null);
     }

@@ -33,10 +33,11 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     public BaseResponse<EmployeeResponse> getAllEmployees(
             @RequestParam (value = "page", defaultValue = "0") int page,
             @RequestParam (value = "size", defaultValue = "10") int size,
-            @RequestParam (value = "sortBy", defaultValue = "id") String sortBy
+            @RequestParam (value = "sortBy", defaultValue = "createdDate") String sortBy,
+            @RequestParam (value = "search", required = false) String search
     ){
         return responseMapping(new BaseResponse(),
-                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),null);
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)), search);
     }
 
     @GetMapping(Constant.LINK_ID_PARAM)
@@ -104,11 +105,11 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     }
 
     // helper method for getAllEmployees
-    private BaseResponse responseMapping (BaseResponse br, Pageable pageRequest, MapleException e) {
+    private BaseResponse responseMapping (BaseResponse br, Pageable pageRequest, String search) {
         List<EmployeeResponse> employeeResponses = new ArrayList<>();
         EmployeeResponse er;
 
-        Iterator<Employee> employeePage = employeeService.getAll(pageRequest).iterator();
+        Iterator<Employee> employeePage = employeeService.getAll(search, pageRequest).iterator();
         while (employeePage.hasNext()) {
             er = getMap().map(employeePage.next(), EmployeeResponse.class);
             employeeResponses.add(er);
@@ -117,7 +118,7 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         br.setValue(employeeResponses);
         br.setPaging(pageRequest);
         br.setTotalPages(employeeService.getTotalPage(pageRequest.getPageSize()));
-        return responseMapping(br, e);
+        return responseMapping(br, null);
     }
     private BaseResponse responseMapping (BaseResponse br, MapleException e) {
         if (e == null) {

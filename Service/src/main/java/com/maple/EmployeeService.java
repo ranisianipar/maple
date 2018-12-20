@@ -34,7 +34,8 @@ public class EmployeeService {
 
     private List errorMessage = new ArrayList();
 
-    public Page<Employee> getAll(Pageable pageable) {
+    public Page<Employee> getAll(String search, Pageable pageable) {
+        if (search != null) return employeeRepository.findByUsernameLike(search, pageable);
         return employeeRepository.findAll(pageable);
     }
 
