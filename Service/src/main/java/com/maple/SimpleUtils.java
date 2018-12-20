@@ -13,9 +13,6 @@ import java.nio.file.StandardCopyOption;
 
 public class SimpleUtils {
 
-    @Value("${storeFile.path}")
-    private String path;
-
     public static long getTotalObject(MongoRepository repo) {
         return repo.count();
     }

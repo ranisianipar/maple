@@ -11,6 +11,8 @@ public class Constant {
 
     //general
     public static final String LINK_ID_PARAM = "/{id:.+}";
+    public static final String FOLDER_PATH_EMPLOYEE = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Employee";
+    public static final String FOLDER_PATH_ITEM = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Item\\";
 
     // assignment
     public static final String LINK_ASSIGNMENT_PREFIX = "/assignment";

@@ -22,7 +22,6 @@ import java.util.regex.Pattern;
 public class EmployeeService {
 
     final String EMPLOYEE = "Employee";
-    final String UPLOADED_FOLDER = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Employee";
 
     @Autowired
     private EmployeeRepository employeeRepository;
@@ -55,7 +54,7 @@ public class EmployeeService {
         checkDataValue(emp, true);
         emp.setId(counter.getNextEmployee());
         if (file != null)
-            emp.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, emp.getId()));;
+            emp.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, emp.getId()));;
 
         return employeeRepository.save(emp);
     }
@@ -78,7 +77,7 @@ public class EmployeeService {
         }
         // user replace/add picture
         if (file != null) {
-            employee.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, employee.getId()));
+            employee.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, employee.getId()));
         }
         employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
@@ -111,19 +110,12 @@ public class EmployeeService {
         }
     }
 
-    public void deleteAll() {
-        employeeRepository.deleteAll();
-    }
-
     // non functional
     public boolean isExist(String id) {
         return employeeRepository.findById(id).isPresent();
     }
-    public Employee authenticate(String username, String password) {
-        Employee employee = employeeRepository.findByUsername(username);
-        if (employee == null) return null;
-        if (!employee.getPassword().equals(password)) return null;
-        return employee;
+    public Employee getEmployeeByUsername(String username) {
+        return employeeRepository.findByUsername(username);
     }
 
     // Attribute value validation

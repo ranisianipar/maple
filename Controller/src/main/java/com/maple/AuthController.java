@@ -1,23 +1,37 @@
 package com.maple;
 
+import com.maple.Exception.MapleException;
 import com.maple.validation.MissingParamHandler;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
 @RestController
 public class AuthController extends MissingParamHandler {
+
+    @Autowired
+    AuthService authService;
+
     @PostMapping
-    public void login(@RequestParam(value = "username") String username,
-                      @RequestParam(value = "password") String password,
-                      HttpSession httpSession) {
+    public BaseResponse login(
+            @RequestBody LoginRequest loginRequest,
+            HttpSession httpSession) {
 
         //session input employee
-        //return access token
+        try {
+            authService.login(loginRequest, httpSession);
+            // nanti bikin redirect ke dashboard
+            return new BaseResponse(httpSession.getAttribute("name"));
+        } catch (MapleException m) {
+            // nanti bikin redirect ke dashboard
+            return new BaseResponse(m.getMessage());
+        }
 
+    }
+
+    public BaseResponse getSession(HttpSession httpSession) {
+        return new BaseResponse(httpSession.getAttribute("token"));
     }
 }

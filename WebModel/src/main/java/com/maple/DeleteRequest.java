@@ -5,6 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class DeleteRequest extends Request{
+public class DeleteRequest{
+    public String username;
     private List<String> ids;
 }

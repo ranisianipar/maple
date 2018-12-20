@@ -35,7 +35,6 @@ public class ItemService {
     CounterService counterService;
 
     final private String ITEM = "Item";
-    final String UPLOADED_FOLDER = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Item";
 
     public List<Item> getAll(Pageable pageRequest, String search) {
         if (search == null)
@@ -59,7 +58,7 @@ public class ItemService {
         item.setItemSku(counterService.getNextItem());
         item.setCreatedDate(new Date());
         if (file != null)
-            item.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, item.getItemSku()));
+            item.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_ITEM, file, item.getItemSku()));
         return itemRepository.save(item);
     }
 
@@ -77,7 +76,7 @@ public class ItemService {
         }
         // user replace/add picture
         if (file != null) {
-            updatedItem.setImagePath(SimpleUtils.storeFile(UPLOADED_FOLDER, file, item.getItemSku()));
+            updatedItem.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_ITEM, file, item.getItemSku()));
         }
 
         updatedItem.setName(item.getName());
