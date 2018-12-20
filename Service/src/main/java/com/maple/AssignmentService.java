@@ -105,9 +105,9 @@ public class AssignmentService {
         return status;
     }
 
-    public void assignMany(RequestAssignment requestAssignment) throws MapleException {
+    public void assignMany(ManyAssignmentRequest manyAssignmentRequest) throws MapleException {
         List<Item> items = new ArrayList<>();
-        for (Assignment assignment : requestAssignment.getValue()) {
+        for (Assignment assignment : manyAssignmentRequest.getValue()) {
             Item item = itemService.get(assignment.getItemSku());
             int quantity = assignment.getQuantity();
             if (item.getQuantity() < quantity)

@@ -6,6 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 
 @Data
-public class RequestAssignment extends Request{
+public class ManyAssignmentRequest extends Request{
     private List<Assignment> value;
 }

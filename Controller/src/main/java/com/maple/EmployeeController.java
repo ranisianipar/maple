@@ -21,14 +21,15 @@ import java.util.Iterator;
 import java.util.List;
 
 //bikin konstan
-@CrossOrigin(origins = "http://localhost")
+@CrossOrigin(origins = Constant.LINK_ORIGIN)
+@RequestMapping(Constant.LINK_EMPLOYEE_PREFIX)
 @RestController
 public class EmployeeController extends InvalidEmployeeAttributeValue {
 
     @Autowired
     private EmployeeService employeeService;
 
-    @GetMapping(value = "/employee")
+    @GetMapping
     public BaseResponse<EmployeeResponse> getAllEmployees(
             @RequestParam (value = "page", defaultValue = "0") int page,
             @RequestParam (value = "size", defaultValue = "10") int size,
@@ -38,8 +39,7 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),null);
     }
 
-    // jangan di hard-code, jadiin konstan, taro di web model (static variable)
-    @GetMapping("/employee/{id}")
+    @GetMapping(Constant.LINK_ID_PARAM)
     public BaseResponse<EmployeeResponse> getEmployee(@PathVariable String id) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
@@ -50,11 +50,10 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         }
     }
 
-    @PostMapping("/employee")
+    @PostMapping
     public BaseResponse<EmployeeResponse> createEmployee(
             @RequestParam(value = "file", required = false) MultipartFile file,
-            @RequestParam(value = "data") String employee
-    ) {
+            @RequestParam(value = "data") String employee) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
             Employee emp = new ObjectMapper().readValue(employee, Employee.class);
@@ -68,7 +67,7 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         }
     }
 
-    @PostMapping("/employee/{id}")
+    @PostMapping(Constant.LINK_ID_PARAM)
     public BaseResponse<EmployeeResponse> updateEmployee(
             @PathVariable String id,
             @RequestParam(value = "file", required = false) MultipartFile file,
@@ -85,7 +84,7 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         }
     }
 
-    @DeleteMapping("/employee")
+    @DeleteMapping
     public BaseResponse<String> deleteEmployee(@RequestBody DeleteRequest deleteRequest) {
         BaseResponse br = new BaseResponse();
         try {
@@ -94,13 +93,6 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
         } catch (MapleException e) {
             return responseMapping(br, e);
         }
-    }
-
-    @DeleteMapping("/employees")
-    public BaseResponse<String> deleteEmployees() {
-        employeeService.deleteAll();
-        return responseMapping(new BaseResponse("All employees have been deleted"),
-                null);
     }
 
     //HELPER METHOD

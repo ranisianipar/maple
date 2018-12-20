@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
 
-@CrossOrigin(origins = "http://localhost")
+@CrossOrigin(origins = Constant.LINK_ORIGIN)
 @RestController
 public class AuthController extends MissingParamHandler {
     @PostMapping

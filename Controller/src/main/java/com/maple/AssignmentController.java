@@ -10,28 +10,29 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost")
+@CrossOrigin(origins = Constant.LINK_ORIGIN)
+@RequestMapping(value = Constant.LINK_ASSIGNMENT_PREFIX)
 @RestController
 public class AssignmentController extends InvalidAssignmentAttributeValue {
+
 
     @Autowired
     private AssignmentService assignmentService;
 
 
-    @GetMapping("/assignment")
+    @GetMapping
     public BaseResponse getAllAssignments(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sortBy", defaultValue = "createdDate") String sortBy) {
+            @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy) {
         return responseMapping(new BaseResponse(), PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)), null);
     }
 
-    @GetMapping("/assignment/{id}")
+    @GetMapping(value = Constant.LINK_ID_PARAM)
     public BaseResponse getAssignment(@PathVariable String id) {
         BaseResponse br = new BaseResponse<>();
         try {
@@ -41,11 +42,11 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         }
     }
 
-    @PostMapping("/assignment")
-    public BaseResponse requestManyAssignment(@Valid @RequestBody RequestAssignment requestAssignment) {
+    @PostMapping
+    public BaseResponse requestManyAssignment(@Valid @RequestBody ManyAssignmentRequest manyAssignmentRequest) {
         BaseResponse br = new BaseResponse<>();
         try {
-            assignmentService.assignMany(requestAssignment);
+            assignmentService.assignMany(manyAssignmentRequest);
             return responseMapping(br, null);
         } catch (MapleException m) {
             return responseMapping(br, m);
@@ -53,7 +54,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     }
 
     // url: /assignment/{id}/status?action=[up/down]
-    @PostMapping("/assignment/{id}/status")
+    @PostMapping(Constant.LINK_UPDATE_STATUS)
     public BaseResponse updateStatusAssignment(
             @PathVariable String id,
             @RequestParam(value = "action") String action) {

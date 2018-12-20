@@ -17,20 +17,20 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost")
+@CrossOrigin(origins = Constant.LINK_ORIGIN)
+@RequestMapping(value= Constant.LINK_ITEM_PREFIX)
 @RestController
 public class ItemController extends InvalidItemAttributeValue {
 
     @Autowired
     private ItemService itemService;
 
-    @GetMapping("/item")
+    @GetMapping
     public BaseResponse<List<Item>> getAllItems(
             @RequestParam (value = "page", defaultValue = "0") int page,
             @RequestParam (value = "size", defaultValue = "10") int size,
             @RequestParam (value = "sortBy", defaultValue = "createdDate") String sortBy,
-            @RequestParam (value = "search", required = false) String search
-    ) {
+            @RequestParam (value = "search", required = false) String search) {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
         br.setTotalRecords(itemService.getTotalItem());
@@ -40,7 +40,7 @@ public class ItemController extends InvalidItemAttributeValue {
         return responseMapping(br, null);
     }
 
-    @GetMapping("/item/{id}")
+    @GetMapping(Constant.LINK_ID_PARAM)
     public BaseResponse getItem (@PathVariable String id) {
         BaseResponse br = new BaseResponse();
         Item item;
@@ -53,7 +53,7 @@ public class ItemController extends InvalidItemAttributeValue {
         }
     }
 
-    @PostMapping("/item")
+    @PostMapping
     public BaseResponse createItem(
             @RequestParam(value = "file",required = false) MultipartFile file,
             @RequestParam(value = "data") String item) {
@@ -69,7 +69,7 @@ public class ItemController extends InvalidItemAttributeValue {
         }
     }
 
-    @PostMapping("/item/{id}")
+    @PostMapping(Constant.LINK_ID_PARAM)
     public BaseResponse updateItem(
             @PathVariable String id,
             @RequestParam(value = "file",required = false) MultipartFile file,
@@ -86,7 +86,7 @@ public class ItemController extends InvalidItemAttributeValue {
         }
     }
 
-    @DeleteMapping("/item")
+    @DeleteMapping
     public BaseResponse deleteItem(@RequestBody DeleteRequest deleteRequest) {
         BaseResponse br = new BaseResponse();
         try {
@@ -97,13 +97,7 @@ public class ItemController extends InvalidItemAttributeValue {
         }
     }
 
-    @DeleteMapping("/items")
-    public BaseResponse deleteItems() {
-        itemService.deleteAll();
-        return responseMapping(new BaseResponse("All items have been removed"), null);
-    }
-
-    @GetMapping(value="/item/{id}/download", produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping(value=Constant.LINK_ITEM_DOWNLOAD, produces = MediaType.APPLICATION_PDF_VALUE)
     public byte[] generate(@PathVariable String id) {
         try {
             return itemService.generatePdf(id);
