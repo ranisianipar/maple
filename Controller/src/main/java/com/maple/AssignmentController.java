@@ -42,28 +42,13 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     }
 
     @PostMapping("/assignment")
-    public BaseResponse createAssignment(@Valid @RequestBody Assignment assignment) {
+    public BaseResponse requestManyAssignment(@Valid @RequestBody RequestAssignment requestAssignment) {
         BaseResponse br = new BaseResponse<>();
         try {
-            return responseMapping(br, assignmentService.createAssignment(assignment), null);
+            assignmentService.assignMany(requestAssignment);
+            return responseMapping(br, null);
         } catch (MapleException m) {
             return responseMapping(br, m);
-        } catch (IOException i) {
-            return responseMapping(br, new MapleException(i.getMessage(), HttpStatus.BAD_REQUEST));
-        }
-    }
-
-    @PostMapping("/assignment/{id}")
-    public BaseResponse updateAssignment(
-            @PathVariable String id,
-            @Valid @RequestBody Assignment assignment) {
-        BaseResponse br = new BaseResponse<>();
-        try {
-            return responseMapping(br, assignmentService.updateAssignment(id, assignment), null);
-        } catch (MapleException m) {
-            return responseMapping(br, m);
-        } catch (IOException i) {
-            return responseMapping(br, new MapleException(i.getMessage(), HttpStatus.BAD_REQUEST));
         }
     }
 

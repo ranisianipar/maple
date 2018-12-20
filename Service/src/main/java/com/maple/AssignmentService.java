@@ -74,51 +74,6 @@ public class AssignmentService {
         return assignmentRepository.save(assignment);
     }
 
-    public Assignment updateAssignment(String id, Assignment newAssignment)
-            throws DataConstraintException, NotFoundException, IOException{
-
-        validate(newAssignment);
-        //get assignment
-        //check id exist or nah
-        Optional<Assignment> assignmentObj = assignmentRepository.findById(id);
-        if(!assignmentObj.isPresent()) throw new NotFoundException("Assignment");
-
-        /*
-        * add or substract item's quantity on its domain
-        * Item quantity should be (+)
-        */
-        Assignment oldAssignment = assignmentObj.get();
-
-        if (itemService.get(newAssignment.getItemSku()).getQuantity()-newAssignment.getQuantity() < 0) {
-            if (oldAssignment.getItemSku().equals(newAssignment.getItemSku())
-                    && newAssignment.getQuantity() > oldAssignment.getQuantity()
-            ) throw new DataConstraintException("Item doesn't have enough quantity");
-            else if (!oldAssignment.getItemSku().equals(newAssignment.getItemSku()))
-                throw new DataConstraintException("Item doesn't have enough quantity");
-        }
-
-        itemService.returnItem(oldAssignment.getItemSku(), oldAssignment.getQuantity());
-
-        // refresh item yg udah dikembaliin (karna bisa jadi item yg diupdate sama)
-        Item newItem = itemService.get(newAssignment.getItemSku());
-        // update the quantity
-        oldAssignment.setQuantity(newAssignment.getQuantity());
-        // substract new item quantity
-        newItem.setQuantity(newItem.getQuantity()-oldAssignment.getQuantity());
-
-        //update the assignment value
-        oldAssignment.setEmployeeId(newAssignment.getEmployeeId());
-        oldAssignment.setItemSku(newAssignment.getItemSku());
-        oldAssignment.setNote(newAssignment.getNote());
-        oldAssignment.setUpdatedBy(newAssignment.getUpdatedBy());
-        oldAssignment.setUpdatedDate(new Date());
-
-        //update item's quantity
-        itemService.update(newItem.getItemSku(), newItem, null);
-
-        //return the latest assignment
-        return assignmentRepository.save(oldAssignment);
-    }
     // action = up/down (for state action)
     public Assignment updateStatus(String id, String action) throws MapleException{
         Optional<Assignment> assignmentObj = assignmentRepository.findById(id);
@@ -150,11 +105,11 @@ public class AssignmentService {
         return status;
     }
 
-    public void assignMany(RequestMany requestMany) throws MapleException {
+    public void assignMany(RequestAssignment requestAssignment) throws MapleException {
         List<Item> items = new ArrayList<>();
-        for (String id : requestMany.getValue().keySet()) {
-            Item item = itemService.get(id);
-            int quantity = requestMany.getValue().get(id);
+        for (Assignment assignment : requestAssignment.getValue()) {
+            Item item = itemService.get(assignment.getItemSku());
+            int quantity = assignment.getQuantity();
             if (item.getQuantity() < quantity)
                 throw new MapleException("Item quantity not enough", HttpStatus.BAD_REQUEST);
             item.setQuantity(item.getQuantity()-quantity);
