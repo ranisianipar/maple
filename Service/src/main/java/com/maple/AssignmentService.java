@@ -48,6 +48,30 @@ public class AssignmentService {
     public long getTotalAssignment() {return SimpleUtils.getTotalObject(assignmentRepository);}
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalAssignment());}
 
+    public void assignMany(ManyAssignmentRequest manyAssignmentRequest) throws MapleException {
+        List<Item> items = new ArrayList<>();
+        for (Assignment assignment : manyAssignmentRequest.getValue()) {
+            validate(assignment);
+
+            Item item = itemService.get(assignment.getItemSku());
+            int quantity = assignment.getQuantity();
+            if (item.getQuantity() < quantity)
+                throw new MapleException("Item doesn't have enough quantity", HttpStatus.BAD_REQUEST);
+            item.setQuantity(item.getQuantity()-quantity);
+            items.add(item);
+            assignment.setCreatedDate(new Date());
+            //createdBy belom diisi
+
+            //give id
+            assignment.setAssignmentId(counter.getNextAssignment());
+
+            //default value
+            assignment.setStatus("PENDING");
+        }
+        itemService.updateManyItemQuantity(items);
+        assignmentRepository.saveAll(manyAssignmentRequest.getValue());
+    }
+
     public Assignment createAssignment(Assignment assignment) throws MapleException, IOException {
         //check EmployeeId and ItemSku are valid
         validate(assignment);
@@ -88,6 +112,7 @@ public class AssignmentService {
             assignment.setStatus(decreaseStatus(assignment.getStatus()));
         else throw new MapleException("Method isn't recognized", HttpStatus.METHOD_NOT_ALLOWED);
 
+        assignment.setUpdatedDate(new Date());
         return assignmentRepository.save(assignment);
     }
     // implement state design pattern
@@ -105,20 +130,6 @@ public class AssignmentService {
         return status;
     }
 
-    public void assignMany(ManyAssignmentRequest manyAssignmentRequest) throws MapleException {
-        List<Item> items = new ArrayList<>();
-        for (Assignment assignment : manyAssignmentRequest.getValue()) {
-            Item item = itemService.get(assignment.getItemSku());
-            int quantity = assignment.getQuantity();
-            if (item.getQuantity() < quantity)
-                throw new MapleException("Item quantity not enough", HttpStatus.BAD_REQUEST);
-            item.setQuantity(item.getQuantity()-quantity);
-            items.add(item);
-        }
-        itemService.updateManyItemQuantity(items);
-
-    }
-
 
     public void updateByEmployee(List<String> ids) {
         List<Assignment> assignments;
@@ -129,6 +140,7 @@ public class AssignmentService {
                 for (Assignment assignment : assignments) {
                     itemService.returnItem(assignment.getItemSku(), assignment.getQuantity());
                     assignment.setStatus("Employee has been removed");
+                    assignment.setUpdatedDate(new Date());
                 }
             }
         }
@@ -141,6 +153,7 @@ public class AssignmentService {
             if (!assignments.isEmpty()) {
                 for (Assignment assignment : assignments) {
                     assignment.setStatus("Item has been removed");
+                    assignment.setUpdatedDate(new Date());
                 }
             }
         }
@@ -148,6 +161,7 @@ public class AssignmentService {
 
     public List<String> getButtonByStatus(String status) {
         List<String>button = new ArrayList<>();
+        if (status == null) return null;
         if (status.equals("PENDING")) {
             button.add("btnApprove");
             button.add("btnReject");
@@ -160,6 +174,18 @@ public class AssignmentService {
         }
         else return null;
         return button;
+    }
+
+    public String getItemName(String itemSku) throws MapleException{
+        return itemService.get(itemSku).getName();
+    }
+
+    public String getEmployeeName(String employeeId) throws MapleException{
+        return employeeService.get(employeeId).getUsername();
+    }
+
+    public void delete(String id) {
+        assignmentRepository.delete(assignmentRepository.findById(id).get());
     }
 
     private void validate(Assignment assignment) throws DataConstraintException{

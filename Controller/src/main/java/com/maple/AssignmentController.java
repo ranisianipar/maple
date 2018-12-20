@@ -2,6 +2,9 @@ package com.maple;
 
 import com.maple.Exception.MapleException;
 import com.maple.validation.InvalidAssignmentAttributeValue;
+import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
+import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -66,6 +69,12 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     }
 
+    @DeleteMapping(Constant.LINK_ID_PARAM)
+    public BaseResponse deleteAssignment(@PathVariable String id) {
+        assignmentService.delete(id);
+        return new BaseResponse(id+" DELETED");
+    }
+
     //HELPER METHOD
 
     private BaseResponse responseMapping(BaseResponse br, Pageable pageRequest, MapleException e) {
@@ -77,8 +86,16 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
         while (assignmentPage.hasNext()) {
             assignment = assignmentPage.next();
+            System.out.println(assignment.toString());
             ar = new AssignmentResponse();
-            ar.setAssignment(assignment);
+            try {
+                ar = getMap().map(assignment, AssignmentResponse.class);
+                ar.setEmployeeUsername(assignmentService.getEmployeeName(assignment.getEmployeeId()));
+                ar.setItemName(assignmentService.getItemName(assignment.getItemSku()));
+            } catch (MapleException m) {
+                return responseMapping(new BaseResponse(), m);
+            }
+            //ar.setAssignment(assignment);
             ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
             assignmentResponses.add(ar);
         }
@@ -92,7 +109,13 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     private BaseResponse responseMapping(BaseResponse br, Assignment assignment, MapleException e) {
         AssignmentResponse assignmentResponse = new AssignmentResponse();
         assignmentResponse.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
-        assignmentResponse.setAssignment(assignment);
+        try {
+            assignmentResponse.setItemName(assignmentService.getItemName(assignment.getItemSku()));
+            assignmentResponse.setEmployeeUsername(assignmentService.getEmployeeName(assignment.getEmployeeId()));
+        } catch (MapleException m) {
+            return new BaseResponse(m.getMessage());
+        }
+
         br.setValue(assignmentResponse);
         return responseMapping(br, e);
     }
@@ -107,5 +130,12 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         br.setErrorMessage(e.getMessage());
         br.setErrorCode(e.getCode());
         return br;
+    }
+
+    private MapperFacade getMap() {
+        MapperFactory mapperFactory = new DefaultMapperFactory.Builder().build();
+        mapperFactory.classMap(Assignment.class, AssignmentResponse.class)
+                .byDefault().exclude("itemSku").exclude("employeeId").register();
+        return mapperFactory.getMapperFacade();
     }
 }
