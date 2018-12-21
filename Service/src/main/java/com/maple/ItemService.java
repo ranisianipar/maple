@@ -49,8 +49,8 @@ public class ItemService {
         return item.get();
     }
 
-    public long getTotalItem() {return SimpleUtils.getTotalObject(itemRepository);}
-    public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalItem());}
+    public long getTotalObject() {return SimpleUtils.getTotalObject(itemRepository);}
+    public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
 
     //createdBy belom -> nunggu login
     public Item create(Item item, MultipartFile file) throws IOException,DataConstraintException {
@@ -108,8 +108,6 @@ public class ItemService {
         }
 
     }
-
-    public void deleteAll() { itemRepository.deleteAll(); }
 
     public byte[] generatePdf(String id) throws Exception{
         Item item = itemRepository.findById(id).get();

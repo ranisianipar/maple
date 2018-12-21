@@ -17,6 +17,8 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
+import static com.maple.SimpleUtils.responseMapping;
+
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
 @RequestMapping(value= Constant.LINK_ITEM_PREFIX)
 @RestController
@@ -26,14 +28,14 @@ public class ItemController extends InvalidItemAttributeValue {
     private ItemService itemService;
 
     @GetMapping
-    public BaseResponse<List<Item>> getAllItems(
+    public BaseResponse<List<Item>> getAll(
             @RequestParam (value = "page", defaultValue = "0") int page,
             @RequestParam (value = "size", defaultValue = "10") int size,
             @RequestParam (value = "sortBy", defaultValue = "createdDate") String sortBy,
             @RequestParam (value = "search", required = false) String search) {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
-        br.setTotalRecords(itemService.getTotalItem());
+        br.setTotalRecords(itemService.getTotalObject());
         br.setTotalPages(itemService.getTotalPage(pageRequest.getPageSize()));
         br.setValue(itemService.getAll(search, pageRequest));
         br.setPaging(pageRequest);
@@ -41,12 +43,10 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @GetMapping(Constant.LINK_ID_PARAM)
-    public BaseResponse getItem (@PathVariable String id) {
+    public BaseResponse get(@PathVariable String id) {
         BaseResponse br = new BaseResponse();
-        Item item;
         try {
-            item = itemService.get(id);
-            br.setValue(item);
+            br.setValue(itemService.get(id));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);
@@ -54,13 +54,12 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @PostMapping
-    public BaseResponse createItem(
+    public BaseResponse create(
             @RequestParam(value = "file",required = false) MultipartFile file,
             @RequestParam(value = "data") String item) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            Item itemMapped = new ObjectMapper().readValue(item, Item.class);
-            br.setValue(itemService.create(itemMapped, file));
+            br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);
@@ -70,14 +69,13 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @PostMapping(Constant.LINK_ID_PARAM)
-    public BaseResponse updateItem(
+    public BaseResponse update(
             @PathVariable String id,
             @RequestParam(value = "file",required = false) MultipartFile file,
             @Valid @RequestParam(value = "data") String item) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            Item itemMapped = new ObjectMapper().readValue(item, Item.class);
-            br.setValue(itemService.update(id, itemMapped, file));
+            br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br,e);
@@ -87,7 +85,7 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @DeleteMapping
-    public BaseResponse deleteItem(@RequestBody DeleteRequest deleteRequest) {
+    public BaseResponse delete(@RequestBody DeleteRequest deleteRequest) {
         BaseResponse br = new BaseResponse();
         try {
             itemService.deleteMany(deleteRequest.getIds());
@@ -98,25 +96,12 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @GetMapping(value=Constant.LINK_ITEM_DOWNLOAD, produces = MediaType.APPLICATION_PDF_VALUE)
-    public byte[] generate(@PathVariable String id) {
+    public byte[] generatePdf(@PathVariable String id) {
         try {
             return itemService.generatePdf(id);
         } catch (Exception e) {
             return new byte[0];
         }
 
-    }
-
-    //HELPER METHOD
-    private BaseResponse responseMapping(BaseResponse br, MapleException e){
-        if (e == null) {
-            br.setSuccess(true);
-            br.setCode(HttpStatus.OK);
-            return br;
-        }
-        br.setCode(HttpStatus.BAD_REQUEST);
-        br.setErrorCode(e.getCode());
-        br.setErrorMessage(e.getMessage());
-        return br;
     }
 }

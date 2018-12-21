@@ -29,11 +29,11 @@ public class AssignmentService {
     private CounterService counter;
 
 
-    public List<Assignment> getAllAssignments(Pageable pageable) {
+    public List<Assignment> getAll(Pageable pageable) {
         return assignmentRepository.findAll(pageable).getContent();
     }
 
-    public Assignment getAssignment (String id) throws DataConstraintException{
+    public Assignment get(String id) throws DataConstraintException{
         //check id exist or nah
         Optional<Assignment> assignment = assignmentRepository.findById(id);
         if (!assignment.isPresent()) throw new DataConstraintException("Assignment doesn't exist");
@@ -45,8 +45,8 @@ public class AssignmentService {
         return assignmentRepository.findByEmployeeId(employeeId);
     }
 
-    public long getTotalAssignment() {return SimpleUtils.getTotalObject(assignmentRepository);}
-    public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalAssignment());}
+    public long getTotalObject() {return SimpleUtils.getTotalObject(assignmentRepository);}
+    public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
 
     public void assignMany(ManyAssignmentRequest manyAssignmentRequest) throws MapleException {
         List<Item> items = new ArrayList<>();
@@ -90,7 +90,7 @@ public class AssignmentService {
         item.setQuantity(item.getQuantity()-assignment.getQuantity());
         itemService.update(item.getItemSku(), item, null);
 
-        System.out.println(getAllAssignments(
+        System.out.println(getAll(
                 PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "createdDate"))
         ));
 

@@ -57,6 +57,11 @@
             <version>5.5.13</version>
         </dependency>
 
+        <dependency>
+            <groupId>ma.glasnost.orika</groupId>
+            <artifactId>orika-core</artifactId>
+            <version>1.5.2</version>
+        </dependency>
     </dependencies>
 
 </project>
