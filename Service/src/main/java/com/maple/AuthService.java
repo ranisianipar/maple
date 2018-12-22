@@ -24,6 +24,7 @@ public class AuthService {
 
         if (!adminService.isAdmin(loginRequest.getUsername(), loginRequest.getPassword())) {
             httpSession.setAttribute("token", httpSession.getId());
+            httpSession.setAttribute("role","admin");
             jedis.append(httpSession.getId(), loginRequest.getUsername());
             return;
         }
