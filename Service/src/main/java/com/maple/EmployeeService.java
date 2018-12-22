@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import static com.maple.Helper.SimpleUtils.regexChecker;
+import static com.maple.Helper.SimpleUtils.validateAttributeValue;
+
 
 @Service
 public class EmployeeService {
@@ -122,8 +125,8 @@ public class EmployeeService {
 
     // Attribute value validation
     private void checkDataValue(Employee emp, boolean create) throws DataConstraintException{
-        regexChecker(emp);
-        validateAttributeValue(emp);
+        errorMessage = regexChecker(emp, errorMessage);
+        errorMessage = validateAttributeValue(emp, errorMessage);
         uniquenessChecker(emp, create);
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }
@@ -154,30 +157,6 @@ public class EmployeeService {
                     !employeeRepository.findByEmail(emp.getEmail()).getId().equals(emp.getId()))
                 errorMessage.add(email_msg);
         }
-    }
-
-    private void validateAttributeValue(Employee employee) {
-        String null_warning = "cant be null";
-        System.out.println("EMPLOYEE\n"+employee.toString());
-
-        if (employee.getUsername() ==  null) errorMessage.add("Username "+null_warning);
-        if (employee.getPassword() == null) errorMessage.add("Password "+null_warning);
-        if (employee.getName() == null) errorMessage.add("Name "+null_warning);
-        if (employee.getEmail() ==  null) errorMessage.add("Email "+null_warning);
-    }
-
-    //to make sure the data attribute value is appropriate
-    private void regexChecker (Employee emp){
-        String phone_msg = "Phone number invalid, should only contain numbers";
-        String email_msg = "Email is unvalid, should contain '@'";
-
-        //regex for phone number consist of number;
-        Pattern phoneNumberPattern = Pattern.compile("\\d*");
-        Pattern emailPattern = Pattern.compile(".*@.*");
-
-        // phone number checker
-        if (emp.getPhone() !=null &&!phoneNumberPattern.matcher(emp.getPhone()).matches()) errorMessage.add(phone_msg);
-        if (!emailPattern.matcher(emp.getEmail()).matches()) errorMessage.add(email_msg);
     }
 
 }

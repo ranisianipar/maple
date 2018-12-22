@@ -5,14 +5,17 @@ import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
 import com.maple.Helper.SimpleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import javax.servlet.http.HttpSession;
 import java.util.*;
+
+
+import static com.maple.Helper.SimpleUtils.getEmployeeIdBySession;
+import static com.maple.Helper.SimpleUtils.jedis;
+import static com.maple.Helper.SimpleUtils.onlyOrdinaryUser;
 
 @Service
 public class AssignmentService {
@@ -49,7 +52,9 @@ public class AssignmentService {
     public long getTotalObject() {return SimpleUtils.getTotalObject(assignmentRepository);}
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
 
-    public void assignMany(ManyAssignmentRequest manyAssignmentRequest) throws MapleException {
+    public void assignMany(ManyAssignmentRequest manyAssignmentRequest, HttpSession httpSession) throws MapleException {
+//        onlyOrdinaryUser("assign many", httpSession);
+//        String employeeId = getEmployeeIdBySession(httpSession);
         List<Item> items = new ArrayList<>();
         for (Assignment assignment : manyAssignmentRequest.getValue()) {
             validate(assignment);
@@ -61,7 +66,8 @@ public class AssignmentService {
             item.setQuantity(item.getQuantity()-quantity);
             items.add(item);
             assignment.setCreatedDate(new Date());
-            //createdBy belom diisi
+
+//            assignment.setEmployeeId(employeeId);
 
             //give id
             assignment.setAssignmentId(counter.getNextAssignment());
@@ -71,32 +77,6 @@ public class AssignmentService {
         }
         itemService.updateManyItemQuantity(items);
         assignmentRepository.saveAll(manyAssignmentRequest.getValue());
-    }
-
-    public Assignment createAssignment(Assignment assignment) throws MapleException, IOException {
-        //check EmployeeId and ItemSku are valid
-        validate(assignment);
-
-        //check the item has enough quantity
-        Item item = itemService.get(assignment.getItemSku());
-        if (item.getQuantity()-assignment.getQuantity() < 0)
-            throw new DataConstraintException ("Item doesn't have enough quantity");
-
-        assignment.setAssignmentId(counter.getNextAssignment());
-
-        //default value
-        assignment.setStatus("PENDING");
-
-        //update item's quantity
-        item.setQuantity(item.getQuantity()-assignment.getQuantity());
-        itemService.update(item.getItemSku(), item, null);
-
-        System.out.println(getAll(
-                PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "createdDate"))
-        ));
-
-        //return the new assignment
-        return assignmentRepository.save(assignment);
     }
 
     // action = up/down (for state action)

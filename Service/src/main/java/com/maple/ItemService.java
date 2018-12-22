@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static com.maple.Helper.SimpleUtils.onlyAdmin;
 
 @Service
 public class ItemService {
@@ -53,8 +56,11 @@ public class ItemService {
     public long getTotalObject() {return SimpleUtils.getTotalObject(itemRepository);}
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
 
-    //createdBy belom -> nunggu login
-    public Item create(Item item, MultipartFile file) throws IOException,DataConstraintException {
+
+    public Item create(Item item, MultipartFile file, HttpSession httpSession) throws IOException,MapleException {
+        // cuma boleh admin
+        onlyAdmin("create item", httpSession);
+        item.setCreatedBy(httpSession.getAttribute("username").toString());
         validate(item, true);
         item.setItemSku(counterService.getNextItem());
         item.setCreatedDate(new Date());
@@ -63,8 +69,11 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    //updatedBy belom -> nunggu login
-    public Item update(String id, Item item, MultipartFile file) throws NotFoundException, DataConstraintException, IOException{
+    public Item update(String id, Item item, MultipartFile file, HttpSession httpSession, boolean fromItemPage) throws MapleException, IOException{
+        //kalo diedit dari dalam item page --> cuma boleh admin
+        if(fromItemPage) onlyAdmin("update method",httpSession);
+
+        item.setUpdatedBy(httpSession.getAttribute("username").toString());
         Optional<Item> itemObject = itemRepository.findById(id);
         if (!itemObject.isPresent()) throw new NotFoundException(ITEM);
         Item updatedItem = itemObject.get();
@@ -93,6 +102,7 @@ public class ItemService {
     }
 
     public void deleteMany(List<String> listOfId) throws MapleException {
+
         try {
             // delete image
             Optional<Item> itemObject;
@@ -173,7 +183,6 @@ public class ItemService {
         if (item.getPrice() == null) errorMessage.add("price "+null_warning);
 
         //name uniqueness
-        //kalo namanya udah ada
         if (itemRepository.findByName(item.getName()) != null) {
             if (create) errorMessage.add(name_msg);
             else if (!itemRepository.findByName(item.getName()).getItemSku().equals(item.getItemSku())) {

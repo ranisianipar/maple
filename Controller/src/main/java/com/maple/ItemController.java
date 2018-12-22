@@ -3,6 +3,7 @@ package com.maple;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maple.Exception.MapleException;
 import com.maple.validation.InvalidItemAttributeValue;
+import org.apache.tomcat.util.http.parser.HttpParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -61,7 +62,7 @@ public class ItemController extends InvalidItemAttributeValue {
             HttpSession httpSession) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file));
+            br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file, httpSession));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);
@@ -74,10 +75,12 @@ public class ItemController extends InvalidItemAttributeValue {
     public BaseResponse update(
             @PathVariable String id,
             @RequestParam(value = "file",required = false) MultipartFile file,
-            @Valid @RequestParam(value = "data") String item) {
+            @Valid @RequestParam(value = "data") String item,
+            HttpSession httpSession) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file));
+            br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file,
+                    httpSession, true));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br,e);

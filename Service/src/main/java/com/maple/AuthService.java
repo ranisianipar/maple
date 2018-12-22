@@ -1,13 +1,14 @@
 package com.maple;
 
 import com.maple.Exception.MapleException;
-import com.maple.Helper.JedisFactory;
+import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.Jedis;
 
 import javax.servlet.http.HttpSession;
+
+import static com.maple.Helper.SimpleUtils.jedis;
 
 @Service
 public class AuthService {
@@ -17,7 +18,7 @@ public class AuthService {
     @Autowired
     AdminService adminService;
 
-    private Jedis jedis = JedisFactory.getInstance().getJedisPool().getResource();
+
 
     public void login(LoginRequest loginRequest, HttpSession httpSession) throws MapleException {
         if (!jedis.exists(httpSession.getId()))
@@ -26,11 +27,12 @@ public class AuthService {
         if (!adminService.isAdmin(loginRequest.getUsername(), loginRequest.getPassword())) {
             httpSession.setAttribute("token", httpSession.getId());
             httpSession.setAttribute("role","admin");
+            httpSession.setAttribute("username",loginRequest.getUsername());
             jedis.append(httpSession.getId(), loginRequest.getUsername());
             return;
         }
         Employee employee = employeeService.getEmployeeByUsername(loginRequest.getUsername());
-        if (employee == null) throw new MapleException("User not found", HttpStatus.NOT_FOUND);
+        if (employee == null) throw new NotFoundException("User");
         if (!employee.getPassword().equals(loginRequest.getPassword()))
             throw new MapleException("Username and password don't match", HttpStatus.UNAUTHORIZED);
 
@@ -45,6 +47,7 @@ public class AuthService {
         String token = httpSession.getAttribute("token").toString();
         jedis.del(token);
         httpSession.removeAttribute("token");
+        httpSession.removeAttribute("role");
 
     }
 }
