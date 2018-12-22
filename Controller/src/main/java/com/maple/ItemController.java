@@ -3,7 +3,6 @@ package com.maple;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.maple.Exception.MapleException;
 import com.maple.validation.InvalidItemAttributeValue;
-import org.apache.tomcat.util.http.parser.HttpParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +18,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
+import static com.maple.Helper.SimpleUtils.onlyAdmin;
 import static com.maple.Helper.SimpleUtils.responseMapping;
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
@@ -62,6 +62,7 @@ public class ItemController extends InvalidItemAttributeValue {
             HttpSession httpSession) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
+            onlyAdmin("create item", httpSession);
             br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file, httpSession));
             return responseMapping(br, null);
         } catch (MapleException e) {
@@ -79,8 +80,9 @@ public class ItemController extends InvalidItemAttributeValue {
             HttpSession httpSession) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
+            onlyAdmin("update method",httpSession);
             br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file,
-                    httpSession, true));
+                    httpSession));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br,e);
@@ -90,9 +92,10 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @DeleteMapping
-    public BaseResponse delete(@RequestBody DeleteRequest deleteRequest) {
+    public BaseResponse delete(@RequestBody DeleteRequest deleteRequest, HttpSession httpSession) {
         BaseResponse br = new BaseResponse();
         try {
+            onlyAdmin("delete item", httpSession);
             itemService.deleteMany(deleteRequest.getIds());
             return responseMapping(br, null);
         } catch (MapleException e) {

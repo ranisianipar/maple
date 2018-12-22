@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import static com.maple.Helper.SimpleUtils.isAdminBySession;
 import static com.maple.Helper.SimpleUtils.regexChecker;
 import static com.maple.Helper.SimpleUtils.validateAttributeValue;
 
@@ -64,7 +66,8 @@ public class EmployeeService {
         return employeeRepository.save(emp);
     }
 
-    public Employee update(String id, Employee emp, MultipartFile file) throws NotFoundException, DataConstraintException, IOException {
+    public Employee update(String id, Employee emp, MultipartFile file, HttpSession httpSession)
+            throws MapleException, IOException {
         Optional<Employee> employeeObj = employeeRepository.findById(id);
 
         if (!employeeObj.isPresent()) throw new NotFoundException(EMPLOYEE);
@@ -84,7 +87,7 @@ public class EmployeeService {
         if (file != null) {
             employee.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, employee.getId()));
         }
-        employee.setSuperiorId(emp.getSuperiorId());
+        if (isAdminBySession(httpSession)) employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
         checkDataValue(employee, false);
         return employeeRepository.save(employee);

@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.maple.Helper.SimpleUtils.getAssignmentMap;
-import static com.maple.Helper.SimpleUtils.responseMapping;
+import static com.maple.Helper.SimpleUtils.*;
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
 @RequestMapping(value = Constant.LINK_ASSIGNMENT_PREFIX)
@@ -31,16 +30,23 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     public BaseResponse getAllAssignments(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy) {
+            @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy,
+            HttpSession httpSession) {
+        try {
+            onlyAuthorizedUser("get all assignment",httpSession);
+        } catch (MapleException m) {
+            return responseMapping(new BaseResponse(),m);
+        }
         return responseMappingWithPage(new BaseResponse(),
-                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)));
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),
+                httpSession);
     }
 
     @GetMapping(value = Constant.LINK_ID_PARAM)
-    public BaseResponse getAssignment(@PathVariable String id) {
+    public BaseResponse getAssignment(@PathVariable String id, HttpSession httpSession) {
         BaseResponse br = new BaseResponse<>();
         try {
-            return responseMappingWithIteration(br, assignmentService.get(id), null);
+            return responseMappingAssignment(br, assignmentService.get(id, httpSession), null);
         } catch (MapleException e) {
             return responseMapping(br, e);
         }
@@ -51,6 +57,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
                                               HttpSession httpSession) {
         BaseResponse br = new BaseResponse<>();
         try {
+            onlyOrdinaryUser("assign many", httpSession);
             assignmentService.assignMany(manyAssignmentRequest, httpSession);
             return responseMapping(br, null);
         } catch (MapleException m) {
@@ -64,13 +71,14 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             @PathVariable String id,
             @RequestParam(value = "action") String action, HttpSession httpSession) {
         try {
-            return responseMappingWithIteration(new BaseResponse(), assignmentService.updateStatus(id, action), null);
+            return responseMappingAssignment(new BaseResponse(), assignmentService.updateStatus(id, action, httpSession), null);
         } catch (MapleException e) {
             return responseMapping(new BaseResponse(), e);
         }
 
     }
 
+    //akan dihapus
     @DeleteMapping(Constant.LINK_ID_PARAM)
     public BaseResponse deleteAssignment(@PathVariable String id) {
         assignmentService.delete(id);
@@ -79,21 +87,17 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     //HELPER METHOD
 
-    private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest) {
+    private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest, HttpSession httpSession) {
+
         List<AssignmentResponse> assignmentResponses = new ArrayList<>();
 
         AssignmentResponse ar;
         Assignment assignment;
-        Iterator<Assignment> assignmentPage = assignmentService.getAll(pageRequest).iterator();
+        Iterator<Assignment> assignmentPage = assignmentService.getAll(pageRequest, httpSession).iterator();
 
         while (assignmentPage.hasNext()) {
             assignment = assignmentPage.next();
-            // uncomment ini kalo ada error
-//            ar = getAssignmentMap().map(assignment, AssignmentResponse.class);
-//            ar.setEmployeeUsername(assignment.getEmployeeId());
-//            ar.setItemName(assignment.getItemSku());
 
-            // comment ini kalo ada error
             try {
                 ar = getAssignmentMap().map(assignment, AssignmentResponse.class);
                 ar.setEmployeeUsername(assignmentService.getEmployeeName(assignment.getEmployeeId()));
@@ -101,7 +105,6 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             } catch (MapleException m) {
                 return responseMapping(new BaseResponse(), m);
             }
-            // comment ini kalo ada error
 
             ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
             assignmentResponses.add(ar);
@@ -113,15 +116,15 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         return responseMapping(br, null);
     }
 
-    private BaseResponse responseMappingWithIteration(BaseResponse br, Assignment assignment, MapleException e) {
+    private BaseResponse responseMappingAssignment(BaseResponse br, Assignment assignment, MapleException e) {
         AssignmentResponse assignmentResponse = new AssignmentResponse();
         assignmentResponse.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
-//        try {
-//            assignmentResponse.setItemName(assignmentService.getItemName(assignment.getItemSku()));
-//            assignmentResponse.setEmployeeUsername(assignmentService.getEmployeeName(assignment.getEmployeeId()));
-//        } catch (MapleException m) {
-//            return responseMapping(new BaseResponse(), m);
-//        }
+        try {
+            assignmentResponse.setItemName(assignmentService.getItemName(assignment.getItemSku()));
+            assignmentResponse.setEmployeeUsername(assignmentService.getEmployeeName(assignment.getEmployeeId()));
+        } catch (MapleException m) {
+            return responseMapping(new BaseResponse(), m);
+        }
 
         br.setValue(assignmentResponse);
         return responseMapping(br, e);

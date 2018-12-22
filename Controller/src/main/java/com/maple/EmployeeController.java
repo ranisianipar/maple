@@ -11,12 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.io.IOException;
 
-import static com.maple.Helper.SimpleUtils.getEmployeeMap;
-import static com.maple.Helper.SimpleUtils.responseMapping;
-import static com.maple.Helper.SimpleUtils.responseMappingAllEmployee;
+import static com.maple.Helper.SimpleUtils.*;
 
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
@@ -56,10 +55,11 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     @PostMapping
     public BaseResponse<EmployeeResponse> createEmployee(
             @RequestParam(value = "file", required = false) MultipartFile file,
-            @RequestParam(value = "data") String employee) {
+            @RequestParam(value = "data") String employee,
+            HttpSession httpSession) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
-
+            onlyAdmin("create employee", httpSession);
             br.setValue(getEmployeeMap().map(employeeService.create(
                     new ObjectMapper().readValue(employee, Employee.class), file), EmployeeResponse.class));
             return responseMapping(br, null);
@@ -74,11 +74,11 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     public BaseResponse<EmployeeResponse> updateEmployee(
             @PathVariable String id,
             @RequestParam(value = "file", required = false) MultipartFile file,
-            @Valid @RequestParam(value = "data") String employee) {
+            @Valid @RequestParam(value = "data") String employee, HttpSession httpSession) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
             br.setValue(getEmployeeMap().map(employeeService.update(id,
-                    new ObjectMapper().readValue(employee, Employee.class), file), EmployeeResponse.class));
+                    new ObjectMapper().readValue(employee, Employee.class), file, httpSession), EmployeeResponse.class));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);

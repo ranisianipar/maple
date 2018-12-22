@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.maple.Helper.SimpleUtils.onlyAdmin;
 
 @Service
 public class ItemService {
@@ -58,8 +57,6 @@ public class ItemService {
 
 
     public Item create(Item item, MultipartFile file, HttpSession httpSession) throws IOException,MapleException {
-        // cuma boleh admin
-        onlyAdmin("create item", httpSession);
         item.setCreatedBy(httpSession.getAttribute("username").toString());
         validate(item, true);
         item.setItemSku(counterService.getNextItem());
@@ -69,9 +66,7 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    public Item update(String id, Item item, MultipartFile file, HttpSession httpSession, boolean fromItemPage) throws MapleException, IOException{
-        //kalo diedit dari dalam item page --> cuma boleh admin
-        if(fromItemPage) onlyAdmin("update method",httpSession);
+    public Item update(String id, Item item, MultipartFile file, HttpSession httpSession) throws MapleException, IOException{
 
         item.setUpdatedBy(httpSession.getAttribute("username").toString());
         Optional<Item> itemObject = itemRepository.findById(id);
