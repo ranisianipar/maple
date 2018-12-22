@@ -1,4 +1,4 @@
-package com.maple;
+package com.maple.Helper;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;

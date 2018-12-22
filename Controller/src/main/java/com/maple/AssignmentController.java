@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.maple.SimpleUtils.getAssignmentMap;
-import static com.maple.SimpleUtils.responseMapping;
+import static com.maple.Helper.SimpleUtils.getAssignmentMap;
+import static com.maple.Helper.SimpleUtils.responseMapping;
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
 @RequestMapping(value = Constant.LINK_ASSIGNMENT_PREFIX)

@@ -14,9 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 
-import static com.maple.SimpleUtils.getEmployeeMap;
-import static com.maple.SimpleUtils.responseMapping;
-import static com.maple.SimpleUtils.responseMappingAllEmployee;
+import static com.maple.Helper.SimpleUtils.getEmployeeMap;
+import static com.maple.Helper.SimpleUtils.responseMapping;
+import static com.maple.Helper.SimpleUtils.responseMappingAllEmployee;
 
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)

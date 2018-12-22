@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
-import static com.maple.SimpleUtils.responseMapping;
+import static com.maple.Helper.SimpleUtils.responseMapping;
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
 @RequestMapping(value= Constant.LINK_ITEM_PREFIX)
@@ -56,7 +57,8 @@ public class ItemController extends InvalidItemAttributeValue {
     @PostMapping
     public BaseResponse create(
             @RequestParam(value = "file",required = false) MultipartFile file,
-            @RequestParam(value = "data") String item) {
+            @RequestParam(value = "data") String item,
+            HttpSession httpSession) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
             br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file));

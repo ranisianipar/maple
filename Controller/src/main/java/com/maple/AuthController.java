@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 
-import static com.maple.SimpleUtils.responseMapping;
+import static com.maple.Helper.SimpleUtils.responseMapping;
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
 @RestController

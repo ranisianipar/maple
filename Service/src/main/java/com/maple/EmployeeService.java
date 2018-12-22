@@ -3,6 +3,7 @@ package com.maple;
 import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
+import com.maple.Helper.SimpleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -121,9 +122,9 @@ public class EmployeeService {
 
     // Attribute value validation
     private void checkDataValue(Employee emp, boolean create) throws DataConstraintException{
+        regexChecker(emp);
         validateAttributeValue(emp);
         uniquenessChecker(emp, create);
-        regexChecker(emp);
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }
 
@@ -132,10 +133,12 @@ public class EmployeeService {
         String username_msg = "username already exist";
         String email_msg = "email already exist";
         String superior_msg = "superior doesn't exist";
+        String self_superior_msg = "employee id cant be same with superior id";
 
         if (emp.getSuperiorId() != null) {
             Optional<Employee> superior = employeeRepository.findById(emp.getSuperiorId());
-            if (!superior.isPresent() || emp.equals(superior)) errorMessage.add(superior_msg);
+            if (!superior.isPresent()) errorMessage.add(superior_msg);
+            else if (superior.get().getId().equals(emp.getId())) errorMessage.add(self_superior_msg);
         }
 
         if (create) {
@@ -155,6 +158,7 @@ public class EmployeeService {
 
     private void validateAttributeValue(Employee employee) {
         String null_warning = "cant be null";
+        System.out.println("EMPLOYEE\n"+employee.toString());
 
         if (employee.getUsername() ==  null) errorMessage.add("Username "+null_warning);
         if (employee.getPassword() == null) errorMessage.add("Password "+null_warning);

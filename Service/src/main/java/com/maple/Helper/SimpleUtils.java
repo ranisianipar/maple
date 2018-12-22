@@ -1,5 +1,6 @@
-package com.maple;
+package com.maple.Helper;
 
+import com.maple.*;
 import com.maple.Exception.MapleException;
 import ma.glasnost.orika.MapperFacade;
 import ma.glasnost.orika.MapperFactory;
@@ -84,5 +85,9 @@ public class SimpleUtils {
         mapperFactory.classMap(Employee.class, EmployeeResponse.class)
                 .byDefault().exclude("password").register();
         return mapperFactory.getMapperFacade();
+    }
+
+    public static BaseResponse notAdminResponse() {
+        return new BaseResponse();
     }
 }
