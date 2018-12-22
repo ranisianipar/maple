@@ -13,38 +13,36 @@ public class AuthService {
     @Autowired
     EmployeeService employeeService;
 
+    @Autowired
+    AdminService adminService;
+
     private Jedis jedis = JedisFactory.getInstance().getJedisPool().getResource();
 
     public void login(LoginRequest loginRequest, HttpSession httpSession) throws MapleException {
+        if (!jedis.exists(httpSession.getId()))
+            return;
+
+        if (!adminService.isAdmin(loginRequest.getUsername(), loginRequest.getPassword())) {
+            httpSession.setAttribute("token", httpSession.getId());
+            jedis.append(httpSession.getId(), loginRequest.getUsername());
+            return;
+        }
         Employee employee = employeeService.getEmployeeByUsername(loginRequest.getUsername());
-        if (employee == null || !employee.getPassword().equals(loginRequest.getPassword()))
+        if (employee == null) throw new MapleException("User not found", HttpStatus.NOT_FOUND);
+        if (!employee.getPassword().equals(loginRequest.getPassword()))
             throw new MapleException("Username and password don't match", HttpStatus.UNAUTHORIZED);
 
-        // masukkin ke session
-        httpSession.setAttribute("username",employee.getUsername());
-        httpSession.setAttribute("token", "xyz");
-        httpSession.setAttribute("email", employee.getEmail());
-
-        /*  jedis.append(key, value);
-        *   key = token
-        *   value = employee id
-        */
-
-        /*
-        * session cukup nyimpen token aja, atau mungkin last page yang di seen sama dia? keknya GAPENTING
-        * */
-        // lakuin set kalo dia update nama aja, atau ada perubahan lain gitu
-        // atau ga isi value nya ID aja, nanti setiap dia ngeupdate nama jadi gampang
-        // jedis.set(key, value);
+        httpSession.setAttribute("token", httpSession.getId());
+        jedis.append(httpSession.getId(), employee.getId());
+        System.out.println(httpSession.getId()+": "+jedis.get(httpSession.getId()));
     }
 
-    public void logout(HttpSession httpSession) {
+    public void logout(HttpSession httpSession){
         // flush session
-        httpSession.removeAttribute("username");
-        // hapus tokennya, di jedis tokennya juga dihapus
+        if (httpSession.getAttribute("token") == null) return;
+        String token = httpSession.getAttribute("token").toString();
+        jedis.del(token);
         httpSession.removeAttribute("token");
-        httpSession.removeAttribute("email");
 
-        // jedis.del(key);
     }
 }

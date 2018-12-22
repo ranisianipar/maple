@@ -96,10 +96,10 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
             assignmentResponses.add(ar);
         }
-        br.setTotalRecords(assignmentService.getTotalObject());
-        br.setValue(assignmentResponses);
         br.setPaging(pageRequest);
         br.setTotalPages(assignmentService.getTotalPage(pageRequest.getPageSize()));
+        br.setTotalRecords(assignmentService.getTotalObject());
+        br.setValue(assignmentResponses);
         return responseMapping(br, null);
     }
 

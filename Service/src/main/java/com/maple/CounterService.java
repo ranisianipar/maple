@@ -9,20 +9,13 @@ public class CounterService {
     private IdCounterRepository counterRepository;
     private final IdCounter counter = new IdCounter();
 
-    //mongob initiate data
-    private void init() { if (counterRepository.count() == 0) counterRepository.save(counter); }
-
     public String getNextEmployee() {
-        init();
-
         long id = counterRepository.findFirst().getEmployeeId();
         counter.setEmployeeId(id+1);
         counterRepository.save(counter);
         return "EMP-"+id;
     }
     public String getNextItem() {
-        init();
-
         long id = counterRepository.findFirst().getItemId();
         counter.setItemId(id+1);
         counterRepository.save(counter);
@@ -30,8 +23,6 @@ public class CounterService {
     }
 
     public String getNextAssignment() {
-        init();
-
         long id = counterRepository.findFirst().getAssignmentId();
         counter.setAssignmentId(id+1);
         counterRepository.save(counter);

@@ -35,10 +35,10 @@ public class ItemController extends InvalidItemAttributeValue {
             @RequestParam (value = "search", required = false) String search) {
         BaseResponse br = new BaseResponse();
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
-        br.setTotalRecords(itemService.getTotalObject());
-        br.setTotalPages(itemService.getTotalPage(pageRequest.getPageSize()));
-        br.setValue(itemService.getAll(search, pageRequest));
         br.setPaging(pageRequest);
+        br.setTotalPages(itemService.getTotalPage(pageRequest.getPageSize()));
+        br.setTotalRecords(itemService.getTotalObject());
+        br.setValue(itemService.getAll(search, pageRequest));
         return responseMapping(br, null);
     }
 

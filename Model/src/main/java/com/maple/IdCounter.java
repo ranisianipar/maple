@@ -9,9 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class IdCounter {
     @Id
     int _id;
+    private long assignmentId;
     private long employeeId;
     private long itemId;
-    private long assignmentId;
 
     public IdCounter() {
         this._id = 1;

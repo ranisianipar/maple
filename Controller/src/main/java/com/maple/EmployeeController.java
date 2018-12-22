@@ -36,9 +36,9 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     ){
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
         BaseResponse br = new BaseResponse();
-        br.setTotalRecords(employeeService.getTotalEmployee());
         br.setPaging(pageRequest);
         br.setTotalPages(employeeService.getTotalPage(pageRequest.getPageSize()));
+        br.setTotalRecords(employeeService.getTotalEmployee());
         return responseMappingAllEmployee(br, employeeService.getAll(search, pageRequest).iterator());
     }
 
