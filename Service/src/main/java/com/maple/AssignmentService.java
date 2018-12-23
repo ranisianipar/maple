@@ -58,8 +58,8 @@ public class AssignmentService {
     public long getTotalObject() {return SimpleUtils.getTotalObject(assignmentRepository);}
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
 
-    public void assignMany(ManyAssignmentRequest manyAssignmentRequest, HttpSession httpSession) throws MapleException {
-        String employeeId = getEmployeeIdBySession(httpSession);
+    public void assignMany(ManyAssignmentRequest manyAssignmentRequest) throws MapleException {
+        //String employeeId = getEmployeeIdBySession(httpSession);
         List<Item> items = new ArrayList<>();
         for (Assignment assignment : manyAssignmentRequest.getValue()) {
             validate(assignment);
@@ -72,7 +72,7 @@ public class AssignmentService {
             items.add(item);
             assignment.setCreatedDate(new Date());
 
-            assignment.setEmployeeId(employeeId);
+            //assignment.setEmployeeId(employeeId);
 
             //give id
             assignment.setAssignmentId(counter.getNextAssignment());
@@ -85,7 +85,7 @@ public class AssignmentService {
     }
 
     // action = up/down (for state action)
-    public Assignment updateStatus(String id, String action, HttpSession httpSession) throws MapleException{
+    public Assignment updateStatus(String id, String action) throws MapleException{
         Optional<Assignment> assignmentObj = assignmentRepository.findById(id);
         if (!assignmentObj.isPresent()) throw new NotFoundException(id);
 

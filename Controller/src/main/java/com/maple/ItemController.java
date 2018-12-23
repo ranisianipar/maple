@@ -58,12 +58,12 @@ public class ItemController extends InvalidItemAttributeValue {
     @PostMapping
     public BaseResponse create(
             @RequestParam(value = "file",required = false) MultipartFile file,
-            @RequestParam(value = "data") String item,
-            HttpSession httpSession) {
+            @RequestParam(value = "data") String item){
+//            HttpSession httpSession) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            onlyAdmin("create item", httpSession);
-            br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file, httpSession));
+            //onlyAdmin("create item", httpSession);
+            br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);
@@ -76,13 +76,12 @@ public class ItemController extends InvalidItemAttributeValue {
     public BaseResponse update(
             @PathVariable String id,
             @RequestParam(value = "file",required = false) MultipartFile file,
-            @Valid @RequestParam(value = "data") String item,
-            HttpSession httpSession) {
+            @Valid @RequestParam(value = "data") String item){
+            //HttpSession httpSession) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            onlyAdmin("update method",httpSession);
-            br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file,
-                    httpSession));
+            //onlyAdmin("update method",httpSession);
+            br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br,e);
@@ -92,10 +91,10 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @DeleteMapping
-    public BaseResponse delete(@RequestBody DeleteRequest deleteRequest, HttpSession httpSession) {
+    public BaseResponse delete(@RequestBody DeleteRequest deleteRequest) {
         BaseResponse br = new BaseResponse();
         try {
-            onlyAdmin("delete item", httpSession);
+            //onlyAdmin("delete item", httpSession);
             itemService.deleteMany(deleteRequest.getIds());
             return responseMapping(br, null);
         } catch (MapleException e) {

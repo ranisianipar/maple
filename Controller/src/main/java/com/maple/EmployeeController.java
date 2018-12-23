@@ -55,11 +55,11 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     @PostMapping
     public BaseResponse<EmployeeResponse> createEmployee(
             @RequestParam(value = "file", required = false) MultipartFile file,
-            @RequestParam(value = "data") String employee,
-            HttpSession httpSession) {
+            @RequestParam(value = "data") String employee){
+//            HttpSession httpSession) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
-            onlyAdmin("create employee", httpSession);
+            //onlyAdmin("create employee", httpSession);
             br.setValue(getEmployeeMap().map(employeeService.create(
                     new ObjectMapper().readValue(employee, Employee.class), file), EmployeeResponse.class));
             return responseMapping(br, null);
@@ -74,11 +74,12 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     public BaseResponse<EmployeeResponse> updateEmployee(
             @PathVariable String id,
             @RequestParam(value = "file", required = false) MultipartFile file,
-            @Valid @RequestParam(value = "data") String employee, HttpSession httpSession) {
+            @Valid @RequestParam(value = "data") String employee){
+//            , HttpSession httpSession) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
             br.setValue(getEmployeeMap().map(employeeService.update(id,
-                    new ObjectMapper().readValue(employee, Employee.class), file, httpSession), EmployeeResponse.class));
+                    new ObjectMapper().readValue(employee, Employee.class), file), EmployeeResponse.class));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);

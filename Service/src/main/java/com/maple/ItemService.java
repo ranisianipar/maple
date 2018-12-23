@@ -56,8 +56,8 @@ public class ItemService {
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
 
 
-    public Item create(Item item, MultipartFile file, HttpSession httpSession) throws IOException,MapleException {
-        item.setCreatedBy(httpSession.getAttribute("username").toString());
+    public Item create(Item item, MultipartFile file) throws IOException,MapleException {
+        //item.setCreatedBy(httpSession.getAttribute("username").toString());
         validate(item, true);
         item.setItemSku(counterService.getNextItem());
         item.setCreatedDate(new Date());
@@ -66,9 +66,9 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    public Item update(String id, Item item, MultipartFile file, HttpSession httpSession) throws MapleException, IOException{
+    public Item update(String id, Item item, MultipartFile file) throws MapleException, IOException{
 
-        item.setUpdatedBy(httpSession.getAttribute("username").toString());
+        //item.setUpdatedBy(httpSession.getAttribute("username").toString());
         Optional<Item> itemObject = itemRepository.findById(id);
         if (!itemObject.isPresent()) throw new NotFoundException(ITEM);
         Item updatedItem = itemObject.get();

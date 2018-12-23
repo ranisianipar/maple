@@ -53,12 +53,12 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     }
 
     @PostMapping
-    public BaseResponse requestManyAssignment(@Valid @RequestBody ManyAssignmentRequest manyAssignmentRequest,
-                                              HttpSession httpSession) {
+    public BaseResponse requestManyAssignment(@Valid @RequestBody ManyAssignmentRequest manyAssignmentRequest) {
+//                                              HttpSession httpSession) {
         BaseResponse br = new BaseResponse<>();
         try {
-            onlyOrdinaryUser("assign many", httpSession);
-            assignmentService.assignMany(manyAssignmentRequest, httpSession);
+            //onlyOrdinaryUser("assign many", httpSession);
+            assignmentService.assignMany(manyAssignmentRequest);
             return responseMapping(br, null);
         } catch (MapleException m) {
             return responseMapping(br, m);
@@ -69,9 +69,10 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     @PostMapping(Constant.LINK_UPDATE_STATUS)
     public BaseResponse updateStatusAssignment(
             @PathVariable String id,
-            @RequestParam(value = "action") String action, HttpSession httpSession) {
+            @RequestParam(value = "action") String action){
+            //, HttpSession httpSession) {
         try {
-            return responseMappingAssignment(new BaseResponse(), assignmentService.updateStatus(id, action, httpSession), null);
+            return responseMappingAssignment(new BaseResponse(), assignmentService.updateStatus(id, action), null);
         } catch (MapleException e) {
             return responseMapping(new BaseResponse(), e);
         }

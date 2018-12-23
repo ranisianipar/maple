@@ -38,7 +38,6 @@ public class EmployeeService {
     @Autowired
     private CounterService counter;
 
-    private List errorMessage = new ArrayList();
 
     public Page<Employee> getAll(String search, Pageable pageable) {
         if (search != null) return employeeRepository.findByUsernameLike(search, pageable);
@@ -58,15 +57,15 @@ public class EmployeeService {
     }
 
     public Employee create(Employee emp, MultipartFile file) throws DataConstraintException, IOException {
-        checkDataValue(emp, true);
         emp.setId(counter.getNextEmployee());
+        checkDataValue(emp, true);
         if (file != null)
             emp.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, emp.getId()));;
 
         return employeeRepository.save(emp);
     }
 
-    public Employee update(String id, Employee emp, MultipartFile file, HttpSession httpSession)
+    public Employee update(String id, Employee emp, MultipartFile file)
             throws MapleException, IOException {
         Optional<Employee> employeeObj = employeeRepository.findById(id);
 
@@ -87,7 +86,7 @@ public class EmployeeService {
         if (file != null) {
             employee.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, employee.getId()));
         }
-        if (isAdminBySession(httpSession)) employee.setSuperiorId(emp.getSuperiorId());
+        //if (isAdminBySession(httpSession)) employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
         checkDataValue(employee, false);
         return employeeRepository.save(employee);
@@ -128,14 +127,15 @@ public class EmployeeService {
 
     // Attribute value validation
     private void checkDataValue(Employee emp, boolean create) throws DataConstraintException{
+        List errorMessage = new ArrayList();
         errorMessage = regexChecker(emp, errorMessage);
         errorMessage = validateAttributeValue(emp, errorMessage);
-        uniquenessChecker(emp, create);
+        uniquenessChecker(emp, create, errorMessage);
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }
 
     //helper methods to check uniqueness data attribute
-    private void uniquenessChecker(Employee emp, boolean create){
+    private void uniquenessChecker(Employee emp, boolean create, List errorMessage){
         String username_msg = "username already exist";
         String email_msg = "email already exist";
         String superior_msg = "superior doesn't exist";
