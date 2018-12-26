@@ -27,8 +27,6 @@ import java.util.regex.Pattern;
 
 public class SimpleUtils {
 
-    @Autowired
-    AssignmentService assignmentService;
 
     public static Jedis jedis = JedisFactory.getInstance().getJedisPool().getResource();
 
@@ -93,27 +91,14 @@ public class SimpleUtils {
         return mapperFactory.getMapperFacade();
     }
 
+    // untuk orang yang udah berhasil login (punya token)
     public static void onlyAuthorizedUser(String method, HttpSession httpSession) throws MapleException{
-        if (httpSession.getAttribute("token") == null) throw new MethodNotAllowedException(method);
-        else if (jedis.get(httpSession.getAttribute("token").toString()) == null)
+        if (httpSession.getAttribute("token") == null ||
+                jedis.get(httpSession.getAttribute("token").toString()) == null) {
             throw new MethodNotAllowedException(method);
+        }
     }
 
-    public static void onlyAdmin(String method, HttpSession httpSession) throws MapleException{
-        if (!isAdminBySession(httpSession))
-            throw new MissingParameterException(method);
-    }
-    public static void onlyOrdinaryUser(String method, HttpSession httpSession) throws MapleException{
-        if (httpSession.getAttribute("token") == null) throw new MethodNotAllowedException(method);
-        // untuk kondisi orang masukkin token sembarangan dari luar selain admin
-        else if (jedis.get(httpSession.getAttribute("token").toString()) == null &&
-                httpSession.getAttribute("role") == null)
-            throw new MethodNotAllowedException(method);
-    }
-    public static boolean isAdminBySession(HttpSession httpSession) {
-        if (httpSession.getAttribute("role") != null) return  true;
-        return false;
-    }
     public static List validateAttributeValue(Employee employee, List errorMessage) {
         String null_warning = "cant be null";
 
@@ -138,9 +123,5 @@ public class SimpleUtils {
         if (!emailPattern.matcher(emp.getEmail()).matches()) errorMessage.add(email_msg);
 
         return errorMessage;
-    }
-
-    public static String getEmployeeIdBySession(HttpSession httpSession){
-        return jedis.get(httpSession.getAttribute("token").toString());
     }
 }

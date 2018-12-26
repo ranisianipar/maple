@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.util.*;
 
 
-import static com.maple.Helper.SimpleUtils.getEmployeeIdBySession;
+import static com.maple.AuthService.getCurrentUserId;
 
 @Service
 public class AssignmentService {
@@ -36,19 +36,23 @@ public class AssignmentService {
 
     public List<Assignment> getAll(Pageable pageable, HttpSession httpSession) {
         //admin
-        if (httpSession.getAttribute("role")!= null)
+        if (adminService.isExist(httpSession.getAttribute("token").toString()))
             return assignmentRepository.findAll(pageable).getContent();
-        return assignmentRepository.findByEmployeeId(getEmployeeIdBySession(httpSession));
+        return assignmentRepository.findByEmployeeId(getCurrentUserId(httpSession));
     }
 
     public Assignment get(String id, HttpSession httpSession) throws MapleException{
         //check id exist or nah
 
-        Optional<Assignment> assignment = assignmentRepository.findById(id);
-        if (!assignment.isPresent()) throw new NotFoundException("Assignment");
-        String employeeId = getEmployeeIdBySession(httpSession);
-        if (assignment.get().getEmployeeId().equals(employeeId)) throw new NotFoundException("Assignment");
-        return assignment.get();
+        Optional<Assignment> assignmentOptional = assignmentRepository.findById(id);
+        if (!assignmentOptional.isPresent()) throw new NotFoundException("Assignment");
+        Assignment assignment = assignmentOptional.get();
+        String currentUserId = getCurrentUserId(httpSession);
+
+        // harusnya kalo admin bole2 aja
+        if (!assignment.getEmployeeId().equals(currentUserId) || !adminService.isExist(currentUserId))
+            throw new NotFoundException("Assignment");
+        return assignment;
     }
     public List<Assignment> getByEmployee(String employeeId) throws NotFoundException{
         if (!employeeService.isExist(employeeId)) throw new NotFoundException("Employee ID");
@@ -58,8 +62,7 @@ public class AssignmentService {
     public long getTotalObject() {return SimpleUtils.getTotalObject(assignmentRepository);}
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
 
-    public void assignMany(ManyAssignmentRequest manyAssignmentRequest) throws MapleException {
-        //String employeeId = getEmployeeIdBySession(httpSession);
+    public void assignMany(ManyAssignmentRequest manyAssignmentRequest, HttpSession httpSession) throws MapleException {
         List<Item> items = new ArrayList<>();
         for (Assignment assignment : manyAssignmentRequest.getValue()) {
             validate(assignment);
@@ -72,7 +75,7 @@ public class AssignmentService {
             items.add(item);
             assignment.setCreatedDate(new Date());
 
-            //assignment.setEmployeeId(employeeId);
+            assignment.setEmployeeId(getCurrentUserId(httpSession));
 
             //give id
             assignment.setAssignmentId(counter.getNextAssignment());

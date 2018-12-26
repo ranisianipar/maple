@@ -11,12 +11,13 @@ import com.maple.IdCounterRepository;
 public class MongoChangeLog {
 
     @ChangeSet(order = "001", id = "addIdCounter", author = "admin")
-    public void addIdCounter(IdCounterRepository counterRepository) {
+    public void addIdCounter(final IdCounterRepository counterRepository) {
         final IdCounter idCounter = new IdCounter();
     }
-    @ChangeSet(order = "002", id = "addAdmin", author = "admin")
-    public void addAdmins(AdminRepository adminRepository) {
-        final Admin organization = new Admin("admin", "admin");
-        adminRepository.save(organization);
+
+    @ChangeSet(order = "002", id = "createAdmin", author = "admin")
+    public void addAdmin(final AdminRepository adminRepository) {
+        final Admin admin = new Admin("admin", "admin");
+        adminRepository.save(admin);
     }
 }

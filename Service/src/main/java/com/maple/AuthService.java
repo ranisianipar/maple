@@ -1,7 +1,6 @@
 package com.maple;
 
 import com.maple.Exception.MapleException;
-import com.maple.Exception.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,26 +18,27 @@ public class AuthService {
     AdminService adminService;
 
 
+    public String getValidToken(LoginRequest loginRequest, HttpSession httpSession) throws MapleException {
+        if (jedis.exists(httpSession.getId())) return httpSession.getId();
 
-    public void login(LoginRequest loginRequest, HttpSession httpSession) throws MapleException {
-        if (!jedis.exists(httpSession.getId()))
-            return;
-
-        if (!adminService.isAdmin(loginRequest.getUsername(), loginRequest.getPassword())) {
-            httpSession.setAttribute("token", httpSession.getId());
-            httpSession.setAttribute("role","admin");
-            httpSession.setAttribute("username",loginRequest.getUsername());
-            jedis.append(httpSession.getId(), loginRequest.getUsername());
-            return;
-        }
+        // cek admin atau bukan
+        Admin admin = adminService.getByUsername(loginRequest.getUsername());
+        System.out.println("Admin: "+admin);
+        System.out.println("Admin: "+adminService.getAll().toString());
         Employee employee = employeeService.getEmployeeByUsername(loginRequest.getUsername());
-        if (employee == null) throw new NotFoundException("User");
-        if (!employee.getPassword().equals(loginRequest.getPassword()))
-            throw new MapleException("Username and password don't match", HttpStatus.UNAUTHORIZED);
+        //System.out.println("Employee: "+employee.toString());
 
-        httpSession.setAttribute("token", httpSession.getId());
-        jedis.append(httpSession.getId(), employee.getId());
-        System.out.println(httpSession.getId()+": "+jedis.get(httpSession.getId()));
+        if (admin == null && employee == null) {
+            throw new MapleException("Username and password didn't match", HttpStatus.UNAUTHORIZED);
+        } else if (admin != null && admin.getPassword().equals(loginRequest.getPassword())) {
+            jedis.append(httpSession.getId(), admin.getUsername());
+            return httpSession.getId();
+        } else if(employee != null && employee.getPassword().equals(loginRequest.getPassword())) {
+            jedis.append(httpSession.getId(), employee.getId());
+            return httpSession.getId();
+        }
+
+        throw new MapleException("Username and password didn't match", HttpStatus.UNAUTHORIZED);
     }
 
     public void logout(HttpSession httpSession){
@@ -46,8 +46,9 @@ public class AuthService {
         if (httpSession.getAttribute("token") == null) return;
         String token = httpSession.getAttribute("token").toString();
         jedis.del(token);
-        httpSession.removeAttribute("token");
-        httpSession.removeAttribute("role");
+    }
 
+    public static String getCurrentUserId(HttpSession httpSession){
+        return jedis.get(httpSession.getAttribute("token").toString());
     }
 }

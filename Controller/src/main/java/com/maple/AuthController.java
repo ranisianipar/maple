@@ -20,10 +20,8 @@ public class AuthController extends MissingParamHandler {
     public BaseResponse login(
             @RequestBody LoginRequest loginRequest,
             HttpSession httpSession) {
-
-        //session input employee
         try {
-            authService.login(loginRequest, httpSession);
+            httpSession.setAttribute("token", authService.getValidToken(loginRequest, httpSession));
             return responseMapping(new BaseResponse("session created"), null);
         } catch (MapleException m) {
             return responseMapping(new BaseResponse(), m);
@@ -34,6 +32,7 @@ public class AuthController extends MissingParamHandler {
     @PostMapping("/logout")
     public BaseResponse logout(HttpSession httpSession) {
         authService.logout(httpSession);
+        httpSession.removeAttribute("token");
         return responseMapping(new BaseResponse("session deleted"), null);
     }
 }

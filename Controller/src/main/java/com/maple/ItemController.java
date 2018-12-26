@@ -18,7 +18,6 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
-import static com.maple.Helper.SimpleUtils.onlyAdmin;
 import static com.maple.Helper.SimpleUtils.responseMapping;
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
@@ -28,6 +27,9 @@ public class ItemController extends InvalidItemAttributeValue {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private AdminService adminService;
 
     @GetMapping
     public BaseResponse<List<Item>> getAll(
@@ -58,11 +60,11 @@ public class ItemController extends InvalidItemAttributeValue {
     @PostMapping
     public BaseResponse create(
             @RequestParam(value = "file",required = false) MultipartFile file,
-            @RequestParam(value = "data") String item){
-//            HttpSession httpSession) {
+            @RequestParam(value = "data") String item,
+            HttpSession httpSession) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            //onlyAdmin("create item", httpSession);
+            adminService.onlyAdmin("create item", httpSession);
             br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file));
             return responseMapping(br, null);
         } catch (MapleException e) {
@@ -76,11 +78,11 @@ public class ItemController extends InvalidItemAttributeValue {
     public BaseResponse update(
             @PathVariable String id,
             @RequestParam(value = "file",required = false) MultipartFile file,
-            @Valid @RequestParam(value = "data") String item){
-            //HttpSession httpSession) {
+            @Valid @RequestParam(value = "data") String item,
+            HttpSession httpSession) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            //onlyAdmin("update method",httpSession);
+            adminService.onlyAdmin("update method",httpSession);
             br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file));
             return responseMapping(br, null);
         } catch (MapleException e) {
@@ -91,10 +93,10 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @DeleteMapping
-    public BaseResponse delete(@RequestBody DeleteRequest deleteRequest) {
+    public BaseResponse delete(@RequestBody DeleteRequest deleteRequest, HttpSession httpSession) {
         BaseResponse br = new BaseResponse();
         try {
-            //onlyAdmin("delete item", httpSession);
+            adminService.onlyAdmin("delete item", httpSession);
             itemService.deleteMany(deleteRequest.getIds());
             return responseMapping(br, null);
         } catch (MapleException e) {
