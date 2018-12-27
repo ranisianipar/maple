@@ -56,10 +56,12 @@ public class AuthController extends MissingParamHandler {
         if (role == null) {
             return er;
         }
+        
         else if (role.equals("admin")) {
             er.setUsername(getCurrentUserId(httpSession));
             return er;
         }
+
         else if (role.equals("employee")) {
             try {
                 return getEmployeeMap().map(authService.getEmployeeData(httpSession),EmployeeResponse.class);
