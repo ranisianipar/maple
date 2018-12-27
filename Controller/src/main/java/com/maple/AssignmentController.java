@@ -78,7 +78,8 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             HttpSession httpSession) {
         try {
             onlyAuthorizedUser("update status", httpSession);
-            return responseMappingAssignment(new BaseResponse(), assignmentService.updateStatus(id, action), null);
+            return responseMappingAssignment(new BaseResponse(), assignmentService.updateStatus(id, action,
+                    httpSession), null);
         } catch (MapleException e) {
             return responseMapping(new BaseResponse(), e);
         }
@@ -100,7 +101,12 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
         AssignmentResponse ar;
         Assignment assignment;
-        Iterator<Assignment> assignmentPage = assignmentService.getAll(pageRequest, httpSession).iterator();
+        Iterator<Assignment> assignmentPage;
+        try {
+            assignmentPage = assignmentService.getAll(pageRequest, httpSession).iterator();
+        }   catch (MapleException m) {
+            return responseMapping(new BaseResponse(), m);
+        }
 
         while (assignmentPage.hasNext()) {
             assignment = assignmentPage.next();

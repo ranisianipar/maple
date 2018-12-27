@@ -8,6 +8,7 @@ import java.util.List;
 @Repository
 public interface AssignmentRepository extends MongoRepository<Assignment,String> {
 
+    public List<Assignment> findByEmployeeIdIn(List<String> employeeId);
     public List<Assignment> findByEmployeeId(String employeeId);
     public List<Assignment> findByItemSku(String itemSku);
     public void deleteByAssignmentIdIn(List<String> assignmentId);

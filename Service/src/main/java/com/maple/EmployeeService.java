@@ -90,10 +90,15 @@ public class EmployeeService {
         if (file != null) {
             employee.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, employee.getId()));
         }
+        // for admin
         if (adminService.isExist(getCurrentUserId(httpSession))) employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
         checkDataValue(employee, false);
         return employeeRepository.save(employee);
+    }
+
+    public  List<Employee> getBySuperiorId(String id) {
+        return employeeRepository.findBySuperiorId(id);
     }
 
     public void deleteMany(List<String> ids) throws MapleException {
@@ -133,6 +138,12 @@ public class EmployeeService {
         if (get(getCurrentUserId(httpSession)) == null)
             throw new MethodNotAllowedException(method);
     }
+
+    public void onlyTheirSuperior(String employeeId, String userId) throws MapleException{
+        Employee employee = get(employeeId);
+        if (!employee.getSuperiorId().equals(userId)) throw new MethodNotAllowedException("Only their superior");
+    }
+
     // Attribute value validation
     private void checkDataValue(Employee emp, boolean create) throws DataConstraintException{
         List errorMessage = new ArrayList();

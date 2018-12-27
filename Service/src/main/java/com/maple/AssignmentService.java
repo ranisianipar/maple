@@ -34,11 +34,19 @@ public class AssignmentService {
     private AdminService adminService;
 
 
-    public List<Assignment> getAll(Pageable pageable, HttpSession httpSession) {
+    public List<Assignment> getAll(Pageable pageable, HttpSession httpSession) throws MapleException{
         //admin
         if (adminService.isExist(httpSession.getAttribute("token").toString()))
             return assignmentRepository.findAll(pageable).getContent();
-        return assignmentRepository.findByEmployeeId(getCurrentUserId(httpSession));
+        Iterator employees = employeeService.getBySuperiorId(getCurrentUserId(httpSession)).iterator();
+        List<String> ids = new ArrayList<>();
+        while (employees.hasNext()) {
+            Employee e = (Employee) employees.next();
+            ids.add(e.getId());
+        }
+        ids.add(getCurrentUserId(httpSession));
+        List<Assignment> assignments = assignmentRepository.findByEmployeeIdIn(ids);
+        return assignments;
     }
 
     public Assignment get(String id, HttpSession httpSession) throws MapleException{
@@ -88,11 +96,13 @@ public class AssignmentService {
     }
 
     // action = up/down (for state action)
-    public Assignment updateStatus(String id, String action) throws MapleException{
+    public Assignment updateStatus(String id, String action, HttpSession httpSession) throws MapleException{
         Optional<Assignment> assignmentObj = assignmentRepository.findById(id);
         if (!assignmentObj.isPresent()) throw new NotFoundException(id);
 
         Assignment assignment = assignmentObj.get();
+        // only his superior
+        employeeService.onlyTheirSuperior(assignment.getEmployeeId(), getCurrentUserId(httpSession));
 
         //to decide whether increase or decrease state
         if (action.equalsIgnoreCase("UP"))
