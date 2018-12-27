@@ -59,6 +59,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     @PostMapping
     public BaseResponse requestManyAssignment(@Valid @RequestBody ManyAssignmentRequest manyAssignmentRequest,
                                               HttpSession httpSession) {
+
         BaseResponse br = new BaseResponse<>();
         try {
             employeeService.onlyEmployee("assign many", httpSession);
@@ -76,6 +77,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             @RequestParam(value = "action") String action,
             HttpSession httpSession) {
         try {
+            onlyAuthorizedUser("update status", httpSession);
             return responseMappingAssignment(new BaseResponse(), assignmentService.updateStatus(id, action), null);
         } catch (MapleException e) {
             return responseMapping(new BaseResponse(), e);

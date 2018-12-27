@@ -37,11 +37,11 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
             @RequestParam (value = "search", required = false) String search,
             HttpSession httpSession
     ){
-//        try {
-//            adminService.onlyAdmin("get all employee", httpSession);
-//        } catch (MapleException m) {
-//            return responseMapping(new BaseResponse(), m);
-//        }
+        try {
+            adminService.onlyAdmin("get all employee", httpSession);
+        } catch (MapleException m) {
+            return responseMapping(new BaseResponse(), m);
+        }
 
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
         BaseResponse br = new BaseResponse();

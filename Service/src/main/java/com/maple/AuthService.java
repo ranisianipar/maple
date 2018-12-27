@@ -26,7 +26,7 @@ public class AuthService {
         System.out.println("Admin: "+admin);
         System.out.println("Admin: "+adminService.getAll().toString());
         Employee employee = employeeService.getEmployeeByUsername(loginRequest.getUsername());
-        //System.out.println("Employee: "+employee.toString());
+        System.out.println("Employee: "+employee);
 
         if (admin == null && employee == null) {
             throw new MapleException("Username and password didn't match", HttpStatus.UNAUTHORIZED);
@@ -49,6 +49,20 @@ public class AuthService {
     }
 
     public static String getCurrentUserId(HttpSession httpSession){
-        return jedis.get(httpSession.getAttribute("token").toString());
+        String result = jedis.get(httpSession.getAttribute("token").toString());
+        if (result == null) return null;
+        return result;
+    }
+
+    public Employee getEmployeeData(HttpSession httpSession) throws MapleException{
+        return employeeService.get(getCurrentUserId(httpSession));
+    }
+
+    public String decideRole(HttpSession httpSession){
+        if (httpSession.getAttribute("token") == null) return "UNKNOWN";
+        else if (adminService.isExist(getCurrentUserId(httpSession))){
+            return "admin";
+        }
+        else return "employee";
     }
 }

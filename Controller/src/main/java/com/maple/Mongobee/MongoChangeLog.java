@@ -16,8 +16,8 @@ public class MongoChangeLog {
     }
 
     @ChangeSet(order = "002", id = "createAdmin", author = "admin")
-    public void addAdmin(final AdminRepository adminRepository) {
-        final Admin admin = new Admin("admin", "admin");
+    public void addAdmin(AdminRepository adminRepository) {
+        Admin admin = new Admin("admin","admin");
         adminRepository.save(admin);
     }
 }
