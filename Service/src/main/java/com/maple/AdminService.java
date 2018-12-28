@@ -5,11 +5,9 @@ import com.maple.Exception.MethodNotAllowedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
-
 import java.util.List;
 
-import static com.maple.AuthService.getCurrentUserId;
+import static com.maple.Helper.SimpleUtils.getCurrentUserId;
 
 @Service
 public class AdminService {
@@ -40,8 +38,8 @@ public class AdminService {
         return false;
     }
 
-    public void onlyAdmin(String method, HttpSession httpSession) throws MapleException{
-        if(!isExist(getCurrentUserId(httpSession)))
+    public void onlyAdmin(String method, String token) throws MapleException{
+        if(!isExist(getCurrentUserId(token)))
             throw new MethodNotAllowedException(method);
     }
 

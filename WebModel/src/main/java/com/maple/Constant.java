@@ -13,6 +13,7 @@ public class Constant {
     public static final String LINK_ID_PARAM = "/{id:.+}";
     public static final String FOLDER_PATH_EMPLOYEE = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Employee";
     public static final String FOLDER_PATH_ITEM = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Item\\";
+    public static final String AUTHORIZATION_TOKEN_KEY = "Authorization-key";
 
     // assignment
     public static final String LINK_ASSIGNMENT_PREFIX = "/assignment";
@@ -25,5 +26,8 @@ public class Constant {
     //item
     public static final String LINK_ITEM_PREFIX = "/item";
     public static final String LINK_ITEM_DOWNLOAD = "/{id:.+}/download";
+
+    //dashboard
+    public static final String LINK_DASHBOARD_PREFIX = "/";
 
 }

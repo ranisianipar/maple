@@ -13,7 +13,7 @@ import javax.servlet.http.HttpSession;
 import java.util.*;
 
 
-import static com.maple.AuthService.getCurrentUserId;
+import static com.maple.Helper.SimpleUtils.getCurrentUserId;
 
 @Service
 public class AssignmentService {
@@ -34,11 +34,12 @@ public class AssignmentService {
     private AdminService adminService;
 
     // User as a superior
-    public List<Assignment> getRequestedAssignment(Pageable pageable, HttpSession httpSession) {
-        if (adminService.isExist(httpSession.getAttribute("token").toString()))
+    public List<Assignment> getRequestedAssignment(Pageable pageable, String token) {
+        String currentUserId = getCurrentUserId(token);
+        if (adminService.isExist(currentUserId))
             // cari yang superiornya null
             return assignmentRepository.findByEmployeeId(null, pageable);
-        Iterator employees = employeeService.getBySuperiorId(getCurrentUserId(httpSession)).iterator();
+        Iterator employees = employeeService.getBySuperiorId(currentUserId).iterator();
         List<String> ids = new ArrayList<>();
         while (employees.hasNext()) {
             Employee e = (Employee) employees.next();
@@ -48,20 +49,20 @@ public class AssignmentService {
     }
 
     // User as a requestor
-    public List<Assignment> getAll(Pageable pageable, HttpSession httpSession) throws MapleException{
+    public List<Assignment> getAll(Pageable pageable, String token) throws MapleException{
         //admin
-        if (adminService.isExist(httpSession.getAttribute("token").toString()))
+        if (adminService.isExist(getCurrentUserId(token)))
             return assignmentRepository.findAll(pageable).getContent();
-        return assignmentRepository.findByEmployeeId(getCurrentUserId(httpSession), pageable);
+        return assignmentRepository.findByEmployeeId(getCurrentUserId(token), pageable);
     }
 
-    public Assignment get(String id, HttpSession httpSession) throws MapleException{
+    public Assignment get(String id, String token) throws MapleException{
         //check id exist or nah
 
         Optional<Assignment> assignmentOptional = assignmentRepository.findById(id);
         if (!assignmentOptional.isPresent()) throw new NotFoundException("Assignment");
         Assignment assignment = assignmentOptional.get();
-        String currentUserId = getCurrentUserId(httpSession);
+        String currentUserId = getCurrentUserId(token);
 
         // harusnya kalo admin bole2 aja
         if (!assignment.getEmployeeId().equals(currentUserId) || !adminService.isExist(currentUserId))
@@ -76,7 +77,7 @@ public class AssignmentService {
     public long getTotalObject() {return SimpleUtils.getTotalObject(assignmentRepository);}
     public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
 
-    public void assignMany(ManyAssignmentRequest manyAssignmentRequest, HttpSession httpSession) throws MapleException {
+    public void assignMany(ManyAssignmentRequest manyAssignmentRequest, String token) throws MapleException {
         List<Item> items = new ArrayList<>();
         for (Assignment assignment : manyAssignmentRequest.getValue()) {
             validate(assignment);
@@ -89,7 +90,7 @@ public class AssignmentService {
             items.add(item);
             assignment.setCreatedDate(new Date());
 
-            assignment.setEmployeeId(getCurrentUserId(httpSession));
+            assignment.setEmployeeId(getCurrentUserId(token));
 
             //give id
             assignment.setAssignmentId(counter.getNextAssignment());
@@ -102,12 +103,12 @@ public class AssignmentService {
     }
 
     // action = up/down (for state action)
-    public Assignment updateStatus(String id, String action, HttpSession httpSession) throws MapleException{
+    public Assignment updateStatus(String id, String action, String token) throws MapleException{
         Optional<Assignment> assignmentObj = assignmentRepository.findById(id);
         if (!assignmentObj.isPresent()) throw new NotFoundException(id);
 
         Assignment assignment = assignmentObj.get();
-        String currentUserId = getCurrentUserId(httpSession);
+        String currentUserId = getCurrentUserId(token);
 
         // only his superior
         employeeService.onlyTheirSuperior(assignment.getEmployeeId(), currentUserId);

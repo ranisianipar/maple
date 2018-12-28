@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,38 +34,41 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy,
-            HttpSession httpSession) {
+            HttpServletRequest request) {
+        String token = getTokenFromRequest(request);
         try {
-            onlyAuthorizedUser("get all assignment",httpSession);
+            onlyAuthorizedUser("get all assignment",token);
         } catch (MapleException m) {
             return responseMapping(new BaseResponse(),m);
         }
         return responseMappingWithPage(new BaseResponse(),
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),
-                httpSession, false);
+                token, false);
     }
     @GetMapping(Constant.LINK_REQUESTED)
     public BaseResponse getRequestedAssignments(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy,
-            HttpSession httpSession) {
+            HttpServletRequest request) {
+        String token = getTokenFromRequest(request);
         try {
-            onlyAuthorizedUser("get all assignment",httpSession);
+            onlyAuthorizedUser("get all assignment",token);
         } catch (MapleException m) {
             return responseMapping(new BaseResponse(),m);
         }
         return responseMappingWithPage(new BaseResponse(),
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),
-                httpSession, true);
+                token, true);
     }
 
     @GetMapping(value = Constant.LINK_ID_PARAM)
-    public BaseResponse getAssignment(@PathVariable String id, HttpSession httpSession) {
+    public BaseResponse getAssignment(@PathVariable String id, HttpServletRequest request) {
         BaseResponse br = new BaseResponse<>();
+        String token = getTokenFromRequest(request);
         try {
-            onlyAuthorizedUser("get assignment", httpSession);
-            return responseMappingAssignment(br, assignmentService.get(id, httpSession), null);
+            onlyAuthorizedUser("get assignment", token);
+            return responseMappingAssignment(br, assignmentService.get(id, token), null);
         } catch (MapleException e) {
             return responseMapping(br, e);
         }
@@ -73,12 +76,13 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     @PostMapping
     public BaseResponse requestManyAssignment(@Valid @RequestBody ManyAssignmentRequest manyAssignmentRequest,
-                                              HttpSession httpSession) {
+                                              HttpServletRequest request) {
 
         BaseResponse br = new BaseResponse<>();
+        String token = getTokenFromRequest(request);
         try {
-            employeeService.onlyEmployee("assign many", httpSession);
-            assignmentService.assignMany(manyAssignmentRequest, httpSession);
+            employeeService.onlyEmployee("assign many", token);
+            assignmentService.assignMany(manyAssignmentRequest, token);
             return responseMapping(br, null);
         } catch (MapleException m) {
             return responseMapping(br, m);
@@ -90,11 +94,12 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     public BaseResponse updateStatusAssignment(
             @PathVariable String id,
             @RequestParam(value = "action") String action,
-            HttpSession httpSession) {
+            HttpServletRequest request) {
+        String token = getTokenFromRequest(request);
         try {
-            onlyAuthorizedUser("update status", httpSession);
+            onlyAuthorizedUser("update status", token);
             return responseMappingAssignment(new BaseResponse(), assignmentService.updateStatus(id, action,
-                    httpSession), null);
+                    token), null);
         } catch (MapleException e) {
             return responseMapping(new BaseResponse(), e);
         }
@@ -104,7 +109,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     //HELPER METHOD
 
     private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest,
-                                                 HttpSession httpSession, boolean asSuperior) {
+                                                 String token, boolean asSuperior) {
 
         List<AssignmentResponse> assignmentResponses = new ArrayList<>();
 
@@ -112,8 +117,8 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         Assignment assignment;
         Iterator<Assignment> assignmentPage;
         try {
-            if (!asSuperior) assignmentPage = assignmentService.getAll(pageRequest, httpSession).iterator();
-            else assignmentPage = assignmentService.getRequestedAssignment(pageRequest, httpSession).iterator();
+            if (!asSuperior) assignmentPage = assignmentService.getAll(pageRequest, token).iterator();
+            else assignmentPage = assignmentService.getRequestedAssignment(pageRequest, token).iterator();
         }   catch (MapleException m) {
             return responseMapping(new BaseResponse(), m);
         }

@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 
+import static com.maple.Helper.SimpleUtils.getTokenFromRequest;
 import static com.maple.Helper.SimpleUtils.onlyAuthorizedUser;
 import static com.maple.Helper.SimpleUtils.responseMapping;
 
@@ -38,11 +39,11 @@ public class ItemController extends InvalidItemAttributeValue {
             @RequestParam (value = "size", defaultValue = "10") int size,
             @RequestParam (value = "sortBy", defaultValue = "createdDate") String sortBy,
             @RequestParam (value = "search", required = false) String search,
-            HttpSession httpSession) {
+            HttpServletRequest request) {
         BaseResponse br = new BaseResponse();
 
         try {
-            onlyAuthorizedUser("get all item",httpSession);
+            onlyAuthorizedUser("get all item", getTokenFromRequest(request));
         }   catch (MapleException m) {
             responseMapping(br, m);
         }
@@ -55,10 +56,10 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @GetMapping(Constant.LINK_ID_PARAM)
-    public BaseResponse get(@PathVariable String id, HttpSession httpSession) {
+    public BaseResponse get(@PathVariable String id, HttpServletRequest request) {
         BaseResponse br = new BaseResponse();
         try {
-            onlyAuthorizedUser("get item", httpSession);
+            onlyAuthorizedUser("get item", getTokenFromRequest(request));
             br.setValue(itemService.get(id));
             return responseMapping(br, null);
         } catch (MapleException e) {
@@ -70,10 +71,10 @@ public class ItemController extends InvalidItemAttributeValue {
     public BaseResponse create(
             @RequestParam(value = "file",required = false) MultipartFile file,
             @RequestParam(value = "data") String item,
-            HttpSession httpSession) {
+            HttpServletRequest request) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            adminService.onlyAdmin("create item", httpSession);
+            adminService.onlyAdmin("create item", getTokenFromRequest(request));
             br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file));
             return responseMapping(br, null);
         } catch (MapleException e) {
@@ -88,10 +89,10 @@ public class ItemController extends InvalidItemAttributeValue {
             @PathVariable String id,
             @RequestParam(value = "file",required = false) MultipartFile file,
             @Valid @RequestParam(value = "data") String item,
-            HttpSession httpSession) {
+            HttpServletRequest request) {
         BaseResponse<Item> br = new BaseResponse<>();
         try {
-            adminService.onlyAdmin("update method",httpSession);
+            adminService.onlyAdmin("update method", getTokenFromRequest(request));
             br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file));
             return responseMapping(br, null);
         } catch (MapleException e) {
@@ -102,10 +103,10 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @DeleteMapping
-    public BaseResponse delete(@RequestBody DeleteRequest deleteRequest, HttpSession httpSession) {
+    public BaseResponse delete(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         BaseResponse br = new BaseResponse();
         try {
-            adminService.onlyAdmin("delete item", httpSession);
+            adminService.onlyAdmin("delete item", getTokenFromRequest(request));
             itemService.deleteMany(deleteRequest.getIds());
             return responseMapping(br, null);
         } catch (MapleException e) {
@@ -114,9 +115,9 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @GetMapping(value=Constant.LINK_ITEM_DOWNLOAD, produces = MediaType.APPLICATION_PDF_VALUE)
-    public byte[] generatePdf(@PathVariable String id, HttpSession httpSession) {
+    public byte[] generatePdf(@PathVariable String id, HttpServletRequest request) {
         try {
-            onlyAuthorizedUser("generate PDF", httpSession);
+            onlyAuthorizedUser("generate PDF", getTokenFromRequest(request));
             return itemService.generatePdf(id);
         } catch (Exception e) {
             return new byte[0];

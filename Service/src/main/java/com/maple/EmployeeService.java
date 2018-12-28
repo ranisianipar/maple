@@ -12,15 +12,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.maple.AuthService.getCurrentUserId;
-
+import static com.maple.Helper.SimpleUtils.getCurrentUserId;
 import static com.maple.Helper.SimpleUtils.regexChecker;
 import static com.maple.Helper.SimpleUtils.validateAttributeValue;
 
@@ -69,7 +67,7 @@ public class EmployeeService {
         return employeeRepository.save(emp);
     }
 
-    public Employee update(String id, Employee emp, MultipartFile file, HttpSession httpSession)
+    public Employee update(String id, Employee emp, MultipartFile file, String token)
             throws MapleException, IOException {
         Optional<Employee> employeeObj = employeeRepository.findById(id);
 
@@ -91,7 +89,7 @@ public class EmployeeService {
             employee.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, employee.getId()));
         }
         // for admin
-        if (adminService.isExist(getCurrentUserId(httpSession))) employee.setSuperiorId(emp.getSuperiorId());
+        if (adminService.isExist(getCurrentUserId(token))) employee.setSuperiorId(emp.getSuperiorId());
         employee.setUpdatedDate(new Date());
         checkDataValue(employee, false);
         return employeeRepository.save(employee);
@@ -134,8 +132,8 @@ public class EmployeeService {
         return employeeRepository.findByUsername(username);
     }
 
-    public void onlyEmployee(String method, HttpSession httpSession) throws MapleException{
-        if (get(getCurrentUserId(httpSession)) == null)
+    public void onlyEmployee(String method, String token) throws MapleException{
+        if (get(getCurrentUserId(token)) == null)
             throw new MethodNotAllowedException(method);
     }
 

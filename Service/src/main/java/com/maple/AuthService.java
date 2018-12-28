@@ -5,8 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import static com.maple.Helper.SimpleUtils.getCurrentUserId;
+import static com.maple.Helper.SimpleUtils.getTokenFromRequest;
 import static com.maple.Helper.SimpleUtils.jedis;
 
 @Service
@@ -41,25 +44,20 @@ public class AuthService {
         throw new MapleException("Username and password didn't match", HttpStatus.UNAUTHORIZED);
     }
 
-    public void logout(HttpSession httpSession){
+    public void logout(HttpServletRequest request){
         // flush session
-        if (httpSession.getAttribute("token") == null) return;
-        String token = httpSession.getAttribute("token").toString();
+        String token = getTokenFromRequest(request);
+        if (token == null) return;
         jedis.del(token);
     }
 
-    public static String getCurrentUserId(HttpSession httpSession){
-        String result = jedis.get(httpSession.getAttribute("token").toString());
-        return result;
+    public Employee getEmployeeData(String token) throws MapleException{
+        return employeeService.get(getCurrentUserId(token));
     }
 
-    public Employee getEmployeeData(HttpSession httpSession) throws MapleException{
-        return employeeService.get(getCurrentUserId(httpSession));
-    }
-
-    public String decideRole(HttpSession httpSession){
-        if (httpSession.getAttribute("token") == null) return "UNKNOWN";
-        else if (adminService.isExist(getCurrentUserId(httpSession))){
+    public String decideRole(String token){
+        if (token == null) return "UNKNOWN";
+        else if (adminService.isExist(getCurrentUserId(token))){
             return "admin";
         }
         else return "employee";

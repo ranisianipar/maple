@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import redis.clients.jedis.Jedis;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
@@ -92,11 +93,18 @@ public class SimpleUtils {
     }
 
     // untuk orang yang udah berhasil login (punya token)
-    public static void onlyAuthorizedUser(String method, HttpSession httpSession) throws MapleException{
-        if (httpSession.getAttribute("token") == null ||
-                jedis.get(httpSession.getAttribute("token").toString()) == null) {
+    public static void onlyAuthorizedUser(String method, String token) throws MapleException{
+        if (token == null || jedis.get(token) == null) {
             throw new MethodNotAllowedException(method);
         }
+    }
+
+    public static String getCurrentUserId(String token){
+        return jedis.get(token);
+    }
+
+    public static String getTokenFromRequest(HttpServletRequest request) {
+        return request.getHeader(Constant.AUTHORIZATION_TOKEN_KEY);
     }
 
     public static List validateAttributeValue(Employee employee, List errorMessage) {
