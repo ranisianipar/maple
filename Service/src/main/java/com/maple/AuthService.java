@@ -26,16 +26,14 @@ public class AuthService {
 
         // cek admin atau bukan
         Admin admin = adminService.getByUsername(loginRequest.getUsername());
-        System.out.println("Admin: "+admin);
-        System.out.println("Admin: "+adminService.getAll().toString());
         Employee employee = employeeService.getEmployeeByUsername(loginRequest.getUsername());
-        System.out.println("Employee: "+employee);
 
         if (admin == null && employee == null) {
             throw new MapleException("Username and password didn't match", HttpStatus.UNAUTHORIZED);
         } else if (admin != null && admin.getPassword().equals(loginRequest.getPassword())) {
-            jedis.append(httpSession.getId(), admin.getUsername());
-            return httpSession.getId();
+            String token = httpSession.getId()+"-ADMIN";
+            jedis.append(token, admin.getUsername());
+            return token;
         } else if(employee != null && employee.getPassword().equals(loginRequest.getPassword())) {
             jedis.append(httpSession.getId(), employee.getId());
             return httpSession.getId();

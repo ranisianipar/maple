@@ -115,9 +115,8 @@ public class ItemController extends InvalidItemAttributeValue {
     }
 
     @GetMapping(value=Constant.LINK_ITEM_DOWNLOAD, produces = MediaType.APPLICATION_PDF_VALUE)
-    public byte[] generatePdf(@PathVariable String id, HttpServletRequest request) {
+    public byte[] generatePdf(@PathVariable String id) {
         try {
-            onlyAuthorizedUser("generate PDF", getTokenFromRequest(request));
             return itemService.generatePdf(id);
         } catch (Exception e) {
             return new byte[0];

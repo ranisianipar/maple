@@ -19,7 +19,6 @@ public class AdminService {
     AuthService authService;
 
     public List<Admin> getAll() {
-        initData();
         return adminRepository.findAll();
     }
 
@@ -43,11 +42,11 @@ public class AdminService {
             throw new MethodNotAllowedException(method);
     }
 
-    public void initData() {
-        List<Admin> admins = adminRepository.findAll();
-        if (admins.isEmpty()){
-            Admin admin = new Admin("admin","admin");
-            adminRepository.save(admin);
-        }
-    }
+//    public void initData() {
+//        List<Admin> admins = adminRepository.findAll();
+//        if (admins.isEmpty()){
+//            Admin admin = new Admin("admin","admin");
+//            adminRepository.save(admin);
+//        }
+//    }
 }
