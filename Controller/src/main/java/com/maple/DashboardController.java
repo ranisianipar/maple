@@ -16,9 +16,6 @@ import static com.maple.Helper.SimpleUtils.responseMapping;
 @RequestMapping(value = Constant.LINK_DASHBOARD_PREFIX)
 @RestController
 public class DashboardController {
-    // pending items
-    // accepted items
-    // received items
 
     @Autowired
     AssignmentService assignmentService;
@@ -27,22 +24,27 @@ public class DashboardController {
     @GetMapping
     public BaseResponse getDashboard(HttpServletRequest request) {
         BaseResponse br = new BaseResponse();
+        String token = getTokenFromRequest(request);
         try {
-            onlyAuthorizedUser("get dashboard", getTokenFromRequest(request));
+            onlyAuthorizedUser("get dashboard", token);
         }   catch (MapleException m) {
             return responseMapping(br, m);
         }
-        br.setValue("");
+        DashboardCardResponse dr = new DashboardCardResponse();
+        dr.setPending(assignmentService.countByStatus(token, "pending"));
+        dr.setApproved(assignmentService.countByStatus(token, "approved"));
+        dr.setReceived(assignmentService.countByStatus(token, "received"));
+
+        br.setValue(dr);
         return br;
     }
-
-    // assignment
 
     @GetMapping(Constant.LINK_REQUESTED)
     public BaseResponse getAssignmentWithoutButton(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy,
+            @RequestParam(value = "status", required = false) String status,
             HttpServletRequest request) {
         BaseResponse br = new BaseResponse();
         String token = getTokenFromRequest(request);
@@ -52,8 +54,8 @@ public class DashboardController {
             return responseMapping(br, m);
         }
 
-        br.setValue(assignmentService.getMyAssignmentWithPage(
-                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)), token));
+        br.setValue(assignmentService.getAssignmentByStatus(
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)), token, status));
         return br;
     }
 

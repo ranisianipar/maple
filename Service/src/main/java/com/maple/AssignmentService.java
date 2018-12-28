@@ -48,11 +48,17 @@ public class AssignmentService {
     }
 
     // User as a requestor
-    public List<Assignment> getMyAssignmentWithPage(Pageable pageable, String token) {
+    public List<Assignment> getAssignmentByStatus(Pageable pageable, String token, String status) {
         //admin
-        if (adminService.isExist(getCurrentUserId(token)))
+        if (adminService.isExist(getCurrentUserId(token))) {
+            if (status != null) return assignmentRepository.findByStatus(status, pageable);
             return assignmentRepository.findAll(pageable).getContent();
-        return assignmentRepository.findByEmployeeId(getCurrentUserId(token), pageable);
+        }
+        return assignmentRepository.findByEmployeeIdAndStatus(getCurrentUserId(token), status, pageable);
+    }
+
+    public int countByStatus(String token, String status){
+        return assignmentRepository.findByEmployeeIdAndStatus(getCurrentUserId(token), status).size();
     }
 
 

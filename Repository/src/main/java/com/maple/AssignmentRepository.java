@@ -9,10 +9,12 @@ import java.util.List;
 @Repository
 public interface AssignmentRepository extends MongoRepository<Assignment,String> {
 
+    public List<Assignment> findByStatus(String status, Pageable pageable);
     public List<Assignment> findByEmployeeIdIn(List<String> employeeId, Pageable pageable);
     public List<Assignment> findByEmployeeId(String employeeId, Pageable pageable);
     public List<Assignment> findByEmployeeId(String employeeId);
     public List<Assignment> findByItemSku(String itemSku);
-    public void deleteByAssignmentIdIn(List<String> assignmentId);
+    public List<Assignment> findByEmployeeIdAndStatus(String employeeId, String status);
+    public List<Assignment> findByEmployeeIdAndStatus(String employeeId, String status, Pageable pageable);
 
 }

@@ -28,6 +28,6 @@ public class Constant {
 
     //dashboard
     public static final String LINK_DASHBOARD_PREFIX = "/";
-    public static final String LINK_REQUESTED = "/my-assignments";
+    public static final String LINK_REQUESTED = "/the-assignments";
 
 }
