@@ -42,7 +42,22 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         }
         return responseMappingWithPage(new BaseResponse(),
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),
-                httpSession);
+                httpSession, false);
+    }
+    @GetMapping(Constant.LINK_REQUESTED)
+    public BaseResponse getRequestedAssignments(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy,
+            HttpSession httpSession) {
+        try {
+            onlyAuthorizedUser("get all assignment",httpSession);
+        } catch (MapleException m) {
+            return responseMapping(new BaseResponse(),m);
+        }
+        return responseMappingWithPage(new BaseResponse(),
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),
+                httpSession, true);
     }
 
     @GetMapping(value = Constant.LINK_ID_PARAM)
@@ -86,16 +101,10 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     }
 
-    //akan dihapus
-    @DeleteMapping(Constant.LINK_ID_PARAM)
-    public BaseResponse deleteAssignment(@PathVariable String id) {
-        assignmentService.delete(id);
-        return new BaseResponse(id+" DELETED");
-    }
-
     //HELPER METHOD
 
-    private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest, HttpSession httpSession) {
+    private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest,
+                                                 HttpSession httpSession, boolean asSuperior) {
 
         List<AssignmentResponse> assignmentResponses = new ArrayList<>();
 
@@ -103,7 +112,8 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         Assignment assignment;
         Iterator<Assignment> assignmentPage;
         try {
-            assignmentPage = assignmentService.getAll(pageRequest, httpSession).iterator();
+            if (!asSuperior) assignmentPage = assignmentService.getAll(pageRequest, httpSession).iterator();
+            else assignmentPage = assignmentService.getRequestedAssignment(pageRequest, httpSession).iterator();
         }   catch (MapleException m) {
             return responseMapping(new BaseResponse(), m);
         }
@@ -118,8 +128,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             } catch (MapleException m) {
                 return responseMapping(new BaseResponse(), m);
             }
-
-            ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
+            if (asSuperior) ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
             assignmentResponses.add(ar);
         }
         br.setPaging(pageRequest);

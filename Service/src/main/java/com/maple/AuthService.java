@@ -50,7 +50,6 @@ public class AuthService {
 
     public static String getCurrentUserId(HttpSession httpSession){
         String result = jedis.get(httpSession.getAttribute("token").toString());
-        if (result == null) return null;
         return result;
     }
 

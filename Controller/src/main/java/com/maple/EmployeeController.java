@@ -38,7 +38,8 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
             HttpSession httpSession
     ){
         try {
-            adminService.onlyAdmin("get all employee", httpSession);
+            //adminService.onlyAdmin("get all employee", httpSession);
+            onlyAuthorizedUser("get employee", httpSession);
         } catch (MapleException m) {
             return responseMapping(new BaseResponse(), m);
         }
@@ -52,9 +53,10 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     }
 
     @GetMapping(Constant.LINK_ID_PARAM)
-    public BaseResponse<EmployeeResponse> getEmployee(@PathVariable String id) {
+    public BaseResponse<EmployeeResponse> getEmployee(@PathVariable String id, HttpSession httpSession) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
+            onlyAuthorizedUser("get employee", httpSession);
             br.setValue(getEmployeeMap().map(employeeService.get(id), EmployeeResponse.class));
             return responseMapping(br, null);
         } catch (MapleException e) {
@@ -69,7 +71,7 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
             HttpSession httpSession) {
         BaseResponse<EmployeeResponse> br = new BaseResponse<EmployeeResponse>();
         try {
-            //adminService.onlyAdmin("create employee", httpSession);
+            adminService.onlyAdmin("create employee", httpSession);
             br.setValue(getEmployeeMap().map(employeeService.create(
                     new ObjectMapper().readValue(employee, Employee.class), file), EmployeeResponse.class));
             return responseMapping(br, null);
@@ -103,7 +105,7 @@ public class EmployeeController extends InvalidEmployeeAttributeValue {
     public BaseResponse<String> deleteEmployee(@RequestBody DeleteRequest deleteRequest, HttpSession httpSession) {
         BaseResponse br = new BaseResponse();
         try {
-            onlyAuthorizedUser("delete employee",httpSession);
+            adminService.onlyAdmin("delete employee",httpSession);
             employeeService.deleteMany(deleteRequest.getIds());
             return responseMapping(br, null);
         } catch (MapleException e) {

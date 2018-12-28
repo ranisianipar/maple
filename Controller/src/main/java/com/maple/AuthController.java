@@ -5,6 +5,8 @@ import com.maple.validation.MissingParamHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import static com.maple.AuthService.getCurrentUserId;
@@ -22,9 +24,12 @@ public class AuthController extends MissingParamHandler {
     @PostMapping("/login")
     public BaseResponse login(
             @RequestBody LoginRequest loginRequest,
-            HttpSession httpSession) {
+            HttpSession httpSession,
+            HttpServletResponse res) {
         try {
-            httpSession.setAttribute("token", authService.getValidToken(loginRequest, httpSession));
+            String token = authService.getValidToken(loginRequest, httpSession);
+            httpSession.setAttribute("token", token);
+            res.addCookie(new Cookie("token", token));
             return responseMapping(new BaseResponse("session created"), null);
         } catch (MapleException m) {
             return responseMapping(new BaseResponse(), m);

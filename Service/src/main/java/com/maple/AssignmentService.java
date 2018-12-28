@@ -33,20 +33,26 @@ public class AssignmentService {
     @Autowired
     private AdminService adminService;
 
-
-    public List<Assignment> getAll(Pageable pageable, HttpSession httpSession) throws MapleException{
-        //admin
+    // User as a superior
+    public List<Assignment> getRequestedAssignment(Pageable pageable, HttpSession httpSession) {
         if (adminService.isExist(httpSession.getAttribute("token").toString()))
-            return assignmentRepository.findAll(pageable).getContent();
+            // cari yang superiornya null
+            return assignmentRepository.findByEmployeeId(null, pageable);
         Iterator employees = employeeService.getBySuperiorId(getCurrentUserId(httpSession)).iterator();
         List<String> ids = new ArrayList<>();
         while (employees.hasNext()) {
             Employee e = (Employee) employees.next();
             ids.add(e.getId());
         }
-        ids.add(getCurrentUserId(httpSession));
-        List<Assignment> assignments = assignmentRepository.findByEmployeeIdIn(ids);
-        return assignments;
+        return assignmentRepository.findByEmployeeIdIn(ids, pageable);
+    }
+
+    // User as a requestor
+    public List<Assignment> getAll(Pageable pageable, HttpSession httpSession) throws MapleException{
+        //admin
+        if (adminService.isExist(httpSession.getAttribute("token").toString()))
+            return assignmentRepository.findAll(pageable).getContent();
+        return assignmentRepository.findByEmployeeId(getCurrentUserId(httpSession), pageable);
     }
 
     public Assignment get(String id, HttpSession httpSession) throws MapleException{
@@ -62,9 +68,9 @@ public class AssignmentService {
             throw new NotFoundException("Assignment");
         return assignment;
     }
-    public List<Assignment> getByEmployee(String employeeId) throws NotFoundException{
+    public List<Assignment> getByEmployee(String employeeId, Pageable pageable) throws NotFoundException{
         if (!employeeService.isExist(employeeId)) throw new NotFoundException("Employee ID");
-        return assignmentRepository.findByEmployeeId(employeeId);
+        return assignmentRepository.findByEmployeeId(employeeId, pageable);
     }
 
     public long getTotalObject() {return SimpleUtils.getTotalObject(assignmentRepository);}
@@ -101,8 +107,10 @@ public class AssignmentService {
         if (!assignmentObj.isPresent()) throw new NotFoundException(id);
 
         Assignment assignment = assignmentObj.get();
+        String currentUserId = getCurrentUserId(httpSession);
+
         // only his superior
-        employeeService.onlyTheirSuperior(assignment.getEmployeeId(), getCurrentUserId(httpSession));
+        employeeService.onlyTheirSuperior(assignment.getEmployeeId(), currentUserId);
 
         //to decide whether increase or decrease state
         if (action.equalsIgnoreCase("UP"))
@@ -112,6 +120,7 @@ public class AssignmentService {
         else throw new MapleException("Method isn't recognized", HttpStatus.METHOD_NOT_ALLOWED);
 
         assignment.setUpdatedDate(new Date());
+        assignment.setUpdatedBy(currentUserId);
         return assignmentRepository.save(assignment);
     }
     // implement state design pattern
@@ -181,10 +190,6 @@ public class AssignmentService {
 
     public String getEmployeeName(String employeeId) throws MapleException{
         return employeeService.get(employeeId).getUsername();
-    }
-
-    public void delete(String id) {
-        assignmentRepository.delete(assignmentRepository.findById(id).get());
     }
 
     private void validate(Assignment assignment) throws DataConstraintException{

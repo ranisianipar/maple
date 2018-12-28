@@ -141,7 +141,9 @@ public class EmployeeService {
 
     public void onlyTheirSuperior(String employeeId, String userId) throws MapleException{
         Employee employee = get(employeeId);
-        if (!employee.getSuperiorId().equals(userId)) throw new MethodNotAllowedException("Only their superior");
+        if (employee.getSuperiorId() == null && !adminService.isExist(userId))
+            throw new MethodNotAllowedException("Only their superior");
+        else if (!employee.getSuperiorId().equals(userId)) throw new MethodNotAllowedException("Only their superior");
     }
 
     // Attribute value validation
