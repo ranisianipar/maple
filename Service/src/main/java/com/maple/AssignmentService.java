@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.*;
 
 
@@ -34,7 +33,7 @@ public class AssignmentService {
     private AdminService adminService;
 
     // User as a superior
-    public List<Assignment> getRequestedAssignment(Pageable pageable, String token) {
+    public List<Assignment> getAssignment(Pageable pageable, String token) {
         String currentUserId = getCurrentUserId(token);
         if (adminService.isExist(currentUserId))
             // cari yang superiornya null
@@ -49,12 +48,14 @@ public class AssignmentService {
     }
 
     // User as a requestor
-    public List<Assignment> getAll(Pageable pageable, String token) throws MapleException{
+    public List<Assignment> getMyAssignmentWithPage(Pageable pageable, String token) {
         //admin
         if (adminService.isExist(getCurrentUserId(token)))
             return assignmentRepository.findAll(pageable).getContent();
         return assignmentRepository.findByEmployeeId(getCurrentUserId(token), pageable);
     }
+
+
 
     public Assignment get(String id, String token) throws MapleException{
         //check id exist or nah
@@ -64,14 +65,9 @@ public class AssignmentService {
         Assignment assignment = assignmentOptional.get();
         String currentUserId = getCurrentUserId(token);
 
-        // harusnya kalo admin bole2 aja
         if (!assignment.getEmployeeId().equals(currentUserId) || !adminService.isExist(currentUserId))
             throw new NotFoundException("Assignment");
         return assignment;
-    }
-    public List<Assignment> getByEmployee(String employeeId, Pageable pageable) throws NotFoundException{
-        if (!employeeService.isExist(employeeId)) throw new NotFoundException("Employee ID");
-        return assignmentRepository.findByEmployeeId(employeeId, pageable);
     }
 
     public long getTotalObject() {return SimpleUtils.getTotalObject(assignmentRepository);}

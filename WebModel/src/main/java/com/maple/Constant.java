@@ -17,7 +17,6 @@ public class Constant {
 
     // assignment
     public static final String LINK_ASSIGNMENT_PREFIX = "/assignment";
-    public static final String LINK_REQUESTED = "/requested";
     public static final String LINK_UPDATE_STATUS = "/{id:.+}/status";
 
     // employee
@@ -29,5 +28,6 @@ public class Constant {
 
     //dashboard
     public static final String LINK_DASHBOARD_PREFIX = "/";
+    public static final String LINK_REQUESTED = "/my-assignments";
 
 }

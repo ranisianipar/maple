@@ -43,7 +43,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         }
         return responseMappingWithPage(new BaseResponse(),
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),
-                token, false);
+                token);
     }
     @GetMapping(Constant.LINK_REQUESTED)
     public BaseResponse getRequestedAssignments(
@@ -59,7 +59,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         }
         return responseMappingWithPage(new BaseResponse(),
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),
-                token, true);
+                token);
     }
 
     @GetMapping(value = Constant.LINK_ID_PARAM)
@@ -109,19 +109,15 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     //HELPER METHOD
 
     private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest,
-                                                 String token, boolean asSuperior) {
+                                                 String token) {
 
         List<AssignmentResponse> assignmentResponses = new ArrayList<>();
 
         AssignmentResponse ar;
         Assignment assignment;
         Iterator<Assignment> assignmentPage;
-        try {
-            if (!asSuperior) assignmentPage = assignmentService.getAll(pageRequest, token).iterator();
-            else assignmentPage = assignmentService.getRequestedAssignment(pageRequest, token).iterator();
-        }   catch (MapleException m) {
-            return responseMapping(new BaseResponse(), m);
-        }
+
+        assignmentPage = assignmentService.getAssignment(pageRequest, token).iterator();
 
         while (assignmentPage.hasNext()) {
             assignment = assignmentPage.next();
@@ -133,7 +129,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             } catch (MapleException m) {
                 return responseMapping(new BaseResponse(), m);
             }
-            if (asSuperior) ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
+            ar.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
             assignmentResponses.add(ar);
         }
         br.setPaging(pageRequest);
