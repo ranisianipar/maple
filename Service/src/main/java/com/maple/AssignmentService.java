@@ -98,7 +98,7 @@ public class AssignmentService {
         }
         return assignmentRepository.countByEmployeeIdIn(ids);
     }
-    public long getTotalPage(long size, String token) {
+    public long getTotalPages(long size, String token) {
         return SimpleUtils.getTotalPages(size, getTotalObjectByUser(token));
     }
 

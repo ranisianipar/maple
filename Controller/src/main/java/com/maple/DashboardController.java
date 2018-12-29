@@ -53,7 +53,7 @@ public class DashboardController {
         }   catch (MapleException m) {
             return responseMapping(br, m);
         }
-
+        br.setTotalPages(assignmentService.getTotalPages(size, token));
         br.setValue(assignmentService.getAssignmentByStatus(
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)), token, status));
         return responseMapping(br, null);
