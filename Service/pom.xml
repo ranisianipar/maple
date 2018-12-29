@@ -69,6 +69,13 @@
             <version>2.9.0</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.webjars.npm/mongoose -->
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>mongoose</artifactId>
+            <version>4.2.9</version>
+        </dependency>
+
     </dependencies>
 
 </project>

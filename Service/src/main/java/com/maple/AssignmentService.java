@@ -35,10 +35,12 @@ public class AssignmentService {
     // User as a superior
     public List<Assignment> getAssignment(Pageable pageable, String token) {
         String currentUserId = getCurrentUserId(token);
-        if (adminService.isExist(currentUserId))
+        Iterator employees;
+        if (adminService.isExist(currentUserId)){
             // cari yang superiornya null
-            return assignmentRepository.findByEmployeeId(null, pageable);
-        Iterator employees = employeeService.getBySuperiorId(currentUserId).iterator();
+            employees = employeeService.getBySuperiorId(null).iterator();
+        }
+        else employees = employeeService.getBySuperiorId(currentUserId).iterator();
         List<String> ids = new ArrayList<>();
         while (employees.hasNext()) {
             Employee e = (Employee) employees.next();
@@ -51,14 +53,19 @@ public class AssignmentService {
     public List<Assignment> getAssignmentByStatus(Pageable pageable, String token, String status) {
         //admin
         if (adminService.isExist(getCurrentUserId(token))) {
-            if (status != null) return assignmentRepository.findByStatus(status, pageable);
+            if (status != null)
+                return assignmentRepository.findByStatus(status, pageable);
             return assignmentRepository.findAll(pageable).getContent();
         }
         return assignmentRepository.findByEmployeeIdAndStatus(getCurrentUserId(token), status, pageable);
     }
 
     public int countByStatus(String token, String status){
-        return assignmentRepository.findByEmployeeIdAndStatus(getCurrentUserId(token), status).size();
+        String currentUserId = getCurrentUserId(token);
+        if (adminService.isExist(currentUserId)) {
+            return assignmentRepository.findByStatus(status).size();
+        }
+        return assignmentRepository.findByEmployeeIdAndStatus(currentUserId, status).size();
     }
 
 
@@ -71,8 +78,10 @@ public class AssignmentService {
         Assignment assignment = assignmentOptional.get();
         String currentUserId = getCurrentUserId(token);
 
-        if (!assignment.getEmployeeId().equals(currentUserId) || !adminService.isExist(currentUserId))
+        if (!assignment.getEmployeeId().equals(currentUserId) && !adminService.isExist(currentUserId)){
             throw new NotFoundException("Assignment");
+        }
+
         return assignment;
     }
 
@@ -81,6 +90,7 @@ public class AssignmentService {
 
     public void assignMany(ManyAssignmentRequest manyAssignmentRequest, String token) throws MapleException {
         List<Item> items = new ArrayList<>();
+        String currentUserId = getCurrentUserId(token);
         for (Assignment assignment : manyAssignmentRequest.getValue()) {
             validate(assignment);
 
@@ -92,8 +102,8 @@ public class AssignmentService {
             items.add(item);
             assignment.setCreatedDate(new Date());
 
-            assignment.setEmployeeId(getCurrentUserId(token));
-
+            assignment.setEmployeeId(currentUserId);
+            assignment.setCreatedBy(currentUserId);
             //give id
             assignment.setAssignmentId(counter.getNextAssignment());
 

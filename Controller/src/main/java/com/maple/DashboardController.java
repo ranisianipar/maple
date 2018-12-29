@@ -31,12 +31,12 @@ public class DashboardController {
             return responseMapping(br, m);
         }
         DashboardCardResponse dr = new DashboardCardResponse();
-        dr.setPending(assignmentService.countByStatus(token, "pending"));
-        dr.setApproved(assignmentService.countByStatus(token, "approved"));
-        dr.setReceived(assignmentService.countByStatus(token, "received"));
+        dr.setPending(assignmentService.countByStatus(token, "PENDING"));
+        dr.setApproved(assignmentService.countByStatus(token, "APPROVED"));
+        dr.setReceived(assignmentService.countByStatus(token, "RECEIVED"));
 
         br.setValue(dr);
-        return br;
+        return responseMapping(br, null);
     }
 
     @GetMapping(Constant.LINK_REQUESTED)
@@ -56,7 +56,7 @@ public class DashboardController {
 
         br.setValue(assignmentService.getAssignmentByStatus(
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)), token, status));
-        return br;
+        return responseMapping(br, null);
     }
 
 }

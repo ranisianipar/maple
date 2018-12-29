@@ -9,6 +9,8 @@ import java.util.List;
 @Repository
 public interface AssignmentRepository extends MongoRepository<Assignment,String> {
 
+
+    public List<Assignment> findByStatus(String status);
     public List<Assignment> findByStatus(String status, Pageable pageable);
     public List<Assignment> findByEmployeeIdIn(List<String> employeeId, Pageable pageable);
     public List<Assignment> findByEmployeeId(String employeeId, Pageable pageable);

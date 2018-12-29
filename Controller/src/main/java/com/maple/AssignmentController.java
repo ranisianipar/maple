@@ -121,7 +121,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
         while (assignmentPage.hasNext()) {
             assignment = assignmentPage.next();
-
+            System.out.println(assignment);
             try {
                 ar = getAssignmentMap().map(assignment, AssignmentResponse.class);
                 ar.setEmployeeUsername(assignmentService.getEmployeeName(assignment.getEmployeeId()));
@@ -140,7 +140,7 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
     }
 
     private BaseResponse responseMappingAssignment(BaseResponse br, Assignment assignment, MapleException e) {
-        AssignmentResponse assignmentResponse = new AssignmentResponse();
+        AssignmentResponse assignmentResponse = getAssignmentMap().map(assignment, AssignmentResponse.class);
         assignmentResponse.setButton(assignmentService.getButtonByStatus(assignment.getStatus()));
         try {
             assignmentResponse.setItemName(assignmentService.getItemName(assignment.getItemSku()));

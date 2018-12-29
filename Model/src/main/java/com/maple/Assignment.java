@@ -15,8 +15,8 @@ public class Assignment {
     @Id
     private String assignmentId;
 
-    @NotBlank(message = "employeeId can't be blank")
     private String employeeId;
+
     @NotBlank(message = "itemSku can't be blank")
     private String itemSku;
 
