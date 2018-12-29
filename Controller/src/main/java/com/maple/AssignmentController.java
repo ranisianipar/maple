@@ -41,25 +41,9 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
         } catch (MapleException m) {
             return responseMapping(new BaseResponse(),m);
         }
-        return responseMappingWithPage(new BaseResponse(),
-                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),
-                token);
-    }
-    @GetMapping(Constant.LINK_REQUESTED)
-    public BaseResponse getRequestedAssignments(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy,
-            HttpServletRequest request) {
-        String token = getTokenFromRequest(request);
-        try {
-            onlyAuthorizedUser("get all assignment",token);
-        } catch (MapleException m) {
-            return responseMapping(new BaseResponse(),m);
-        }
-        return responseMappingWithPage(new BaseResponse(),
-                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)),
-                token);
+        Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
+        return responseMappingWithPage(new BaseResponse(), pageRequest, token,
+                assignmentService.getAssignment(pageRequest, token).iterator());
     }
 
     @GetMapping(value = Constant.LINK_ID_PARAM)
@@ -106,21 +90,23 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     }
 
+    @DeleteMapping(Constant.LINK_ID_PARAM)
+    public BaseResponse delete(@PathVariable String id) {
+        assignmentService.delete(id);
+        return responseMapping(new BaseResponse(), null);
+    }
+
     //HELPER METHOD
 
     private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest,
-                                                 String token) {
-
+                                                 String token, Iterator assignmentIterator) {
         List<AssignmentResponse> assignmentResponses = new ArrayList<>();
 
         AssignmentResponse ar;
         Assignment assignment;
-        Iterator<Assignment> assignmentPage;
 
-        assignmentPage = assignmentService.getAssignment(pageRequest, token).iterator();
-
-        while (assignmentPage.hasNext()) {
-            assignment = assignmentPage.next();
+        while (assignmentIterator.hasNext()) {
+            assignment = (Assignment) assignmentIterator.next();
             System.out.println(assignment);
             try {
                 ar = getAssignmentMap().map(assignment, AssignmentResponse.class);

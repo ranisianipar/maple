@@ -36,7 +36,7 @@ public class ItemService {
     @Autowired
     CounterService counterService;
 
-    final private String ITEM = "Item";
+    final private String ITEM = "ITEM";
 
     public List<Item> getAll(String search, Pageable pageRequest) {
         if (search != null)

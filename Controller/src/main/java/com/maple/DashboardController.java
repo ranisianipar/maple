@@ -3,14 +3,17 @@ package com.maple;
 import com.maple.Exception.MapleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static com.maple.Helper.SimpleUtils.getTokenFromRequest;
-import static com.maple.Helper.SimpleUtils.onlyAuthorizedUser;
-import static com.maple.Helper.SimpleUtils.responseMapping;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import static com.maple.Helper.SimpleUtils.*;
 
 @CrossOrigin(origins = Constant.LINK_ORIGIN)
 @RequestMapping(value = Constant.LINK_DASHBOARD_PREFIX)
@@ -44,18 +47,45 @@ public class DashboardController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy,
-            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "status", defaultValue = "PENDING") String status,
             HttpServletRequest request) {
-        BaseResponse br = new BaseResponse();
         String token = getTokenFromRequest(request);
         try {
-            onlyAuthorizedUser("get user assignment", token);
-        }   catch (MapleException m) {
-            return responseMapping(br, m);
+            onlyAuthorizedUser("get all assignment",token);
+        } catch (MapleException m) {
+            return responseMapping(new BaseResponse(),m);
         }
-        br.setTotalPages(assignmentService.getTotalPages(size, token));
-        br.setValue(assignmentService.getAssignmentByStatus(
-                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy)), token, status));
+        Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
+        return responseMappingWithPage(new BaseResponse(), pageRequest, token,
+                assignmentService.getAssignmentByStatus(pageRequest, token, status).iterator());
+    }
+
+    // HELPER METHOD
+
+    private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest,
+                                                 String token, Iterator assignmentIterator) {
+        List<AssignmentResponse> assignmentResponses = new ArrayList<>();
+
+        AssignmentResponse ar;
+        Assignment assignment;
+
+        while (assignmentIterator.hasNext()) {
+            assignment = (Assignment) assignmentIterator.next();
+            try {
+                ar = getAssignmentMap().map(assignment, AssignmentResponse.class);
+                String name = assignmentService.getEmployeeName(assignment.getEmployeeId());
+                System.out.println("NAMAAAAA "+name);
+                ar.setEmployeeUsername(name);
+                ar.setItemName(assignmentService.getItemName(assignment.getItemSku()));
+            } catch (MapleException m) {
+                return responseMapping(new BaseResponse(), m);
+            }
+            assignmentResponses.add(ar);
+        }
+        br.setPaging(pageRequest);
+        br.setTotalPages(assignmentService.getTotalPages(pageRequest.getPageSize(), token));
+        br.setTotalRecords(assignmentService.getTotalObjectByUser(token));
+        br.setValue(assignmentResponses);
         return responseMapping(br, null);
     }
 

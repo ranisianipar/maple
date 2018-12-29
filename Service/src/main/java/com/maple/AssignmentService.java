@@ -53,16 +53,16 @@ public class AssignmentService {
     public List<Assignment> getAssignmentByStatus(Pageable pageable, String token, String status) {
         //admin
         if (adminService.isExist(getCurrentUserId(token))) {
-            if (status != null)
-                return assignmentRepository.findByStatus(status, pageable);
-            return assignmentRepository.findAll(pageable).getContent();
+            return assignmentRepository.findByStatus(status, pageable);
         }
         return assignmentRepository.findByEmployeeIdAndStatus(getCurrentUserId(token), status, pageable);
     }
 
+    // buat dashboard
     public long countByStatus(String token, String status){
         String currentUserId = getCurrentUserId(token);
         if (adminService.isExist(currentUserId)) {
+            if (status == null) return assignmentRepository.count();
             return assignmentRepository.countByStatus(status);
         }
         return assignmentRepository.countByEmployeeIdAndStatus(currentUserId, status);
@@ -71,8 +71,6 @@ public class AssignmentService {
 
 
     public Assignment get(String id, String token) throws MapleException{
-        //check id exist or nah
-
         Optional<Assignment> assignmentOptional = assignmentRepository.findById(id);
         if (!assignmentOptional.isPresent()) throw new NotFoundException("Assignment");
         Assignment assignment = assignmentOptional.get();
@@ -81,10 +79,10 @@ public class AssignmentService {
         if (!assignment.getEmployeeId().equals(currentUserId) && !adminService.isExist(currentUserId)){
             throw new NotFoundException("Assignment");
         }
-
         return assignment;
     }
 
+    // buat assignment page
     public long getTotalObjectByUser(String token) {
         String currentUserId = getCurrentUserId(token);
         Iterator<Employee> employees;
@@ -217,6 +215,10 @@ public class AssignmentService {
 
     public String getEmployeeName(String employeeId) throws MapleException{
         return employeeService.get(employeeId).getUsername();
+    }
+
+    public void delete(String id) {
+        assignmentRepository.delete(assignmentRepository.findById(id).get());
     }
 
     private void validate(Assignment assignment) throws DataConstraintException{
