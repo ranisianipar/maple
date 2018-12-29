@@ -60,12 +60,12 @@ public class AssignmentService {
         return assignmentRepository.findByEmployeeIdAndStatus(getCurrentUserId(token), status, pageable);
     }
 
-    public int countByStatus(String token, String status){
+    public long countByStatus(String token, String status){
         String currentUserId = getCurrentUserId(token);
         if (adminService.isExist(currentUserId)) {
-            return assignmentRepository.findByStatus(status).size();
+            return assignmentRepository.countByStatus(status);
         }
-        return assignmentRepository.findByEmployeeIdAndStatus(currentUserId, status).size();
+        return assignmentRepository.countByEmployeeIdAndStatus(currentUserId, status);
     }
 
 
@@ -85,8 +85,22 @@ public class AssignmentService {
         return assignment;
     }
 
-    public long getTotalObject() {return SimpleUtils.getTotalObject(assignmentRepository);}
-    public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
+    public long getTotalObjectByUser(String token) {
+        String currentUserId = getCurrentUserId(token);
+        Iterator<Employee> employees;
+        if (adminService.isExist(currentUserId)) employees = employeeService.getBySuperiorId(null).iterator();
+        else employees = employeeService.getBySuperiorId(currentUserId).iterator();
+
+        List<String> ids = new ArrayList<>();
+        while (employees.hasNext()) {
+            Employee e = employees.next();
+            ids.add(e.getId());
+        }
+        return assignmentRepository.countByEmployeeIdIn(ids);
+    }
+    public long getTotalPage(long size, String token) {
+        return SimpleUtils.getTotalPages(size, getTotalObjectByUser(token));
+    }
 
     public void assignMany(ManyAssignmentRequest manyAssignmentRequest, String token) throws MapleException {
         List<Item> items = new ArrayList<>();
@@ -155,7 +169,7 @@ public class AssignmentService {
     public void updateByEmployee(List<String> ids) {
         List<Assignment> assignments;
         for (String id : ids ) {
-            assignments = assignmentRepository.findByEmployeeId(id);
+            assignments = assignmentRepository.countByEmployeeId(id);
             //return the item and delete assignment
             if (!assignments.isEmpty()) {
                 for (Assignment assignment : assignments) {

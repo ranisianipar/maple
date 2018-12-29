@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class DashboardCardResponse {
-    private int pending;
-    private int approved;
-    private int received;
+    private long pending;
+    private long approved;
+    private long received;
 
     public DashboardCardResponse() {}
 }
