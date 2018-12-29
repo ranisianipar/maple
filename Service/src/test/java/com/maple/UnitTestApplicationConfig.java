@@ -12,12 +12,9 @@ public class UnitTestApplicationConfig extends AbstractMongoConfiguration {
     @Autowired
     private Environment env;
 
-//    @Mock
-//    private EmployeeRepository employeeRepository;
-
     @Override
     protected String getDatabaseName() {
-        return env.getRequiredProperty("spring.data.mongodb.database");
+        return env.getRequiredProperty("spring.data.mongodb.database.test");
     }
 
     @Override

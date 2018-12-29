@@ -73,9 +73,10 @@ public class ItemController extends InvalidItemAttributeValue {
             @RequestParam(value = "data") String item,
             HttpServletRequest request) {
         BaseResponse<Item> br = new BaseResponse<>();
+        String token = getTokenFromRequest(request);
         try {
-            adminService.onlyAdmin("create item", getTokenFromRequest(request));
-            br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file));
+            adminService.onlyAdmin("create item", token);
+            br.setValue(itemService.create(new ObjectMapper().readValue(item, Item.class), file, token));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br, e);
@@ -91,9 +92,10 @@ public class ItemController extends InvalidItemAttributeValue {
             @Valid @RequestParam(value = "data") String item,
             HttpServletRequest request) {
         BaseResponse<Item> br = new BaseResponse<>();
+        String token = getTokenFromRequest(request);
         try {
-            adminService.onlyAdmin("update method", getTokenFromRequest(request));
-            br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file));
+            adminService.onlyAdmin("update method", token);
+            br.setValue(itemService.update(id, new ObjectMapper().readValue(item, Item.class), file, token));
             return responseMapping(br, null);
         } catch (MapleException e) {
             return responseMapping(br,e);

@@ -32,6 +32,8 @@ public class AssignmentService {
     @Autowired
     private AdminService adminService;
 
+    private final String ASSIGNMENT = "ASSIGNMENTS";
+
     // User as a superior
     public List<Assignment> getAssignment(Pageable pageable, String token) {
         String currentUserId = getCurrentUserId(token);
@@ -69,15 +71,14 @@ public class AssignmentService {
     }
 
 
-
     public Assignment get(String id, String token) throws MapleException{
         Optional<Assignment> assignmentOptional = assignmentRepository.findById(id);
-        if (!assignmentOptional.isPresent()) throw new NotFoundException("Assignment");
+        if (!assignmentOptional.isPresent()) throw new NotFoundException(ASSIGNMENT);
         Assignment assignment = assignmentOptional.get();
         String currentUserId = getCurrentUserId(token);
 
         if (!assignment.getEmployeeId().equals(currentUserId) && !adminService.isExist(currentUserId)){
-            throw new NotFoundException("Assignment");
+            throw new NotFoundException(ASSIGNMENT);
         }
         return assignment;
     }

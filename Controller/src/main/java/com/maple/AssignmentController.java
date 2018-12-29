@@ -107,7 +107,6 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
         while (assignmentIterator.hasNext()) {
             assignment = (Assignment) assignmentIterator.next();
-            System.out.println(assignment);
             try {
                 ar = getAssignmentMap().map(assignment, AssignmentResponse.class);
                 ar.setEmployeeUsername(assignmentService.getEmployeeName(assignment.getEmployeeId()));

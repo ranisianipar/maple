@@ -2,21 +2,25 @@ package com.maple;
 
 
 import com.github.fakemongo.Fongo;
-import com.mongodb.DB;
-import com.mongodb.Mongo;
-import com.mongodb.MongoClient;
+import com.mongodb.*;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.util.FongoJSON;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.util.Collection;
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
+
 public class AuthServiceTest {
 
-    @BeforeAll
-    public static void init() {
+    private Fongo fongo;
+    @Before
+    public void init() {
         // Fongo instance methods
-        Fongo fongo = new Fongo("Mongo test");
+        fongo = new Fongo("Mongo test");
         // get all created databases (they are created automatically the first time requested)
         Collection<DB> dbs = fongo.getUsedDatabases();
         // also
@@ -33,6 +37,22 @@ public class AuthServiceTest {
 
     @Test
     public void getValidTokenTest() {
+        DB db = fongo.getDB("mapledb");
+        DBCollection dbCollection = db.getCollection("employees");
+        Employee e = new Employee();
+        e.setName("TEST");
+        e.setUsername("TEST");
+        e.setEmail("TEST@xmail.com");
+        e.setPassword("TEST");
         
+        dbCollection.insert((DBObject) FongoJSON.parse(
+                "{ username: TEST, name: TEST, email: TEST@xmail, password: TEST }"));
+
+        //apa bedanya???
+//        new BasicDBObject("nscannedObjects", 4L)
+//                .append("nscanned", 2L)
+//                .append("n", 1L)
+//                .append("timeMicros", 1)
+        assertNotNull(db);
     }
 }

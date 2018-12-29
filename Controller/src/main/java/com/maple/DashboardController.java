@@ -74,7 +74,6 @@ public class DashboardController {
             try {
                 ar = getAssignmentMap().map(assignment, AssignmentResponse.class);
                 String name = assignmentService.getEmployeeName(assignment.getEmployeeId());
-                System.out.println("NAMAAAAA "+name);
                 ar.setEmployeeUsername(name);
                 ar.setItemName(assignmentService.getItemName(assignment.getItemSku()));
             } catch (MapleException m) {
