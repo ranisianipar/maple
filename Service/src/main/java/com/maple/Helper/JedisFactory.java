@@ -12,7 +12,6 @@ public class JedisFactory {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxTotal(8);
         jedisPool = new JedisPool("localhost", 6379);
-        jedisPool.getResource();
     }
 
     public JedisPool getJedisPool() {

@@ -1,6 +1,8 @@
 package com.maple;
 
 import com.maple.Exception.MapleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,8 +22,12 @@ public class AuthService {
     @Autowired
     AdminService adminService;
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
 
     public String getValidToken(LoginRequest loginRequest, HttpSession httpSession) throws MapleException {
+        log.info("Validate user, and if its valid, it will return token");
+
         if (jedis.exists(httpSession.getId())) return httpSession.getId();
 
         // cek admin atau bukan
@@ -43,6 +49,8 @@ public class AuthService {
     }
 
     public void logout(HttpServletRequest request){
+        log.info("session deleted, logout succeed");
+
         // flush session
         String token = getTokenFromRequest(request);
         if (token == null) return;
