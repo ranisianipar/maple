@@ -105,7 +105,9 @@ public class AssignmentService {
     }
     public long getTotalObjectByUser(String token, String status) {
         String currentUserId = getCurrentUserId(token);
-        if (status.equals("all"))
+        if (adminService.isExist(currentUserId))
+            return assignmentRepository.count();
+        else if (status.equals("all"))
             return assignmentRepository.countByEmployeeId(currentUserId);
         return assignmentRepository.countByStatusAndEmployeeId(status, currentUserId);
     }
@@ -155,11 +157,12 @@ public class AssignmentService {
         employeeService.onlyTheirSuperior(assignment.getEmployeeId(), currentUserId);
 
         //to decide whether increase or decrease state
-        if (action.equalsIgnoreCase("UP"))
+        if (action.equalsIgnoreCase("UP")) {
             assignment.setStatus(increaseStatus(assignment.getStatus(), assignment));
-        else if(action.equalsIgnoreCase("DOWN"))
+        } else if(action.equalsIgnoreCase("DOWN")) {
+            itemService.returnItem(assignment.getItemSku(), assignment.getQuantity());
             assignment.setStatus(decreaseStatus(assignment.getStatus()));
-        else throw new MapleException("Method isn't recognized", HttpStatus.METHOD_NOT_ALLOWED);
+        } else throw new MapleException("Method isn't recognized", HttpStatus.METHOD_NOT_ALLOWED);
 
         assignment.setUpdatedDate(new Date());
         assignment.setUpdatedBy(currentUserId);
