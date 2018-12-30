@@ -28,12 +28,14 @@ public class AuthService {
     public String getValidToken(LoginRequest loginRequest, HttpSession httpSession) throws MapleException {
         log.info("Validate user, and if its valid, it will return token");
 
+        System.out.println("jedis exists "+ jedis.exists(httpSession.getId()));
         if (jedis.exists(httpSession.getId())) return httpSession.getId();
 
         // cek admin atau bukan
         Admin admin = adminService.getByUsername(loginRequest.getUsername());
         Employee employee = employeeService.getEmployeeByUsername(loginRequest.getUsername());
 
+        System.out.println(admin+" <- admin | employee -> "+employee);
         if (admin == null && employee == null) {
             throw new MapleException("Username and password didn't match", HttpStatus.UNAUTHORIZED);
         } else if (admin != null && admin.getPassword().equals(loginRequest.getPassword())) {

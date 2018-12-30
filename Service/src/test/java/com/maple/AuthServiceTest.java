@@ -1,18 +1,20 @@
 package com.maple;
 
 import com.maple.Exception.MapleException;
+import com.maple.Helper.JedisFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ContextConfiguration;
+import redis.clients.jedis.Jedis;
 
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 
 import static com.maple.Helper.SimpleUtils.jedis;
@@ -41,9 +43,14 @@ public class AuthServiceTest {
     LoginRequest loginRequest;
 
     @Before
-    public void init() throws MapleException, IOException {
+    public void init() {
         loginRequest = new LoginRequest();
         session = new MockHttpSession();
+        jedis.del(session.getId());
+    }
+
+    @After
+    public void reset() {
         jedis.del(session.getId());
     }
 
@@ -51,9 +58,10 @@ public class AuthServiceTest {
     public void getValidTokenErrorTest() {
         boolean thrown = false;
 
-        loginRequest.setUsername("TEST");
-        loginRequest.setPassword("TEST");
-
+        loginRequest.setUsername("zzz");
+        loginRequest.setPassword("zzz");
+        when(employeeService.getEmployeeByUsername("zzz")).thenReturn(null);
+        when(adminService.getByUsername("zzz")).thenReturn(null);
         try {
             authService.getValidToken(loginRequest, session);
         }   catch (MapleException m) {
@@ -82,11 +90,11 @@ public class AuthServiceTest {
 
     @Test
     public void getValidTokenAdminSucceedTest() throws MapleException {
-        Admin admin = new Admin("ADMIN", "ADMIN");
-        loginRequest.setUsername("ADMIN");
-        loginRequest.setPassword("ADMIN");
+        Admin admin = new Admin("ADMIN123", "ADMIN123");
+        loginRequest.setUsername("ADMIN123");
+        loginRequest.setPassword("ADMIN123");
 
-        when(adminService.getByUsername("ADMIN")).thenReturn(admin);
+        when(adminService.getByUsername("ADMIN123")).thenReturn(admin);
 
         assertEquals(authService.getValidToken(loginRequest, session), session.getId()+"-ADMIN");
     }
