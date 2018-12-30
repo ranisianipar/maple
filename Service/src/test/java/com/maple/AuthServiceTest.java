@@ -44,7 +44,7 @@ public class AuthServiceTest {
         e.setUsername("TEST");
         e.setEmail("TEST@xmail.com");
         e.setPassword("TEST");
-        
+
         dbCollection.insert((DBObject) FongoJSON.parse(
                 "{ username: TEST, name: TEST, email: TEST@xmail, password: TEST }"));
 
