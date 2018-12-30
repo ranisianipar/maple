@@ -51,22 +51,26 @@ public class AssignmentService {
         return assignmentRepository.findByEmployeeIdIn(ids, pageable);
     }
 
-    // User as a requestor
+    // User as a requestor --> buat dashboard
     public List<Assignment> getAssignmentByStatus(Pageable pageable, String token, String status) {
+        String currentUserId = getCurrentUserId(token);
         //admin
-        if (adminService.isExist(getCurrentUserId(token))) {
+        if (adminService.isExist(currentUserId)) {
+            if (status.equals("all")) return assignmentRepository.findAll(pageable).getContent();
             return assignmentRepository.findByStatus(status, pageable);
         }
-        return assignmentRepository.findByEmployeeIdAndStatus(getCurrentUserId(token), status, pageable);
+        if (status.equals("all")) return assignmentRepository.findByEmployeeId(currentUserId, pageable);
+        return assignmentRepository.findByEmployeeIdAndStatus(currentUserId, status, pageable);
     }
 
     // buat dashboard
     public long countByStatus(String token, String status){
         String currentUserId = getCurrentUserId(token);
         if (adminService.isExist(currentUserId)) {
-            if (status == null) return assignmentRepository.count();
+            if (status.equals("all")) return assignmentRepository.count();
             return assignmentRepository.countByStatus(status);
         }
+        if (status.equals("all")) return assignmentRepository.countByEmployeeId(currentUserId);
         return assignmentRepository.countByEmployeeIdAndStatus(currentUserId, status);
     }
 
@@ -84,7 +88,7 @@ public class AssignmentService {
     }
 
     // buat assignment page
-    public long getTotalObjectByUser(String token) {
+    public long getTotalObjectByUser(String token, String status) {
         String currentUserId = getCurrentUserId(token);
         Iterator<Employee> employees;
         if (adminService.isExist(currentUserId)) employees = employeeService.getBySuperiorId(null).iterator();
@@ -95,10 +99,12 @@ public class AssignmentService {
             Employee e = employees.next();
             ids.add(e.getId());
         }
+        if (!status.equals("all")) return assignmentRepository.countByStatusAndEmployeeIdIn(status, ids);
         return assignmentRepository.countByEmployeeIdIn(ids);
     }
-    public long getTotalPages(long size, String token) {
-        return SimpleUtils.getTotalPages(size, getTotalObjectByUser(token));
+
+    public long getTotalPages(long size, String token, String status) {
+        return SimpleUtils.getTotalPages(size, getTotalObjectByUser(token, status));
     }
 
     public void assignMany(ManyAssignmentRequest manyAssignmentRequest, String token) throws MapleException {
@@ -168,7 +174,7 @@ public class AssignmentService {
     public void updateByEmployee(List<String> ids) {
         List<Assignment> assignments;
         for (String id : ids ) {
-            assignments = assignmentRepository.countByEmployeeId(id);
+            assignments = assignmentRepository.findByEmployeeId(id);
             //return the item and delete assignment
             if (!assignments.isEmpty()) {
                 for (Assignment assignment : assignments) {

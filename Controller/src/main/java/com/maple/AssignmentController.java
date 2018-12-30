@@ -118,8 +118,8 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
             assignmentResponses.add(ar);
         }
         br.setPaging(pageRequest);
-        br.setTotalPages(assignmentService.getTotalPages(pageRequest.getPageSize(), token));
-        br.setTotalRecords(assignmentService.getTotalObjectByUser(token));
+        br.setTotalPages(assignmentService.getTotalPages(pageRequest.getPageSize(), token, "all"));
+        br.setTotalRecords(assignmentService.getTotalObjectByUser(token, "all"));
         br.setValue(assignmentResponses);
         return responseMapping(br, null);
     }

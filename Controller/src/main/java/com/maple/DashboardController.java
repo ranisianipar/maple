@@ -47,7 +47,7 @@ public class DashboardController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "sortBy", defaultValue = "updatedDate") String sortBy,
-            @RequestParam(value = "status", defaultValue = "PENDING") String status,
+            @RequestParam(value = "status", defaultValue = "all") String status,
             HttpServletRequest request) {
         String token = getTokenFromRequest(request);
         try {
@@ -57,13 +57,13 @@ public class DashboardController {
         }
         Pageable pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, sortBy));
         return responseMappingWithPage(new BaseResponse(), pageRequest, token,
-                assignmentService.getAssignmentByStatus(pageRequest, token, status).iterator());
+                assignmentService.getAssignmentByStatus(pageRequest, token, status).iterator(), status);
     }
 
     // HELPER METHOD
 
     private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest,
-                                                 String token, Iterator assignmentIterator) {
+                                                 String token, Iterator assignmentIterator, String status) {
         List<AssignmentResponse> assignmentResponses = new ArrayList<>();
 
         AssignmentResponse ar;
@@ -82,8 +82,8 @@ public class DashboardController {
             assignmentResponses.add(ar);
         }
         br.setPaging(pageRequest);
-        br.setTotalPages(assignmentService.getTotalPages(pageRequest.getPageSize(), token));
-        br.setTotalRecords(assignmentService.getTotalObjectByUser(token));
+        br.setTotalPages(assignmentService.getTotalPages(pageRequest.getPageSize(), token, status));
+        br.setTotalRecords(assignmentService.getTotalObjectByUser(token, status));
         br.setValue(assignmentResponses);
         return responseMapping(br, null);
     }
