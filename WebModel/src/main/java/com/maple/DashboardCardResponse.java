@@ -7,6 +7,7 @@ public class DashboardCardResponse {
     private long pending;
     private long approved;
     private long received;
+    private long all;
 
     public DashboardCardResponse() {}
 }

@@ -37,6 +37,7 @@ public class DashboardController {
         dr.setPending(assignmentService.countByStatus(token, "PENDING"));
         dr.setApproved(assignmentService.countByStatus(token, "APPROVED"));
         dr.setReceived(assignmentService.countByStatus(token, "RECEIVED"));
+        dr.setAll(assignmentService.countByStatus(token, "all"));
 
         br.setValue(dr);
         return responseMapping(br, null);
@@ -82,7 +83,7 @@ public class DashboardController {
             assignmentResponses.add(ar);
         }
         br.setPaging(pageRequest);
-        br.setTotalPages(assignmentService.getTotalPages(pageRequest.getPageSize(), token, status));
+        br.setTotalPages(assignmentService.getTotalPagesForDashboard(pageRequest.getPageSize(), token, status));
         br.setTotalRecords(assignmentService.getTotalObjectByUser(token, status));
         br.setValue(assignmentResponses);
         return responseMapping(br, null);

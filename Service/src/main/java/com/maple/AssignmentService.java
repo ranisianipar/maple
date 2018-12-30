@@ -13,6 +13,7 @@ import java.util.*;
 
 
 import static com.maple.Helper.SimpleUtils.getCurrentUserId;
+import static com.maple.Helper.SimpleUtils.getTotalPages;
 
 @Service
 public class AssignmentService {
@@ -88,7 +89,7 @@ public class AssignmentService {
     }
 
     // buat assignment page
-    public long getTotalObjectByUser(String token, String status) {
+    public long getTotalObjectThatNeedOurApproval(String token, String status) {
         String currentUserId = getCurrentUserId(token);
         Iterator<Employee> employees;
         if (adminService.isExist(currentUserId)) employees = employeeService.getBySuperiorId(null).iterator();
@@ -102,9 +103,18 @@ public class AssignmentService {
         if (!status.equals("all")) return assignmentRepository.countByStatusAndEmployeeIdIn(status, ids);
         return assignmentRepository.countByEmployeeIdIn(ids);
     }
+    public long getTotalObjectByUser(String token, String status) {
+        String currentUserId = getCurrentUserId(token);
+        if (status.equals("all"))
+            return assignmentRepository.countByEmployeeId(currentUserId);
+        return assignmentRepository.countByStatusAndEmployeeId(status, currentUserId);
+    }
 
-    public long getTotalPages(long size, String token, String status) {
-        return SimpleUtils.getTotalPages(size, getTotalObjectByUser(token, status));
+    public long getTotalPagesForAssignmentPage(long size, String token, String status) {
+        return getTotalPages(size, getTotalObjectThatNeedOurApproval(token, status));
+    }
+    public long getTotalPagesForDashboard(long size, String token, String status) {
+        return getTotalPages(size, getTotalObjectByUser(token, status));
     }
 
     public void assignMany(ManyAssignmentRequest manyAssignmentRequest, String token) throws MapleException {

@@ -10,10 +10,11 @@ import java.util.List;
 public interface AssignmentRepository extends MongoRepository<Assignment,String> {
 
 
-    public long countByStatus(String status);
     public List<Assignment> findByStatus(String status, Pageable pageable);
     public List<Assignment> findByEmployeeIdIn(List<String> employeeId, Pageable pageable);
     public long countByEmployeeIdIn(List<String> employeeId);
+    public long countByStatus(String status);
+    public long countByStatusAndEmployeeId(String status, String employeeId);
     public long countByStatusAndEmployeeIdIn(String status, List<String> employeeId);
     public List<Assignment> findByEmployeeId(String employeeId);
     public List<Assignment> findByEmployeeId(String employeeId, Pageable pageable);
