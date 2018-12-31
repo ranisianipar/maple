@@ -34,10 +34,10 @@ public class DashboardController {
             return responseMapping(br, m);
         }
         DashboardCardResponse dr = new DashboardCardResponse();
-        dr.setPending(assignmentService.countByStatus(token, "PENDING"));
-        dr.setApproved(assignmentService.countByStatus(token, "APPROVED"));
-        dr.setReceived(assignmentService.countByStatus(token, "RECEIVED"));
-        dr.setAll(assignmentService.countByStatus(token, "all"));
+        dr.setPending(assignmentService.getTotalObjectByUserAndStatus(token, "PENDING"));
+        dr.setApproved(assignmentService.getTotalObjectByUserAndStatus(token, "APPROVED"));
+        dr.setReceived(assignmentService.getTotalObjectByUserAndStatus(token, "RECEIVED"));
+        dr.setAll(assignmentService.getTotalObjectByUserAndStatus(token, "all"));
 
         br.setValue(dr);
         return responseMapping(br, null);
@@ -84,7 +84,7 @@ public class DashboardController {
         }
         br.setPaging(pageRequest);
         br.setTotalPages(assignmentService.getTotalPagesForDashboard(pageRequest.getPageSize(), token, status));
-        br.setTotalRecords(assignmentService.getTotalObjectByUser(token, status));
+        br.setTotalRecords(assignmentService.getTotalObjectByUserAndStatus(token, status));
         br.setValue(assignmentResponses);
         return responseMapping(br, null);
     }

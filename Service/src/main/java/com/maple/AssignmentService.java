@@ -3,7 +3,6 @@ package com.maple;
 import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
-import com.maple.Helper.SimpleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -64,18 +63,6 @@ public class AssignmentService {
         return assignmentRepository.findByEmployeeIdAndStatus(currentUserId, status, pageable);
     }
 
-    // buat dashboard
-    public long countByStatus(String token, String status){
-        String currentUserId = getCurrentUserId(token);
-        if (adminService.isExist(currentUserId)) {
-            if (status.equals("all")) return assignmentRepository.count();
-            return assignmentRepository.countByStatus(status);
-        }
-        if (status.equals("all")) return assignmentRepository.countByEmployeeId(currentUserId);
-        return assignmentRepository.countByEmployeeIdAndStatus(currentUserId, status);
-    }
-
-
     public Assignment get(String id, String token) throws MapleException{
         Optional<Assignment> assignmentOptional = assignmentRepository.findById(id);
         if (!assignmentOptional.isPresent()) throw new NotFoundException(ASSIGNMENT);
@@ -103,12 +90,12 @@ public class AssignmentService {
         if (!status.equals("all")) return assignmentRepository.countByStatusAndEmployeeIdIn(status, ids);
         return assignmentRepository.countByEmployeeIdIn(ids);
     }
-    public long getTotalObjectByUser(String token, String status) {
+    public long getTotalObjectByUserAndStatus(String token, String status) {
         String currentUserId = getCurrentUserId(token);
-        if (adminService.isExist(currentUserId))
-            return assignmentRepository.count();
-        else if (status.equals("all"))
-            return assignmentRepository.countByEmployeeId(currentUserId);
+        if (adminService.isExist(currentUserId)) {
+            if (status.equals("all")) return assignmentRepository.count();
+            return assignmentRepository.countByStatus(status);
+        } else if (status.equals("all")) return assignmentRepository.countByEmployeeId(currentUserId);
         return assignmentRepository.countByStatusAndEmployeeId(status, currentUserId);
     }
 
@@ -116,7 +103,7 @@ public class AssignmentService {
         return getTotalPages(size, getTotalObjectThatNeedOurApproval(token, status));
     }
     public long getTotalPagesForDashboard(long size, String token, String status) {
-        return getTotalPages(size, getTotalObjectByUser(token, status));
+        return getTotalPages(size, getTotalObjectByUserAndStatus(token, status));
     }
 
     public void assignMany(ManyAssignmentRequest manyAssignmentRequest, String token) throws MapleException {
