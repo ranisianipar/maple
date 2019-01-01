@@ -1,4 +1,4 @@
-package com.maple;
+package com.maple.MockingObject;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MockHttpSession implements HttpSession {
-    Map<String, Object> map = new HashMap<>();
 
     @Override
     public String getId() {
@@ -17,12 +16,12 @@ public class MockHttpSession implements HttpSession {
 
     @Override
     public long getCreationTime() {
-        return 1;
+        return 0;
     }
 
     @Override
     public long getLastAccessedTime() {
-        return 1;
+        return 0;
     }
 
     @Override
