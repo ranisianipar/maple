@@ -5,6 +5,8 @@ import com.maple.Exception.MapleException;
 import com.maple.Exception.MethodNotAllowedException;
 import com.maple.Exception.NotFoundException;
 import com.maple.Helper.SimpleUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -40,8 +42,11 @@ public class EmployeeService {
     @Autowired
     private CounterService counter;
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
 
     public Page<Employee> getAll(String search, Pageable pageable) {
+        log.info("Get all employee by keyword of username and page criterion");
         if (search != null) return employeeRepository.findByUsernameLike(search, pageable);
         return employeeRepository.findAll(pageable);
     }
@@ -137,7 +142,7 @@ public class EmployeeService {
             throw new MethodNotAllowedException(method);
     }
 
-    public void onlyTheirSuperior(String employeeId, String userId) throws MapleException{
+    public void onlyTheirSuperior(String employeeId, String userId) throws MapleException {
         Employee employee = get(employeeId);
         if (employee.getSuperiorId() == null && !adminService.isExist(userId))
             throw new MethodNotAllowedException("Only their superior");

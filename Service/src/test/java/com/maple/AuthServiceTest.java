@@ -1,6 +1,7 @@
 package com.maple;
 
 import com.maple.Exception.MapleException;
+import com.maple.MockingObject.FakeUser;
 import com.maple.MockingObject.MockHttpServletRequestEmployee;
 import com.maple.MockingObject.MockHttpSession;
 import org.junit.After;
@@ -29,8 +30,6 @@ import static org.mockito.Mockito.when;
 @ComponentScan(basePackageClasses = {AuthService.class})
 public class AuthServiceTest {
 
-//    @Rule
-//    public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("mapledb-test");
 
     @InjectMocks
     private AuthService authService;
@@ -41,25 +40,14 @@ public class AuthServiceTest {
     @Mock
     private EmployeeService employeeService;
 
-    HttpSession session;
-    LoginRequest loginRequest;
-    Employee employee;
-    HttpServletRequest request;
+    HttpSession session = new MockHttpSession();
+    LoginRequest loginRequest = new LoginRequest();
+    Employee employee = FakeUser.getFakeEmployeeBasic();
+    HttpServletRequest request = new MockHttpServletRequestEmployee();
 
     @Before
     public void init() {
-        employee = new Employee();
-        employee.setUsername("EMP");
-        employee.setPassword("EMP");
-        employee.setEmail("EMP@xmail.com");
-        employee.setName("EMP");
-        employee.setId("EMP-0");
-
-        loginRequest = new LoginRequest();
-        session = new MockHttpSession();
-        jedis.del(session.getId());
-        request = new MockHttpServletRequestEmployee();
-
+        jedis.flushAll();
     }
 
     @After
@@ -106,18 +94,15 @@ public class AuthServiceTest {
 
     @Test
     public void getValidTokenAdminSucceedTest() throws MapleException {
-        Admin admin = new Admin("ADMIN123", "ADMIN123");
+        Admin admin = FakeUser.getFakeAdmin();
         loginRequest.setUsername("ADMIN123");
         loginRequest.setPassword("ADMIN123");
-        jedis.del(session.getId()+"-ADMIN");
         when(adminService.getByUsername("ADMIN123")).thenReturn(admin);
         when(adminService.isExist("ADMIN123")).thenReturn(true);
 
         String token = authService.getValidToken(loginRequest, session);
         assertEquals(token, session.getId()+"-ADMIN");
         assertEquals("admin",authService.decideRole(token));
-
-        jedis.del(session.getId()+"-ADMIN");
     }
     @Test
     public void getEmployeeDataSucceed() throws MapleException{
