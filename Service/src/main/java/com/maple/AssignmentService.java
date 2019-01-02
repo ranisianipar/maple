@@ -224,10 +224,6 @@ public class AssignmentService {
         return employeeService.get(employeeId).getUsername();
     }
 
-    public void delete(String id) {
-        assignmentRepository.delete(assignmentRepository.findById(id).get());
-    }
-
     private void validate(Assignment assignment) throws DataConstraintException{
         ArrayList errorMessage = new ArrayList();
 

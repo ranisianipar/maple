@@ -90,12 +90,6 @@ public class AssignmentController extends InvalidAssignmentAttributeValue {
 
     }
 
-    @DeleteMapping(Constant.LINK_ID_PARAM)
-    public BaseResponse delete(@PathVariable String id) {
-        assignmentService.delete(id);
-        return responseMapping(new BaseResponse(), null);
-    }
-
     //HELPER METHOD
 
     private BaseResponse responseMappingWithPage(BaseResponse br, Pageable pageRequest,

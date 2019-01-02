@@ -3,7 +3,7 @@ package com.maple;
 
 import com.maple.Exception.MapleException;
 import com.maple.Exception.NotFoundException;
-import com.maple.MockingObject.FakeUser;
+import com.maple.MockingObject.FakeObjectFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,8 +48,8 @@ public class EmployeeServiceTest {
     @Mock
     private EmployeeRepository employeeRepository;
 
-    Employee employee = FakeUser.getFakeEmployeeBasic();
-    Pageable pageable =  PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "createdDate"));
+    Employee employee = FakeObjectFactory.getFakeEmployeeBasic();
+    Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "createdDate"));
     Page<Employee> employeePageMock = Mockito.mock(Page.class);
 
 
@@ -138,7 +138,7 @@ public class EmployeeServiceTest {
     }
 
     public void createEmployeeWithSuperiorWithoutPhotoValid() throws MapleException, IOException {
-        Employee employeeWithSuperior = FakeUser.getFakeEmployeeHasSuperior();
+        Employee employeeWithSuperior = FakeObjectFactory.getFakeEmployeeHasSuperior();
         Employee result;
 
         when(employeeRepository.findById("EMP-0")).thenReturn(Optional.of(employee));
@@ -151,7 +151,7 @@ public class EmployeeServiceTest {
 
     @Test
     public void createEmployeeWithSuperiorWithoutPhotoInvalidData() throws IOException{
-        Employee employeeWithSuperior = FakeUser.getFakeEmployeeHasSuperior();
+        Employee employeeWithSuperior = FakeObjectFactory.getFakeEmployeeHasSuperior();
         boolean thrown = false;
 
 
@@ -171,7 +171,7 @@ public class EmployeeServiceTest {
 
     @Test
     public void createEmployeeSelfSuperiorWithoutPhoto() throws IOException {
-        Employee employeeWithSuperior = FakeUser.getFakeEmployeeHasSuperior();
+        Employee employeeWithSuperior = FakeObjectFactory.getFakeEmployeeHasSuperior();
         boolean thrown = false;
         when(counterService.getNextEmployee()).thenReturn("EMP-1");
         when(employeeRepository.findById("EMP-1")).thenReturn(Optional.of(employeeWithSuperior));
@@ -192,7 +192,7 @@ public class EmployeeServiceTest {
 //    public void updateEmployeeValid() throws MapleException, IOException {
 //        when(employeeRepository.findById("EMP-0")).thenReturn(Optional.of(employee));
 //
-//        Employee updatedEmployee = FakeUser.getFakeEmployeeBasic();
+//        Employee updatedEmployee = FakeObjectFactory.getFakeEmployeeBasic();
 //        updatedEmployee.setPassword("HAHAHA");
 //
 //        // how to mock getCurrentUserId() --> static method
@@ -225,7 +225,7 @@ public class EmployeeServiceTest {
 
     @Test
     public void onlyTheirSuperiorWithEmployeeHasSuperiorRaiseException() throws MapleException{
-        when(employeeRepository.findById("EMP-1")).thenReturn(Optional.of(FakeUser.getFakeEmployeeHasSuperior()));
+        when(employeeRepository.findById("EMP-1")).thenReturn(Optional.of(FakeObjectFactory.getFakeEmployeeHasSuperior()));
         boolean thrown = false;
 
         try {
@@ -238,7 +238,7 @@ public class EmployeeServiceTest {
 
     @Test
     public void onlyTheirSuperiorPassed(){
-        Optional<Employee> employeeHasSuperior = Optional.of(FakeUser.getFakeEmployeeHasSuperior());
+        Optional<Employee> employeeHasSuperior = Optional.of(FakeObjectFactory.getFakeEmployeeHasSuperior());
         when(employeeRepository.findById("EMP-1")).thenReturn(employeeHasSuperior);
 
         boolean thrown = false;

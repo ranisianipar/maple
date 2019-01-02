@@ -168,7 +168,7 @@ public class ItemService {
         itemRepository.save(item);
     }
 
-    public void validate(Item item, boolean create) throws DataConstraintException{
+    private void validate(Item item, boolean create) throws DataConstraintException{
         ArrayList errorMessage = new ArrayList();
         String name_msg = "Name have already exist";
         String null_warning = "can't be null";

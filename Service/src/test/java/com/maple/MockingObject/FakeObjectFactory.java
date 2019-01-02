@@ -1,9 +1,12 @@
 package com.maple.MockingObject;
 
 import com.maple.Admin;
+import com.maple.Assignment;
 import com.maple.Employee;
+import com.maple.Item;
 
-public class FakeUser{
+
+public class FakeObjectFactory {
 
     public static Employee getFakeEmployeeBasic() {
         Employee employee = new Employee();
@@ -30,5 +33,24 @@ public class FakeUser{
 
     public static Admin getFakeAdmin() {
         return new Admin("ADMIN123", "ADMIN123");
+    }
+
+    // without date
+    public static Item getFakeItemBasic() {
+        Item item = new Item();
+        item.setName("Daniel Wellington Watch");
+        item.setQuantity(500);
+        item.setDescription("Jam mahal");
+        item.setPrice(1500000);
+        item.setItemSku("ITM-0");
+        return item;
+    }
+
+    public static Assignment getFakeAssignmentBasic() {
+        Assignment assignment = new Assignment();
+        assignment.setEmployeeId("EMP-0");
+        assignment.setItemSku("ITM-0");
+        assignment.setQuantity(1);
+        return assignment;
     }
 }

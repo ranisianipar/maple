@@ -1,7 +1,7 @@
 package com.maple;
 
 import com.maple.Exception.MapleException;
-import com.maple.MockingObject.FakeUser;
+import com.maple.MockingObject.FakeObjectFactory;
 import com.maple.MockingObject.MockHttpServletRequestEmployee;
 import com.maple.MockingObject.MockHttpSession;
 import org.junit.After;
@@ -42,7 +42,7 @@ public class AuthServiceTest {
 
     HttpSession session = new MockHttpSession();
     LoginRequest loginRequest = new LoginRequest();
-    Employee employee = FakeUser.getFakeEmployeeBasic();
+    Employee employee = FakeObjectFactory.getFakeEmployeeBasic();
     HttpServletRequest request = new MockHttpServletRequestEmployee();
 
     @Before
@@ -94,7 +94,7 @@ public class AuthServiceTest {
 
     @Test
     public void getValidTokenAdminSucceedTest() throws MapleException {
-        Admin admin = FakeUser.getFakeAdmin();
+        Admin admin = FakeObjectFactory.getFakeAdmin();
         loginRequest.setUsername("ADMIN123");
         loginRequest.setPassword("ADMIN123");
         when(adminService.getByUsername("ADMIN123")).thenReturn(admin);
