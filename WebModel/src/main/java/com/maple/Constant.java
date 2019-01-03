@@ -14,6 +14,9 @@ public class Constant {
     public static final String FOLDER_PATH_EMPLOYEE = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Employee";
     public static final String FOLDER_PATH_ITEM = "C:\\Users\\user\\Documents\\future\\maple_uploaded\\Item\\";
     public static final String AUTHORIZATION_TOKEN_KEY = "Authorization-key";
+    public static final String LINK_LOGIN = "/login";
+    public static final String LINK_LOGOUT = "/logout";
+    public static final String LINK_USER = "/user";
 
     // assignment
     public static final String LINK_ASSIGNMENT_PREFIX = "/assignment";

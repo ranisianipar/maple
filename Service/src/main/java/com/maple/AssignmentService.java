@@ -231,6 +231,8 @@ public class AssignmentService {
             errorMessage.add("Employee doesn't exist");
         if (!itemService.isExist(assignment.getItemSku()))
             errorMessage.add("Item doesn't exist");
+        if (assignment.getQuantity() <= 0)
+            errorMessage.add("Minimal quantity is 1");
 
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());
     }

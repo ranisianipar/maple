@@ -17,7 +17,7 @@ public class AuthController extends MissingParamHandler {
     @Autowired
     AuthService authService;
 
-    @PostMapping("/login")
+    @PostMapping(Constant.LINK_LOGIN)
     public BaseResponse login(
             @RequestBody LoginRequest loginRequest,
             HttpSession httpSession
@@ -31,13 +31,13 @@ public class AuthController extends MissingParamHandler {
 
     }
 
-    @PostMapping("/logout")
+    @PostMapping(Constant.LINK_LOGOUT)
     public BaseResponse logout(HttpServletRequest request) {
         authService.logout(request);
         return responseMapping(new BaseResponse("logout succeed"), null);
     }
 
-    @GetMapping("/user")
+    @GetMapping(Constant.LINK_USER)
     public EmployeeResponse getUserDetails(HttpServletRequest request) {
         String token = getTokenFromRequest(request);
         try {
