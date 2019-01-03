@@ -120,7 +120,7 @@ public class SimpleUtils {
     //to make sure the data attribute value is appropriate
     public static List regexChecker (Employee emp, List errorMessage){
         String phone_msg = "Phone number invalid, should only contain numbers";
-        String email_msg = "Email is unvalid, should contain '@'";
+        String email_msg = "Email is invalid, should contain '@'";
 
         //regex for phone number consist of number;
         Pattern phoneNumberPattern = Pattern.compile("\\d*");

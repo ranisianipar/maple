@@ -4,7 +4,6 @@ import com.maple.Exception.DataConstraintException;
 import com.maple.Exception.MapleException;
 import com.maple.Exception.MethodNotAllowedException;
 import com.maple.Exception.NotFoundException;
-import com.maple.Helper.SimpleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +19,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.maple.Helper.SimpleUtils.getCurrentUserId;
-import static com.maple.Helper.SimpleUtils.regexChecker;
-import static com.maple.Helper.SimpleUtils.validateAttributeValue;
+import static com.maple.Helper.SimpleUtils.*;
 
 
 @Service
@@ -52,28 +49,36 @@ public class EmployeeService {
     }
 
     public Employee get(String id) throws NotFoundException {
+        log.info("Get employee with ID: "+id);
         Optional<Employee> employee = employeeRepository.findById(id);
         if (!employee.isPresent()) { throw new NotFoundException(EMPLOYEE); }
         return employee.get();
     }
 
-    public long getTotalEmployee() {return SimpleUtils.getTotalObject(employeeRepository);}
+    public long getTotalEmployee() {
+        log.info("Get total employee");
+        return getTotalObject(employeeRepository);
+    }
 
-    public long getTotalPage(long size) {
-        return SimpleUtils.getTotalPages(size, getTotalEmployee());
+    public long getTotalPage(long size)
+    {
+        log.info("Get total pages");
+        return getTotalPages(size, getTotalEmployee());
     }
 
     public Employee create(Employee emp, MultipartFile file) throws DataConstraintException, IOException {
+        log.info("Create employee with employee data\n"+ emp.toString());
         emp.setId(counter.getNextEmployee());
         checkDataValue(emp, true);
         if (file != null)
-            emp.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, emp.getId()));;
+            emp.setImagePath(storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, emp.getId()));;
 
         return employeeRepository.save(emp);
     }
 
     public Employee update(String id, Employee emp, MultipartFile file, String token)
             throws MapleException, IOException {
+        log.info("Update employee with employee data\n"+emp);
         Optional<Employee> employeeObj = employeeRepository.findById(id);
 
         if (!employeeObj.isPresent()) throw new NotFoundException(EMPLOYEE);
@@ -86,12 +91,12 @@ public class EmployeeService {
 
         //kalo dia berniat ngapus gambar, brarti dia harus imagePathnya di null in dari request
         if (employee.getImagePath() == null) {
-            SimpleUtils.deleteFile(employee.getImagePath());
+            deleteFile(employee.getImagePath());
             employee.setImagePath(null);
         }
         // user replace/add picture
         if (file != null) {
-            employee.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, employee.getId()));
+            employee.setImagePath(storeFile(Constant.FOLDER_PATH_EMPLOYEE, file, employee.getId()));
         }
         // for admin
         if (adminService.isExist(getCurrentUserId(token))) employee.setSuperiorId(emp.getSuperiorId());
@@ -101,10 +106,12 @@ public class EmployeeService {
     }
 
     public  List<Employee> getBySuperiorId(String id) {
+        log.info("Get employee that has superior id: "+id);
         return employeeRepository.findBySuperiorId(id);
     }
 
     public void deleteMany(List<String> ids) throws MapleException {
+        log.info("Admin delete employee by ID in "+ids.toString());
         try {
             // delete image
             Optional<Employee> employeeOptional;
@@ -112,7 +119,7 @@ public class EmployeeService {
             for (String id : ids) {
                 employeeOptional = employeeRepository.findById(id);
                 if (employeeOptional.isPresent())
-                    SimpleUtils.deleteFile(employeeOptional.get().getImagePath());
+                    deleteFile(employeeOptional.get().getImagePath());
                     //update others superiorId if their superior is deleted
                     employeeAsSuperior = employeeRepository.findBySuperiorId(employeeOptional.get().getId());
                     if (!employeeAsSuperior.isEmpty()) {
@@ -131,13 +138,15 @@ public class EmployeeService {
 
     // non functional
     public boolean isExist(String id) {
+        log.info("Check does the employee ID exist or not, ID: "+id);
         return employeeRepository.findById(id).isPresent();
     }
     public Employee getEmployeeByUsername(String username) {
+        log.info("Get employee by username: "+username);
         return employeeRepository.findByUsername(username);
     }
 
-    public void onlyEmployee(String method, String token) throws MapleException{
+    public void onlyEmployee(String method, String token) throws MapleException {
         if (get(getCurrentUserId(token)) == null)
             throw new MethodNotAllowedException(method);
     }
@@ -153,7 +162,6 @@ public class EmployeeService {
     // Attribute value validation
     private void checkDataValue(Employee emp, boolean create) throws DataConstraintException{
         List errorMessage = new ArrayList();
-        errorMessage = regexChecker(emp, errorMessage);
         errorMessage = validateAttributeValue(emp, regexChecker(emp, errorMessage));
         uniquenessChecker(emp, create, errorMessage);
         if (!errorMessage.isEmpty()) throw new DataConstraintException(errorMessage.toString());

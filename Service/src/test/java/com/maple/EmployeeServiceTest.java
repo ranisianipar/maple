@@ -26,6 +26,8 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -55,6 +57,7 @@ public class EmployeeServiceTest {
 
     @Before
     public void init() {
+
 
     }
 
@@ -153,11 +156,13 @@ public class EmployeeServiceTest {
     public void createEmployeeWithSuperiorWithoutPhotoInvalidData() throws IOException{
         Employee employeeWithSuperior = FakeObjectFactory.getFakeEmployeeHasSuperior();
         boolean thrown = false;
+        String errorMessage = "";
 
 
         when(employeeRepository.findById("EMP-99")).thenReturn(Optional.empty());
+        when(employeeRepository.findByUsername("EMP")).thenReturn(employee);
 
-        //superior doesnt exist and data isn't unique
+        //superior doesn't exist and data isn't unique
         employeeWithSuperior.setSuperiorId("EMP-99");
         employeeWithSuperior.setUsername("EMP");
         employeeWithSuperior.setEmail("EMP");
@@ -165,8 +170,13 @@ public class EmployeeServiceTest {
             employeeService.create(employeeWithSuperior, null);
         }   catch (MapleException m) {
             thrown = true;
+            errorMessage = m.getMessage();
+            m.getMessage().contains("");
         }
         assertTrue(thrown);
+        assertTrue(errorMessage.contains("Email"));
+        assertTrue(errorMessage.contains("superior"));
+        assertTrue(errorMessage.contains("username"));
     }
 
     @Test
@@ -201,7 +211,20 @@ public class EmployeeServiceTest {
 
     // DELETE
 
-    // deleteMany
+    @Test
+    public void deleteManyEmployeeThatBeASuperior() throws Exception{
+        ArrayList deletedIds = new ArrayList();
+        deletedIds.add("EMP-0");
+        when(employeeRepository.findById("EMP-0")).thenReturn(Optional.of(employee));
+        ArrayList employees = new ArrayList();
+        employees.add(FakeObjectFactory.getFakeEmployeeHasSuperior());
+        when(employeeRepository.findBySuperiorId(employee.getId())).thenReturn(employees);
+
+        employeeService.deleteMany(deletedIds);
+        verify(employeeRepository, times(1)).deleteByIdIn(deletedIds);
+        verify(assignmentService, times(1)).updateByEmployee(deletedIds);
+
+    }
 
     // Non-Functional
 

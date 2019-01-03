@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.maple.Helper.SimpleUtils.getCurrentUserId;
+import static com.maple.Helper.SimpleUtils.*;
 
 
 @Service
@@ -37,6 +37,9 @@ public class ItemService {
 
     @Autowired
     CounterService counterService;
+
+    @Autowired
+    SimpleUtils simpleUtils;
 
     final private String ITEM = "ITEM";
 
@@ -54,7 +57,7 @@ public class ItemService {
     }
 
     public long getTotalObject() {return SimpleUtils.getTotalObject(itemRepository);}
-    public long getTotalPage(long size) {return SimpleUtils.getTotalPages(size, getTotalObject());}
+    public long getTotalPage(long size) {return getTotalPages(size, getTotalObject());}
 
 
     public Item create(Item item, MultipartFile file, String token) throws IOException,MapleException {
@@ -63,7 +66,7 @@ public class ItemService {
         item.setItemSku(counterService.getNextItem());
         item.setCreatedDate(new Date());
         if (file != null)
-            item.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_ITEM, file, item.getItemSku()));
+            item.setImagePath(storeFile(Constant.FOLDER_PATH_ITEM, file, item.getItemSku()));
         return itemRepository.save(item);
     }
 
@@ -77,12 +80,12 @@ public class ItemService {
 
         //kalo dia berniat ngapus gambar, brarti dia harus imagePathnya di null in dari request
         if (item.getImagePath() == null) {
-            SimpleUtils.deleteFile(item.getImagePath());
+            deleteFile(item.getImagePath());
             updatedItem.setImagePath(null);
         }
         // user replace/add picture
         if (file != null) {
-            updatedItem.setImagePath(SimpleUtils.storeFile(Constant.FOLDER_PATH_ITEM, file, item.getItemSku()));
+            updatedItem.setImagePath(storeFile(Constant.FOLDER_PATH_ITEM, file, item.getItemSku()));
         }
 
         updatedItem.setName(item.getName());
@@ -105,7 +108,7 @@ public class ItemService {
             for (String id : listOfId) {
                 itemObject = itemRepository.findById(id);
                 if (itemObject.isPresent())
-                SimpleUtils.deleteFile(itemObject.get().getImagePath());
+                deleteFile(itemObject.get().getImagePath());
             }
 
             itemRepository.deleteByItemSkuIn(listOfId);

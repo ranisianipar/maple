@@ -32,6 +32,9 @@ public class AssignmentService {
     @Autowired
     private AdminService adminService;
 
+    @Autowired
+    private SimpleUtils simpleUtils;
+
     private final String ASSIGNMENT = "ASSIGNMENTS";
 
     // User as a superior
@@ -104,7 +107,7 @@ public class AssignmentService {
     }
 
     public long getTotalPages(long size, String token, String status) {
-        return SimpleUtils.getTotalPages(size, getTotalObjectByUser(token, status));
+        return simpleUtils.getTotalPages(size, getTotalObjectByUser(token, status));
     }
 
     public void assignMany(ManyAssignmentRequest manyAssignmentRequest, String token) throws MapleException {

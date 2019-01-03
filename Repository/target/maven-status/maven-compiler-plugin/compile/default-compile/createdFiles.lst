@@ -1,0 +1,5 @@
+com\maple\ItemRepository.class
+com\maple\EmployeeRepository.class
+com\maple\AdminRepository.class
+com\maple\AssignmentRepository.class
+com\maple\IdCounterRepository.class

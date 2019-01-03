@@ -1,12 +1,15 @@
 package com.maple;
 
 import com.maple.Exception.MapleException;
+import com.maple.Exception.NotFoundException;
+import com.maple.Helper.SimpleUtils;
 import com.maple.MockingObject.FakeObjectFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.InstanceOf;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.Page;
@@ -23,6 +26,8 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -37,7 +42,7 @@ public class ItemServiceTest {
     private ItemRepository itemRepository;
 
     @Mock
-    private CounterServiceTest counterService;
+    private SimpleUtils simpleUtils;
 
     @Mock
     private AssignmentService assignmentService;
@@ -65,7 +70,7 @@ public class ItemServiceTest {
         boolean thrown = false;
         try {
             itemService.get("ITM-1");
-        }   catch (MapleException m){
+        }   catch (NotFoundException m){
             thrown = true;
         }
         assertTrue(thrown);
@@ -80,6 +85,7 @@ public class ItemServiceTest {
     @Test
     public void getTotalObject() {
         when(itemRepository.count()).thenReturn((long) 0);
+
         assertEquals(0, itemService.getTotalObject());
     }
 
@@ -95,21 +101,31 @@ public class ItemServiceTest {
         List items = new ArrayList();
         items.add(item);
         when(itemRepository.saveAll(items)).thenReturn(items);
-        // VOID
         itemService.updateManyItemQuantity(items);
+        verify(itemRepository, times(1)).saveAll(items);
     }
 
     // CREATE
 
     // UPDATE
 
-    // DeleteMany
+    @Test
+    public void deleteManyEmployeeThatBeASuperior() throws Exception{
+        ArrayList deletedIds = new ArrayList();
+        deletedIds.add("ITM-0");
+        when(itemRepository.findById("ITM-0")).thenReturn(Optional.of(item));
 
-    // Generate PdF
+        itemService.deleteMany(deletedIds);
+        verify(itemRepository, times(1)).deleteByItemSkuIn(deletedIds);
+        verify(assignmentService, times(1)).updateByItem(deletedIds);
+
+    }
+
     @Test
     public void generatePdf() throws Exception{
         when(itemRepository.findById("ITM-0")).thenReturn(Optional.of(item));
         assertNotEquals(0, itemService.generatePdf("ITM-0").length);
+        verify(itemRepository, times(1)).findById("ITM-0");
     }
 
     @Test
@@ -121,8 +137,9 @@ public class ItemServiceTest {
     @Test
     public void returnItemSucceed() {
         when(itemRepository.findById("ITM-0")).thenReturn(Optional.of(item));
-        // VOID
         itemService.returnItem("ITM-0",50);
+        item.setQuantity(item.getQuantity()+50);
+        verify(itemRepository, times(1)).save(item);
     }
 
 
